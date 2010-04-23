@@ -1,0 +1,91 @@
+/*
+@version 0.001
+Jerboa Tool Kit
+*/
+html, body, div, span, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+abbr, address, cite, code,
+del, dfn, em, img, ins, kbd, q, samp,
+small, strong, sub, sup, var,
+b, i,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, dialog, figure, footer, header, 
+hgroup, menu, nav, section,
+time, mark, audio, video {
+    margin:0;
+    padding:0;
+    border:0;
+    outline:0;
+    font-size:100%;
+    vertical-align:baseline;
+    background:transparent;
+}
+#jerboa-wrapper					{position:fixed;width:100%;top:0;left:0;text-align:center;z-index:3000;}
+#jerboa-menu 					{width:100%;height:33px;background:url(img/button_bg.png) 0 0 repeat-x;}
+#jerboa-menu div	   			{float:left;padding:10px;cursor:pointer;line-height:0.9;}
+#jerboa-menu div:first-child 	{margin-left:80px;}
+#jerboa-menu div:hover 			{color:#1C4284;}
+#jerboa-insert					{}
+
+#jerboa-errorbox				{position:fixed;background:#fcf0f0;color:#280b0b;font-size:13px;z-index:3002;}
+#jerboa-errorbox p				{margin:10px;}
+#jerboa-errorbox p span 		{background:url(img/icon_sprite.png) -16px 0;float:left;width:16px;height:16px;margin-right:0.3em;}
+#jerboa-infobox					{position:fixed;background:#f4f8fd;color:#0d2054;font-size:13px;z-index:3002;}
+#jerboa-infobox p				{margin:10px;}
+#jerboa-infobox p span 			{background:url(img/icon_sprite.png) 0 0;float:left;width:16px;height:16px;margin-right:0.3em;}
+
+#jerboa-processbar				{position:fixed;width:300px;z-index:3002;height:20px;background:url(img/progress_bar.gif) 0 -50px repeat-x;}
+#jerboa-processbar p			{position:absolute;width:100%;text-align:center;line-height:20px;z-index:3000;font-size:14px;color:#0d2054;}
+#jerboa-processbar span			{position:absolute;top:0;left:0;height:20px;background:url(img/progress_bar.gif) repeat-x;z-index:2999;}
+
+#jerboa-darkbox					{width:100%;height:100%;position:fixed;background:#000;opacity: 0.3;filter:Alpha(Opacity=30);z-index:3001;}
+#jerboa-resize					{position:absolute;z-index:2999;}
+#jerboa-resize div				{border:1px dashed #000;position:absolute;width:100%;height:100%;top:2px;left:2px;cursor:move;}
+#jerboa-resize	span			{position:absolute;width:6px;height:6px;background:#000;}
+.jerboa-panel					{background:url(img/the_gradient.gif) repeat-x;width:100%;height:56px;}
+.jerboa-panel div				{float:left;margin:auto 5px;padding:5px;}
+.jerboa-panel div span			{width:30px;height:30px;background:red;display:block;}
+.jerboa-box						{position:fixed;width:400px;height:200px;top:0;left:500px;background:#eaeaea;z-index:3002;padding:10px;}
+.jerboa-backbutton				{height:56px;width:20px;float:left;line-height:56px;cursor:pointer;}
+.jerboa-lightbox				{background:#000;opacity: 0.3;filter:Alpha(Opacity=30);position:absolute;z-index:1999;}
+.jerboa-hide 					{display:none;}
+.jerboa-button					{background:url(img/button_bg.png) 0 0 repeat-x #eaeaea;height:33px;line-height:33px;border:1px solid #999;float:left;cursor:pointer;}
+.jerboa-button span				{margin:auto 10px;}
+.jerboa-button:active			{background-position:0 -66px;}
+/*.jerboa-button:active			{background-position:0 -33px;color: #1C4257;border-color:#7096AB;}*/
+.jerboa-combobox				{float:left;background:#ddd;border:1px solid #9d9d9d;text-align:center;}
+.jerboa-combobox p				{margin:5px auto;font-weight:normal;text-shadow:none;float:left;}
+.jerboa-combobox span			{background:url(img/icon_sprite.png) 0 -32px no-repeat;width:16px;height:16px;cursor:pointer;float:left;margin-top:5px;}
+.jerboa-combobox span + p + span{background-position:-16px -32px;}
+
+#jerboa-errorbox ,#jerboa-infobox,.jerboa-box
+{
+	
+	box-shadow:0 0 10px #000;
+	-moz-box-shadow:0 0 10px #000;
+}
+.jerboa-button:hover,.jerboa-box input:focus,.jerboa-combobox:hover
+{
+	box-shadow:0 0 5px #06F;
+	-moz-box-shadow:0 0 5px #06F;
+}
+#jerboa-processbar,#jerboa-processbar span,.jerboa-button,.jerboa-box input,.jerboa-combobox
+{
+	border-radius:5px;
+	-moz-border-radius:5px;
+}
+#jerboa-wrapper,.jerboa-button,.jerboa-box
+{
+	font-family:Helvetica,Arial,sans-serif;
+	text-shadow:0 1px 0 rgba(255,255,255,0.8);
+	font-weight:bold;
+	font-size:14px;
+	color:#4f4f4f;
+}
+.jerboa-box input
+{
+	height:20px;background:url(img/inputshadow.gif) 0 0 no-repeat;
+	border: 1px solid #9d9d9d;
+}
