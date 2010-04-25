@@ -9,9 +9,9 @@
 * @author Den Odell
 * @from Pro JavaScript RIA Techniques Best Practices, Performance, and Presentation
 */
-var $ = function() {};
+var $ = {};
 
-$.prototype.onDomReady = function(callback)
+$.onDomReady = function(callback)
 {
 	
 	if(document.addEventListener)
@@ -31,7 +31,7 @@ $.prototype.onDomReady = function(callback)
 }
 // Add a new namespace to the $ library to hold all event-related code,
 // using an object literal notation to add multiple methods at once
-$.prototype.Events = {
+$.Events = {
 	// The add method allows us to assign a function to execute when an
 	// event of a specified type occurs on a specific element
 	add: function (element, eventType, callback) {
@@ -183,7 +183,7 @@ $.prototype.Events = {
 }
 };
 
-$.prototype.CSS = {
+$.CSS = {
 	
 	// The getArrayOfClassNames method is a utility method which returns an
 	// array of all the CSS class names assigned to a particular element.
@@ -270,7 +270,7 @@ $.prototype.CSS = {
 		}
 		}
 };
-$.prototype.Utils = {
+$.Utils = {
 	// The toCamelCase method takes a hyphenated value and converts it into
 	// a camel case equivalent, e.g., margin-left becomes marginLeft. Hyphens
 	// are removed, and each word after the first begins with a capital letter
@@ -290,8 +290,9 @@ $.prototype.Utils = {
 		return result;
 }
 };
-$.prototype.Element = {
-	set: function(element,List)
+$.Element = {
+	cache: {}
+	,set: function(element,List)
 	{
 		var listAttr = List.Attr || List.attr || {};
 		for(var key in listAttr)
@@ -302,13 +303,21 @@ $.prototype.Element = {
 		
 		return element;
 	}
+	,create: function(nameElement)
+	{
+		console.log(this);
+		return document.createElement(nameElement);
+	}
 };
-$.prototype.bind = function(callback,scope) {
+$.UI = {
+
+}
+$.bind = function(callback,scope) {
 	var scope = scope || window;
 	var args = Array.prototype.slice.call(arguments,2);
 	return callback.apply(scope,args.concat(arguments));
 };
-$.prototype.throttle = function(callback,scope) {
+$.throttle = function(callback,scope) {
 	var scope = scope || window;
 	clearTimeout(callback.tId);
 	callback.tId = setTimeout(function(){
@@ -318,7 +327,7 @@ $.prototype.throttle = function(callback,scope) {
 
 Jerboa = function(element)
 {
-	var _ = new $()
+	var _ = $
 	,_window = window
 	,_document = document;
 	
@@ -334,6 +343,14 @@ Jerboa = function(element)
 	};
 	Jerboa.init = function() {
 		//Start Jerboa
+		//debug mode
+		_document.getElementById("test_edit").innerHTML = "";
+		
+		//init UI
+		var _fragment = document.createDocumentFragment();
+		//_fragment.appendChild();
+		document.body.appendChild(_fragment);
+		
 	}
 	if(_window.$)
 	{
@@ -346,4 +363,4 @@ Jerboa = function(element)
 };
 
 })();
-console.log(Jerboa('test_id'));
+Jerboa("test_edit");
