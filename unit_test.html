@@ -1,0 +1,33 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ko">
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+<title>JSSpec results</title>
+<link rel="stylesheet" type="text/css" href="lib/jsspec/JSSpec.css" />
+<script type="text/javascript" src="lib/jsspec/diff_match_patch.js"></script>
+<script type="text/javascript" src="lib/jsspec/JSSpec.js"></script>
+<script src="unit.js"></script>
+<script type="text/javascript">// <![CDATA[
+
+describe('Element Test', {
+        'create first element': function() {
+            value_of($.Element.create("div")).should_not_be(null);
+        }
+        ,'use cache when create same element': function() {
+			value_of($.Element.create("div")).should_be($.Element.cache['div']);
+		}
+		,'create second element': function() {
+			value_of($.Element.create("span")).should_not_be($.Element.cache['div']);
+		}
+		,'cache object will have 2 items': function() {
+			var i=0;
+			for(var key in $.Element.cache) i++;
+			value_of(i).should_be(2);
+		}
+})
+
+
+// ]]></script>
+</head>
+<body></body>
+</html>
