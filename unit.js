@@ -296,12 +296,36 @@ $.Element = {
 	{
 		if(!this.cache[nameElement])
 			this.cache[nameElement] = document.createElement(nameElement);
-		return this.cache[nameElement];
+		return this.cache[nameElement].cloneNode(0);
 		
 	}
 };
 $.UI = {
-	
+	cache: {}
+	,button: function(value) {
+		var _value = value || ""
+		,_element = $.Element.create("div")
+		,_element2 = $.Element.create("span")
+		;
+		//Set Button Class in <div></div>
+		if(!this.cache["button"+_value])
+			this.cache["button"+_value] = $.Element.set( _element,{attr: {class:'jerboa-button'}} )
+			.appendChild( //Insert <span></span> in <div></div>
+			$.Element.set( _element2,{html: _value}) //Set Text in <span></span>
+			).parentNode;
+		return  this.cache["button"+_value].cloneNode(1);
+	}
+	,textfield: function(value) {
+		var _value = value || ""
+		,_element = $.Element.create("input")
+		;
+		if(!this.cache["textfield"+_value])
+			this.cache["textfield"+_value] = $.Element.set( _element , {'attr': {'type':'text','value': _value}} );
+		return this.cache["textfield"+_value].cloneNode(1);
+	}
+	,combobox: function() {
+		return this.cache["combobox"];
+	}
 };
 $.bind = function(callback,scope) {
 	var scope = scope || window;

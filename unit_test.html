@@ -4,29 +4,107 @@
 <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
 <title>JSSpec results</title>
 <link rel="stylesheet" type="text/css" href="lib/jsspec/JSSpec.css" />
+
 <script type="text/javascript" src="lib/jsspec/diff_match_patch.js"></script>
 <script type="text/javascript" src="lib/jsspec/JSSpec.js"></script>
 <script src="unit.js"></script>
 <script type="text/javascript">// <![CDATA[
 
+
+
+describe('Test Speed craeteELement and cloneNode',{
+	'cE > cN': function() {
+		var i =0,max = 100,start = [],end = [];
+		start[0] = (new Date()).getTime();
+		for(i=0;i<max;i++)	{var ele = document.createElement('div').appendChild(document.createElement("div").appendChild(document.createElement("div")).parentNode).parentNode;}
+		end[0] = (new Date()).getTime();
+		
+		i=0;
+		start[1] = (new Date()).getTime();
+		for(i=0;i<max;i++)	ele = ele.cloneNode(1);
+		end[1] = (new Date()).getTime();
+		
+		value_of((end[0] - start[0])>(end[1] - start[1])).should_be_true();
+		
+	}
+});
 describe('Element Test', {
-        'create first element': function() {
-            value_of($.Element.create("div")).should_not_be(null);
-        }
-        ,'use cache when create same element': function() {
-			value_of($.Element.create("div")).should_be($.Element.cache['div']);
-		}
-		,'create second element': function() {
-			value_of($.Element.create("span")).should_not_be($.Element.cache['div']);
-		}
-		,'cache object will have 2 items': function() {
-			var i=0;
-			for(var key in $.Element.cache) i++;
-			value_of(i).should_be(2);
-		}
-})
+	'create first element': function() {
+		value_of($.Element.create("div")).should_not_be(null);
+	}
+	,'use cache when create same element': function() {
+		var _element = $.Element.create("div")
+		,_obj = [_element.tagName,_element.children.length,_element.attributes.length]
+		,_obj1 = [$.Element.cache['div'].tagName,$.Element.cache['div'].children.length,$.Element.cache['div'].attributes.length]
+		;
+		value_of(_obj).should_be(_obj1);
+	}
+	,'create second element': function() {
+		value_of($.Element.create("span")).should_not_be();
+	}
+	,'cache object will have 2 items': function() {
+		var i=0;
+		for(var key in $.Element.cache) i++;
+		value_of(i).should_be(2);
+	}
+});
 
-
+describe('UI INPUT [textfield] Test',{
+	'create input [textfield] value = test': function() {
+		var _element = $.UI.textfield("test")
+		,_obj = [_element.tagName,_element.getAttribute("type"),_element.getAttribute("value")]
+		;
+		value_of(_obj).should_be(["INPUT","text","test"]);
+	}
+	,'use cache when create same textfield 1': function() {
+		var _element = $.UI.textfield("test")
+		,_obj = [_element.tagName,_element.getAttribute("type"),_element.getAttribute("value")]
+		,_obj1 = [$.UI.cache['textfieldtest'].tagName,$.UI.cache['textfieldtest'].getAttribute("type"),$.UI.cache['textfieldtest'].getAttribute("value")]
+		;
+		value_of(_obj).should_be(_obj1);
+	}
+	,'create input [textfield] value = null': function() {
+		var _element = $.UI.textfield()
+		,_obj = [_element.tagName,_element.getAttribute("type"),_element.getAttribute("value")]
+		;
+		value_of(_obj).should_be(["INPUT","text",""]);
+	}
+	,'use cache when create same textfield 2': function() {
+		var _element = $.UI.textfield()
+		,_obj = [_element.tagName,_element.getAttribute("type"),_element.getAttribute("value")]
+		,_obj1 = [$.UI.cache['textfield'].tagName,$.UI.cache['textfield'].getAttribute("type"),$.UI.cache['textfield'].getAttribute("value")]
+		;
+		value_of(_obj).should_be(_obj1);
+	}
+});
+describe('UI Button Test',{
+	'create button with text = test': function() {
+		var _element = $.UI.button('test')
+		,_obj = [_element.innerHTML,_element.getAttribute('class')]
+		;
+		value_of(_obj).should_be(["<span>test</span>","jerboa-button"]);
+	}
+	,'use cache when create button with text = test': function() {
+		var _element = $.UI.button('test')
+		,_obj = [_element.innerHTML,_element.getAttribute('class')]
+		,_obj1 = [$.UI.cache["buttontest"].innerHTML,$.UI.cache["buttontest"].getAttribute("class")]
+		;
+		value_of(_obj).should_be(_obj1);
+	}
+	,'create button with text = null': function() {
+		var _element = $.UI.button()
+		,_obj = [_element.innerHTML,_element.getAttribute('class')]
+		;
+		value_of(_obj).should_be(["<span></span>","jerboa-button"]);
+	}
+	,'use cache when create button with text = null': function() {
+		var _element = $.UI.button()
+		,_obj = [_element.innerHTML,_element.getAttribute('class')]
+		,_obj1 = [$.UI.cache["button"].innerHTML,$.UI.cache["button"].getAttribute("class")]
+		;
+		value_of(_obj).should_be(_obj1);
+	}
+});
 // ]]></script>
 </head>
 <body></body>
