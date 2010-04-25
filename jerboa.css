@@ -47,7 +47,23 @@ time, mark, audio, video {
 .jerboa-panel					{background:url(img/the_gradient.gif) repeat-x;width:100%;height:56px;}
 .jerboa-panel div				{float:left;margin:auto 5px;padding:5px;}
 .jerboa-panel div span			{width:30px;height:30px;background:red;display:block;}
-.jerboa-box						{position:fixed;width:400px;height:200px;top:0;left:500px;background:#eaeaea;z-index:3002;padding:10px;}
+.jerboa-box						{position:fixed;width:400px;height:200px;top:0;left:30%;background:#eaeaea;z-index:3002;padding:10px;}
+
+.jerboa-window					{position:fixed;z-index:3000;padding:5px;background:#eaeaea;}
+.jerboa-window p				{display:block;float:left;}
+.jerboa-window p+p				{float:right;width:16px;height:16px;background:url(img/icon_sprite.png) 0 -16px no-repeat}
+.jerboa-window div+p			{float:right;width:16px;height:16px;background:url(img/ui-icons.png) -80px -225px no-repeat;}
+.jerboa-window p+p:hover		{background-position:-16px -16px;cursor:pointer;}
+.jerboa-window div				{overflow:auto;}
+.jerboa-window span				{display:block;background:url(img/ui-icons.png) -300px -300px no-repeat;width:16px;height:18px;}
+.jerboa-window span+span		{background-position:-16px -128px;float:left;margin:5px 2px;cursor:pointer;}
+.jerboa-window span+span+span	{background-position:-176px -96px;}
+.jerboa-window li 				{background:#C4C4C4;padding:5px;margin:5px auto;font-style:italic;cursor:pointer;}
+.jerboa-window li span			{display:block;width:16px;height:16px;float:left;margin-right:20px;border:1px solid #4F4F4F;background:#AFAFAF;}
+.jerboa-window .jerboa-lactive	{background:#A4CDE4;border:1px solid #3465E7;}
+.jerboa-window .jerboa-lhide span{background:url(img/ui-icons.png) 0px -128px #AFAFAF;}
+.jerboa-window div+p:hover		{cursor:se-resize;}
+
 .jerboa-backbutton				{height:56px;width:20px;float:left;line-height:56px;cursor:pointer;}
 .jerboa-lightbox				{background:#000;opacity: 0.3;filter:Alpha(Opacity=30);position:absolute;z-index:1999;}
 .jerboa-hide 					{display:none;}
@@ -66,7 +82,7 @@ time, mark, audio, video {
 	box-shadow:0 0 10px #000;
 	-moz-box-shadow:0 0 10px #000;
 }
-.jerboa-button:hover,.jerboa-box input:focus,.jerboa-combobox:hover
+.jerboa-button:hover,.jerboa-box input:focus,.jerboa-combobox:hover,.jerboa-window li>span:hover
 {
 	box-shadow:0 0 5px #06F;
 	-moz-box-shadow:0 0 5px #06F;
@@ -76,7 +92,7 @@ time, mark, audio, video {
 	border-radius:5px;
 	-moz-border-radius:5px;
 }
-#jerboa-wrapper,.jerboa-button,.jerboa-box
+#jerboa-wrapper,.jerboa-button,.jerboa-box,.jerboa-window
 {
 	font-family:Helvetica,Arial,sans-serif;
 	text-shadow:0 1px 0 rgba(255,255,255,0.8);
