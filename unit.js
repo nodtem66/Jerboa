@@ -315,16 +315,17 @@ $.UI = {
 			).parentNode;
 		return  this.cache["button"+_value].cloneNode(1);
 	}
-	,textfield: function(value) {
+	,textfield: function(name,value) {
 		var _value = value || ""
+		, _name = name || ""
 		,_element = $.Element.create("input")
 		;
-		if(!this.cache["textfield"+_value])
-			this.cache["textfield"+_value] = $.Element.set( _element , {'attr': {'type':'text','value': _value}} );
-		return this.cache["textfield"+_value].cloneNode(1);
+		if(!this.cache["textfield"+_name+_value])
+			this.cache["textfield"+_name+_value] = $.Element.set( _element , {'attr': {'name':_name,'type':'text','value': _value}} );
+		return this.cache["textfield"+_name+_value].cloneNode(1);
 	}
 	,combobox: function() {
-		return this.cache["combobox"];
+		//TODO add combobox
 	}
 };
 $.bind = function(callback,scope) {

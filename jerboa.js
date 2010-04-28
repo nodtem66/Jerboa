@@ -9,7 +9,9 @@
 * @author Den Odell
 * @from Pro JavaScript RIA Techniques Best Practices, Performance, and Presentation
 */
+DEBUG_MODE = 1;
 var $ = {};
+//var $ = {};
 
 $.onDomReady = function(callback)
 {
@@ -40,17 +42,11 @@ $.Events = {
 		eventType = eventType.toLowerCase();
 		if (element.addEventListener) {
 		// If the W3C event listener method is available, use that
-			element.addEventListener(eventType, function(e){
-			// Execute callback function, passing it a standardized version of
-			// the event object, e. The standardize method is defined later
-			callback(self.standardize(e));
-			}, false);
+			
+			element.addEventListener(eventType, callback, false);
 		} else if (element.attachEvent) {
 			// Otherwise use the Internet Explorer-proprietary event handler
-			element.attachEvent("on" + eventType, function() {
-			// IE uses window.event to store the current event's properties
-			callback(self.standardize(window.event));
-			});
+			element.attachEvent("on" + eventType, callback);
 		}
 },
 	// The remove method allows us to remove previously assigned code
@@ -59,7 +55,7 @@ $.Events = {
 		eventType = eventType.toLowerCase();
 		if (element.removeEventListener) {
 			// If the W3C-specified	method is available, use that
-			element.removeEventListener(element, eventType, callback);
+			element.removeEventListener(eventType,callback,false);
 		} else if (element.detachEvent) {
 			// Otherwise, use the Internet Explorer-specific method
 			element.detachEvent("on" + eventType, callback);
@@ -72,7 +68,7 @@ $.Events = {
 	// mouse pointer, relative to the document as a whole, and relative to the
 	// element the event occurred within
 	var page = this.getMousePositionRelativeToDocument(event);
-	var offset = this.getMousePositionOffset(event);
+	//var offset = this.getMousePositionOffset(event);
 	
 	// Let's stop events from firing on element nodes above the current
 	if (event.stopPropagation) {
@@ -89,10 +85,10 @@ $.Events = {
 		// The relatedTarget is the element the event was listening for,
 		// which can be different from the target if the event occurred on an
 		// element located within the relatedTarget element in the DOM
-		relatedTarget: this.getRelatedTarget(event),
+		//relatedTarget: this.getRelatedTarget(event),
 		
 		// If the event was a keyboard-related one, key returns the character
-		event: event,
+		//event: event,
 		
 		// Return the x and y coordinates of the mouse pointer,
 		// relative to the document
@@ -101,8 +97,8 @@ $.Events = {
 		
 		// Return the x and y coordinates of the mouse pointer,
 		// relative to the element the current event occurred on
-		offsetX: offset.x,
-		offsetY: offset.y,
+		//offsetX: offset.x,
+		//offsetY: offset.y,
 		
 		// The preventDefault method stops the default event of the element
 		// we're acting upon from occurring. If we were listening for click
@@ -268,7 +264,58 @@ $.CSS = {
 			height: elementBackup.offsetHeight,
 			width: elementBackup.offsetWidth
 		}
+},
+	getObjectOfStyle: function(element) {
+		var listStyle = element.getAttribute('style'),i,len,objectStyle={}
+		,cssValue;
+		if(listStyle)
+		{
+			listStyle = listStyle.split(';');
+			// example ['top:45px','left:67px',...]
+			for(i=0,len=listStyle.length;i<len;i++) 
+			{
+				//each item = 'top:45px'
+				if(listStyle[i])
+				{
+					cssValue = listStyle[i].split(':');
+					//Trim 
+					cssValue[0] = cssValue[0].replace(/^[\s]+/g,'');
+					cssValue[1] = cssValue[1].replace(/^[\s]+/g,'');
+					cssValue[0] = cssValue[0].replace(/[\s]+$/g,'');
+					cssValue[1] = cssValue[1].replace(/[\s]+$/g,'');
+					
+					objectStyle[cssValue[0]] = cssValue[1];
+				}
+			}	
+			
 		}
+		return objectStyle
+},
+	setObjectOfStyle: function(element,objectStyle) {
+		var listStyle="",item;
+		for(item in objectStyle)
+		{
+			listStyle = listStyle.concat(item+':'+objectStyle[item]+';');
+		}
+		element.setAttribute('style',listStyle);
+},
+	addStyle: function(element,List) {
+	var objStyle = this.getObjectOfStyle(element),item;
+	for(item in List)
+	{
+		objStyle[item] = List[item];
+	}
+	this.setObjectOfStyle(element,objStyle);
+},
+	removeStyle: function(element,List) {
+	var objStyle = this.getObjectOfStyle(element),i,len;
+	for(i=0,len=List.length;i<len;i++)
+	{
+		if(objStyle[List[i]])
+			delete objStyle[List[i]];
+	}
+	this.setObjectOfStyle(element,objStyle);
+}	
 };
 $.Utils = {
 	// The toCamelCase method takes a hyphenated value and converts it into
@@ -294,73 +341,278 @@ $.Element = {
 	cache: {}
 	,set: function(element,List)
 	{
-		var listAttr = List.Attr || List.attr || {};
+		if(arguments.length == 1)
+		{
+			List = arguments[0];
+			element = this.create(List.tag || List.Tag || "div");
+		}
+		var listAttr = List.Attr || List.attr || {} //example attr: {id: xxx,class: yyy}
+		, listEvent = List.event || List.Event || {} // example event: {add: click,fn: function1}
+		;
+		
+		//Add event <tag onclick="function1"></tag>
+		if(listEvent.add)
+			$.Events.add(element,listEvent.add,listEvent.fn);
+		else if(listEvent.remove)
+			$.Events.remove(element,listEvent.remove,listEvent.fn);
+		
+		//Add attribute <tag attr1="value"></tag>
 		for(var key in listAttr)
 		{
 			element.setAttribute(key,listAttr[key]);
 		}
+		//Add innerHTML <tag>innerHTML</tag>
 		element.innerHTML = List.HTML || List.html || element.innerHTML
 		
 		return element;
 	}
 	,create: function(nameElement)
 	{
-		console.log(this);
-		return document.createElement(nameElement);
+		if(!this.cache[nameElement])
+			this.cache[nameElement] = document.createElement(nameElement);
+		return this.cache[nameElement].cloneNode(0);
+		
 	}
 };
 $.UI = {
+	cache: {}
+	,button: function(value) {
+		var _value = value || "";
+		//Set Button Class in <div></div>
+		if(!this.cache["button"+_value])
+			this.cache["button"+_value] = $.Element.set({tag:'div',attr: {class:'jerboa-button'}} )
+			.appendChild( //Insert <span></span> in <div></div>
+			$.Element.set({tag:'span',html: _value}) //Set Text in <span></span>
+			).parentNode;
+		return  this.cache["button"+_value].cloneNode(1);
+	}
+	,textfield: function(name,value) {
+		var _value = value || ""
+		, _name = name || ""
+		;
+		if(!this.cache["textfield"+_name+_value])
+			this.cache["textfield"+_name+_value] = $.Element.set({tag:'input',attr: {name:_name,type:'text',value: _value}} );
+		return this.cache["textfield"+_name+_value].cloneNode(1);
+	}
+	,combobox: function() {
+		//TODO add combobox
+	}
+	,layerPanel: function() {
+		var element = $.Element.set({tag: 'li',event: {add:'click',fn: Jerboa.ui['layer_panel'].selectLayer }});
+		element.appendChild($.Element.set({tag:'span',event: {add:'click',fn: Jerboa.ui['layer_panel'].hideLayer }}));
+		element.appendChild($.Element.create('p'));
+		
+		return element;
+	}
+};
+$.bind = function(callback,scope,useThrottle) {
+	var scope = scope || window
+	,args = Array.prototype.slice.call(arguments,3)
+	;
+	if(useThrottle)
+	{
+		return function() {
+			clearTimeout(callback.tId);
+			callback.tId = setTimeout(function(){
+				callback.apply(scope,args.concat(Array.prototype.slice.call(arguments,0)))
+			},useThrottle);
+		}
+	}
+	else	
+		return function () {
+			callback.apply(scope,args.concat(Array.prototype.slice.call(arguments,0)))
+		};
+};
 
-}
-$.bind = function(callback,scope) {
-	var scope = scope || window;
-	var args = Array.prototype.slice.call(arguments,2);
-	return callback.apply(scope,args.concat(arguments));
-};
-$.throttle = function(callback,scope) {
-	var scope = scope || window;
-	clearTimeout(callback.tId);
-	callback.tId = setTimeout(function(){
-		callback.call(scope);
-	},100);
-};
 
 Jerboa = function(element)
 {
-	var _ = $
-	,_window = window
-	,_document = document;
 	
+	var _window = window
+	,_document = document
+	,lib = $
+	;
 	Jerboa = {
 		verstion: "0.001"
+		,$: lib
 		,editElement: element || ""
-		,pathCss: "./jerboa.css"
+		,pathCss: "../../jerboa.css"
 		,currentPanel: ""
 		,currentToolbox: []
 		,showJerboa: true 
 		,history: []
-		,UI: {}
+		,ui: {}
+		,cache: {}
+		,init: function() {
+			//Start Jerboa
+			var _fragment = document.createDocumentFragment() //build a root of DOM tree
+			,J = Jerboa	,i,len,cssLoad=false,$ = J.$
+			;
+			
+			//debug mode
+			_document.getElementById("test_edit").innerHTML = "";
+			
+			//init CSS
+			for(i=0,len=document.styleSheets.length;i<len;i++) {
+				if(/jerboa\.css/i.test(document.styleSheets[i].href)) {
+				   cssLoaded=true;
+				  break;
+				}
+			}
+			if(!cssLoad)
+			{
+				document.getElementsByTagName("head")[0].appendChild(
+					$.Element.set({tag:'link',attr:{rel:'stylesheet',type:'text/css',href:J.pathCss}})
+				);
+			}
+			//init UI
+			
+			J.ui['main'] = $.Element.set({tag: 'div',attr: {id: 'jerboa'}});
+			J.ui['main_menu'] = $.Element.set({tag: 'div',attr: {id: 'jerboa-wrapper'}});
+			J.ui['main'].appendChild(J.ui['main_menu']);
+			//Build menu bar
+			J.ui['menu'] = [];
+			J.ui['menu'].push( $.Element.set({tag:'div',attr: {id:'jerboa-menu'}}) );
+			J.ui['menu'].push( $.Element.set({tag:'div',attr: {id:'jerboa-insert',class:'jerboa-panel jerboa-hide'}}) );
+			
+			for(i=0,len=J.ui['menu'].length;i<len;i++)
+				J.ui['main_menu'].appendChild(J.ui['menu'][i]);
+			
+			//Build main menu bar
+			J.ui['menu'][0].appendChild( $.Element.set({tag:'div',html: 'Insert'}) );
+			//Build insert menu
+			J.ui['menu'][1].appendChild( $.Element.set({tag:'span',attr: {class: 'jerboa-backbutton'},html: '&lt;'}) );
+			J.ui['menu'][1].appendChild( $.Element.set({tag:'div',html: '<span></span><p>Text</p>'}) );
+			
+			//Build Layer panel
+			J.ui['layer_panel'] = {
+				layout: $.Element.set({tag:'div',attr: {class:'jerboa-window',style:'top:30px;left:0px;'},html: '<p>Layout Panel</p>'})
+				,element: $.Element.set({tag:'div',html: '<ul></ul>'})
+				,addLayer: function() {
+					var _root = this.element.children[0]
+					,_element = _root.appendChild($.UI.layerPanel())
+					;
+					console.log('add'); 
+				}
+				,removeLayer: function() {
+					console.log('remove');
+					var _root = this.element.children[0]
+					,_element = _root.getElementsByClassName('jerboa-lactive')[0]
+					;
+					if(_element) _root.removeChild(_element);
+				}
+				,selectLayer: function(event) {
+					var event = $.Events.standardize(event)
+					,_target = event.target
+					;
+					event.preventDefault();
+					;
+					if(!$.CSS.hasClass(_target,'jerboa-lactive'))
+					{
+						var _element = _target.parentNode.getElementsByClassName('jerboa-lactive');
+						for(i=0,len = _element.length;i<len;i++)
+						{
+							$.CSS.removeClass(_element[i],'jerboa-lactive');
+						}
+						$.CSS.addClass(_target,'jerboa-lactive');
+					}
+					
+				}
+				,renameLayer: function() {
+				
+				}
+				,hideLayer: function(event) {
+					var event = $.Events.standardize(event)
+					,_target = event.target.parentNode
+					;
+					event.preventDefault();
+					if(!$.CSS.hasClass(_target,'jerboa-lhide'))
+						$.CSS.addClass(_target,'jerboa-lhide');
+					else	
+						$.CSS.removeClass(_target,'jerboa-lhide');
+					
+					//console.log('hide');
+				}
+			};
+			J.ui['layer_panel'].layout.appendChild($.Element.set({tag:'p',event: {add:'click',fn: $.bind(J.event.hide,J,false,'layer_panel') }}));
+			J.ui['layer_panel'].layout.appendChild($.Element.create('span'));
+			J.ui['layer_panel'].layout.appendChild($.Element.set({tag:'span',event: {add:'click',fn: $.bind(J.ui['layer_panel'].addLayer,J.ui['layer_panel']) }}));
+			J.ui['layer_panel'].layout.appendChild($.Element.set({tag:'span',event: {add:'click',fn: $.bind(J.ui['layer_panel'].removeLayer,J.ui['layer_panel']) }}));
+			J.ui['layer_panel'].layout.appendChild(J.ui['layer_panel'].element);
+			J.ui['layer_panel'].layout.appendChild($.Element.set({tag: 'p',event: {add:'mousedown',fn: $.bind(J.event.resize,J,false,'init','layer_panel') }}));	
+			J.ui['main'].appendChild(J.ui['layer_panel'].layout);
+			J.ui['layer_panel'].addLayer();
+			
+			_fragment.appendChild(J.ui['main']); //insert all ui to root of DOM tree
+			document.body.appendChild(_fragment); //insert a root of DOM tree to document.body
+		}
+		,event: {
+			hide: function(nameUI) {
+				var _element = this.ui[nameUI].layout || this.ui[nameUI];
+				;
+				this.$.CSS.addClass(_element,'jerboa-hide');
+				
+			}
+			,resize: function(type,nameUI,event) {
+				var $ = this.$
+				;
+				event = $.Events.standardize(event);
+				event.preventDefault();
+				
+				if(type== 'init')
+				{
+					
+					//console.log('resize init');
+					this.cache.tempFn1 = $.bind(this.event.resize,this,false,'run',nameUI); 
+					this.cache.tempFn2 = $.bind(this.event.resize,this,false,'finish',nameUI);
+					$.Events.add(window,'mousemove',this.cache.tempFn1);
+					$.Events.add(window,'mouseup',this.cache.tempFn2);
+					this.cache.resizeX = event.pageX;				
+					this.cache.resizeY = event.pageY;				
+				}
+				else if(type=='run')
+				{
+					var diffX = event.pageX - this.cache.resizeX
+					,diffY = event.pageY - this.cache.resizeY
+					,element = this.ui[nameUI].element || this.ui[nameUI].layout || this.ui[nameUI]
+					,propElemnt = this.$.CSS.getPosition(element)
+					; 
+					//console.log('resize run');
+					//console.log(diffX+" "+diffY);
+					this.$.CSS.addStyle(element,{width:parseInt(propElemnt.width+diffX)+"px",height:parseInt(propElemnt.height+diffY)+"px"});
+					this.cache.resizeX = event.pageX;
+					this.cache.resizeY = event.pageY;
+				}
+				else if(type=='finish')
+				{
+					//console.log('resize finish');
+					$.Events.remove(window,'mousemove',this.cache.tempFn1);
+					$.Events.remove(window,'mouseup',this.cache.tempFn2);
+					delete this.cache.tempFn1;
+					delete this.cache.tempFn2;
+					delete this.cache.resizeX;
+					delete this.cache.resizeY;
+				}
+			}
+			
+		}
 	};
-	Jerboa.init = function() {
-		//Start Jerboa
-		//debug mode
-		_document.getElementById("test_edit").innerHTML = "";
-		
-		//init UI
-		var _fragment = document.createDocumentFragment();
-		//_fragment.appendChild();
-		document.body.appendChild(_fragment);
-		
-	}
-	if(_window.$)
+	if(DEBUG_MODE)
 	{
-		//if document include Jquery
-		Jerboa.init();
-	} else {
-		_.onDomReady(Jerboa.init);
+		Jerboa.$.onDomReady(Jerboa.init);
+	} 
+	else 
+	{
+	if(_window.$)
+		{
+			//if document include Jquery
+			Jerboa.init();
+		} else {
+			Jerboa.$.onDomReady(Jerboa.init);
+		}
 	}
 	return Jerboa;
 };
 
 })();
-Jerboa("test_edit");
+//console.log(Jerboa);

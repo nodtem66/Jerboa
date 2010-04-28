@@ -7,7 +7,7 @@
 
 <script type="text/javascript" src="lib/jsspec/diff_match_patch.js"></script>
 <script type="text/javascript" src="lib/jsspec/JSSpec.js"></script>
-<script src="unit.js"></script>
+<script src="jerboa.js"></script>
 <script type="text/javascript">// <![CDATA[
 
 
@@ -51,15 +51,15 @@ describe('Element Test', {
 
 describe('UI INPUT [textfield] Test',{
 	'create input [textfield] value = test': function() {
-		var _element = $.UI.textfield("test")
-		,_obj = [_element.tagName,_element.getAttribute("type"),_element.getAttribute("value")]
+		var _element = $.UI.textfield("user","test")
+		,_obj = [_element.tagName,_element.getAttribute("type"),_element.getAttribute("value"),_element.getAttribute("name")]
 		;
-		value_of(_obj).should_be(["INPUT","text","test"]);
+		value_of(_obj).should_be(["INPUT","text","test","user"]);
 	}
 	,'use cache when create same textfield 1': function() {
-		var _element = $.UI.textfield("test")
-		,_obj = [_element.tagName,_element.getAttribute("type"),_element.getAttribute("value")]
-		,_obj1 = [$.UI.cache['textfieldtest'].tagName,$.UI.cache['textfieldtest'].getAttribute("type"),$.UI.cache['textfieldtest'].getAttribute("value")]
+		var _element = $.UI.textfield("user","test")
+		,_obj = [_element.tagName,_element.getAttribute("type"),_element.getAttribute("value"),_element.getAttribute("name")]
+		,_obj1 = [$.UI.cache['textfieldusertest'].tagName,$.UI.cache['textfieldusertest'].getAttribute("type"),$.UI.cache['textfieldusertest'].getAttribute("value"),$.UI.cache['textfieldusertest'].getAttribute("name")]
 		;
 		value_of(_obj).should_be(_obj1);
 	}
@@ -104,6 +104,120 @@ describe('UI Button Test',{
 		;
 		value_of(_obj).should_be(_obj1);
 	}
+});
+describe('CSS getObjectOfStyle Test',{
+	'style = "" ': function() {
+		var element = $.Element.set({tag:'div',attr:{style: ''}});
+		value_of($.CSS.getObjectOfStyle(element)).should_be({
+			
+		});
+	}
+	,'style = "top:45px;left:0px;margin:0 auto;" ': function() {
+		var element = $.Element.set({tag:'div',attr:{style: 'top:45px;left:0px;margin:0px auto;'}});
+		value_of($.CSS.getObjectOfStyle(element)).should_be({
+			top: '45px'
+			,left: '0px'
+			,margin: '0px auto'
+		});
+	}
+	,'style = ";top:45px;left-test:0px" ': function() {
+		var element = $.Element.set({tag:'div',attr:{style: ';top:45px;left-test:0px'}});
+		value_of($.CSS.getObjectOfStyle(element)).should_be({
+			top: '45px'
+		});
+	}
+	,'style = ";top:45px;left:0px" ': function() {
+		var element = $.Element.set({tag:'div',attr:{style: ';top:45px;left:0px'}});
+		value_of($.CSS.getObjectOfStyle(element)).should_be({
+			top: '45px'
+			,left: '0px'
+		});
+	}
+	,'style = "top:45px;margin-left:0px" ': function() {
+		var element = $.Element.set({tag:'div',attr:{style: ';top:45px;margin-left:0px'}});
+		value_of($.CSS.getObjectOfStyle(element)).should_be({
+			top: '45px'
+			,'margin-left': '0px'
+		});
+	}
+});
+describe('CSS setObjectOfStyle Test',{
+	'object = {}': function() {
+		var object = {}
+		,element = $.Element.set({tag:'div',attr:{style:'top:0px;left:5px'}});
+		;
+		$.CSS.setObjectOfStyle(element,object)
+		value_of(element.getAttribute('style')).should_be('');
+	}
+	,'object = {top:"45px",left:"60px",margin:"0px auto"}': function() {
+		var object = {top:"45px",left:"60px",margin:"0px auto"}
+		,element = $.Element.set({tag:'div',attr:{style:'top:0px;left:5px'}});
+		;
+		$.CSS.setObjectOfStyle(element,object)
+		value_of(element.getAttribute('style')).should_be('top: 45px; left: 60px; margin: 0px auto;');
+	}
+	,'object = {top:"45px",left-test:"0px",$:"0px"}': function() {
+		var object = {top:"45px",'left-test':"0px",$:"0px"}
+		,element = $.Element.set({tag:'div',attr:{style:'top:0px;left:5px'}});
+		;
+		$.CSS.setObjectOfStyle(element,object)
+		value_of(element.getAttribute('style')).should_be('top: 45px;');
+	}
+	,'object = {top:"45px",margin-top:"0px"}': function() {
+		var object = {top:"45px",'margin-top':"0px"}
+		,element = $.Element.set({tag:'div',attr:{style:'top:0px;left:5px'}});
+		;
+		$.CSS.setObjectOfStyle(element,object)
+		value_of(element.getAttribute('style')).should_be('top: 45px; margin-top: 0px;');
+	}
+});
+describe('CSS addStyle Test',{
+	'style="" add "" ': function() {
+		var element = $.Element.set({tag:'div',attr: {style: ''}})
+		;
+		$.CSS.addStyle(element,{});
+		value_of(element.getAttribute('style')).should_be('');
+	}
+	,'style="margin:0px" add "" ': function() {
+		var element = $.Element.set({tag:'div',attr: {style: 'margin: 0px;'}})
+		;
+		$.CSS.addStyle(element,{});
+		value_of(element.getAttribute('style')).should_be('margin: 0px;');
+	}
+	,'style="top:0px;" add "left:45px;" ': function() {
+		var element = $.Element.set({tag:'div',attr: {style: 'top:0px'}})
+		;
+		$.CSS.addStyle(element,{left:'45px'});
+		value_of(element.getAttribute('style')).should_be('top: 0px; left: 45px;');
+	}
+	,'style="top:0px;left:45px;margin-top:0px;" add "top:45px" ': function() {
+		var element = $.Element.set({tag:'div',attr: {style: 'top:0px;left:45px;margin-top:0px;'}})
+		;
+		$.CSS.addStyle(element,{top: '45px'});
+		value_of(element.getAttribute('style')).should_be('top: 45px; left: 45px; margin-top: 0px;');
+	}
+	,'style="top:0px;" add "left:0px;$:0px" ': function() {
+		var element = $.Element.set({tag:'div',attr: {style: 'top:0px'}})
+		;
+		$.CSS.addStyle(element,{left: '0px',$: '0px'});
+		value_of(element.getAttribute('style')).should_be('top: 0px; left: 0px;');
+	}
+	,'style="top:0px;" add "left:0px;margin-top:0px" ': function() {
+		var element = $.Element.set({tag:'div',attr: {style: 'top:0px'}})
+		;
+		$.CSS.addStyle(element,{left: '0px','margin-top': '0px'});
+		value_of(element.getAttribute('style')).should_be('top: 0px; left: 0px; margin-top: 0px;');
+	}
+	,'style="top:0px;" add "left:0px;top:10px" ': function() {
+		var element = $.Element.set({tag:'div',attr: {style: 'top:0px'}})
+		;
+		$.CSS.addStyle(element,{left: '0px',top: '10px'});
+		value_of(element.getAttribute('style')).should_be('top: 10px; left: 0px;');
+	}
+	
+});
+describe('CSS removeStyle Test',{
+
 });
 // ]]></script>
 </head>
