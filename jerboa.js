@@ -10,7 +10,7 @@
 * @from Pro JavaScript RIA Techniques Best Practices, Performance, and Presentation
 */
 DEBUG_MODE = 1;
-var $ = {};
+$ = {};
 //var $ = {};
 
 $.onDomReady = function(callback)
@@ -362,7 +362,7 @@ $.Element = {
 			element.setAttribute(key,listAttr[key]);
 		}
 		//Add innerHTML <tag>innerHTML</tag>
-		element.innerHTML = List.HTML || List.html || element.innerHTML
+		if(List.html) element.innerHTML = List.html;
 		
 		return element;
 	}
@@ -380,10 +380,7 @@ $.UI = {
 		var _value = value || "";
 		//Set Button Class in <div></div>
 		if(!this.cache["button"+_value])
-			this.cache["button"+_value] = $.Element.set({tag:'div',attr: {class:'jerboa-button'}} )
-			.appendChild( //Insert <span></span> in <div></div>
-			$.Element.set({tag:'span',html: _value}) //Set Text in <span></span>
-			).parentNode;
+			this.cache["button"+_value] = $.Element.set({tag:'div',attr: {'class':'jerboa-button'}} ).appendChild( $.Element.set({tag:'span',html: _value}) ).parentNode;;
 		return  this.cache["button"+_value].cloneNode(1);
 	}
 	,textfield: function(name,value) {
@@ -391,7 +388,7 @@ $.UI = {
 		, _name = name || ""
 		;
 		if(!this.cache["textfield"+_name+_value])
-			this.cache["textfield"+_name+_value] = $.Element.set({tag:'input',attr: {name:_name,type:'text',value: _value}} );
+			this.cache["textfield"+_name+_value] = $.Element.set({tag:'input',attr: {'name':_name,'type':'text','value': _value}} );
 		return this.cache["textfield"+_name+_value].cloneNode(1);
 	}
 	,combobox: function() {
@@ -434,6 +431,16 @@ Jerboa = function(element)
 	;
 	Jerboa = {
 		verstion: "0.001"
+		,env: {
+			ie: /MSIE/i.test(navigator.userAgent),
+			ie6: /MSIE 6/i.test(navigator.userAgent),
+			ie7: /MSIE 7/i.test(navigator.userAgent),
+			ie8: /MSIE 8/i.test(navigator.userAgent),
+			firefox: /Firefox/i.test(navigator.userAgent),
+			opera: /Opera/i.test(navigator.userAgent),
+			webkit: /Webkit/i.test(navigator.userAgent),
+			camino: /Camino/i.test(navigator.userAgent)
+		  }
 		,$: lib
 		,editElement: element || ""
 		,pathCss: "../../jerboa.css"
@@ -473,7 +480,7 @@ Jerboa = function(element)
 			//Build menu bar
 			J.ui['menu'] = [];
 			J.ui['menu'].push( $.Element.set({tag:'div',attr: {id:'jerboa-menu'}}) );
-			J.ui['menu'].push( $.Element.set({tag:'div',attr: {id:'jerboa-insert',class:'jerboa-panel jerboa-hide'}}) );
+			J.ui['menu'].push( $.Element.set({tag:'div',attr: {id:'jerboa-insert','class':'jerboa-panel jerboa-hide'}}) );
 			
 			for(i=0,len=J.ui['menu'].length;i<len;i++)
 				J.ui['main_menu'].appendChild(J.ui['menu'][i]);
@@ -481,35 +488,50 @@ Jerboa = function(element)
 			//Build main menu bar
 			J.ui['menu'][0].appendChild( $.Element.set({tag:'div',html: 'Insert'}) );
 			//Build insert menu
-			J.ui['menu'][1].appendChild( $.Element.set({tag:'span',attr: {class: 'jerboa-backbutton'},html: '&lt;'}) );
-			J.ui['menu'][1].appendChild( $.Element.set({tag:'div',html: '<span></span><p>Text</p>'}) );
+			J.ui['menu'][1].appendChild( $.Element.set({tag:'span',attr: {'class': 'jerboa-backbutton'},html: '&lt;'}) );
+			J.ui['menu'][1].appendChild( $.Element.set({tag:'div',html: "<span></span><p>Text</p>"}) );
 			
 			//Build Layer panel
 			J.ui['layer_panel'] = {
-				layout: $.Element.set({tag:'div',attr: {class:'jerboa-window',style:'top:30px;left:0px;'},html: '<p>Layout Panel</p>'})
+				layout: $.Element.set({tag:'div',attr: {'class':'jerboa-window',style:'top:30px;left:0px;'},html: '<p>Layout Panel</p>'})
 				,element: $.Element.set({tag:'div',html: '<ul></ul>'})
 				,addLayer: function() {
 					var _root = this.element.children[0]
 					,_element = _root.appendChild($.UI.layerPanel())
 					;
-					console.log('add'); 
+					//console.log('add'); 
 				}
 				,removeLayer: function() {
-					console.log('remove');
+					//console.log('remove');
 					var _root = this.element.children[0]
-					,_element = _root.getElementsByClassName('jerboa-lactive')[0]
+					,_element = null
 					;
+					if(J.env.ie)
+					{
+						for(i=0,len=_root.children.length;i<len;i++)
+						{
+							if(_root.children[i].className == 'jerboa-lactive')
+								_element = _root.children[i];				
+						}
+					}
+					else
+						_element = _root.getElementsByClassName('jerboa-lactive')[0];
+					
 					if(_element) _root.removeChild(_element);
 				}
-				,selectLayer: function(event) {
-					var event = $.Events.standardize(event)
+				,selectLayer: function(e) {
+					var event = $.Events.standardize(e)
 					,_target = event.target
 					;
 					event.preventDefault();
 					;
 					if(!$.CSS.hasClass(_target,'jerboa-lactive'))
 					{
-						var _element = _target.parentNode.getElementsByClassName('jerboa-lactive');
+						var _element;
+						if(J.env.ie)
+							_element = _target.parentNode.children;
+						else 
+							_element = _target.parentNode.getElementsByClassName('jerboa-lactive');
 						for(i=0,len = _element.length;i<len;i++)
 						{
 							$.CSS.removeClass(_element[i],'jerboa-lactive');
@@ -521,8 +543,8 @@ Jerboa = function(element)
 				,renameLayer: function() {
 				
 				}
-				,hideLayer: function(event) {
-					var event = $.Events.standardize(event)
+				,hideLayer: function(e) {
+					var event = $.Events.standardize(e)
 					,_target = event.target.parentNode
 					;
 					event.preventDefault();
@@ -553,20 +575,21 @@ Jerboa = function(element)
 				this.$.CSS.addClass(_element,'jerboa-hide');
 				
 			}
-			,resize: function(type,nameUI,event) {
+			,resize: function(type,nameUI,e) {
 				var $ = this.$
+				,event = $.Events.standardize(e)
 				;
-				event = $.Events.standardize(event);
 				event.preventDefault();
-				
+				//alert(event[a]);
 				if(type== 'init')
 				{
 					
 					//console.log('resize init');
 					this.cache.tempFn1 = $.bind(this.event.resize,this,false,'run',nameUI); 
 					this.cache.tempFn2 = $.bind(this.event.resize,this,false,'finish',nameUI);
-					$.Events.add(window,'mousemove',this.cache.tempFn1);
-					$.Events.add(window,'mouseup',this.cache.tempFn2);
+					
+					$.Events.add(_document,'mousemove',this.cache.tempFn1);
+					$.Events.add(_document,'mouseup',this.cache.tempFn2);
 					this.cache.resizeX = event.pageX;				
 					this.cache.resizeY = event.pageY;				
 				}
@@ -574,20 +597,20 @@ Jerboa = function(element)
 				{
 					var diffX = event.pageX - this.cache.resizeX
 					,diffY = event.pageY - this.cache.resizeY
-					,element = this.ui[nameUI].element || this.ui[nameUI].layout || this.ui[nameUI]
-					,propElemnt = this.$.CSS.getPosition(element)
+					,element = this.ui[nameUI].element || this.ui[nameUI]
+					,propElement = this.$.CSS.getPosition(element)
 					; 
 					//console.log('resize run');
 					//console.log(diffX+" "+diffY);
-					this.$.CSS.addStyle(element,{width:parseInt(propElemnt.width+diffX)+"px",height:parseInt(propElemnt.height+diffY)+"px"});
+					this.$.CSS.addStyle(element,{width:parseInt(propElement.width+diffX)+"px",height:parseInt(propElement.height+diffY)+"px"});
 					this.cache.resizeX = event.pageX;
 					this.cache.resizeY = event.pageY;
 				}
 				else if(type=='finish')
 				{
 					//console.log('resize finish');
-					$.Events.remove(window,'mousemove',this.cache.tempFn1);
-					$.Events.remove(window,'mouseup',this.cache.tempFn2);
+					$.Events.remove(_document,'mousemove',this.cache.tempFn1);
+					$.Events.remove(_document,'mouseup',this.cache.tempFn2);
 					delete this.cache.tempFn1;
 					delete this.cache.tempFn2;
 					delete this.cache.resizeX;
@@ -600,6 +623,7 @@ Jerboa = function(element)
 	if(DEBUG_MODE)
 	{
 		Jerboa.$.onDomReady(Jerboa.init);
+		
 	} 
 	else 
 	{
