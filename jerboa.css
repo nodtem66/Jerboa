@@ -20,7 +20,7 @@ audio, video {
     vertical-align:baseline;
     background:transparent;
 }
-#jerboa							{position:fixed;}
+#jerboa							{position:absolute;top:0px;left:0px;}
 #jerboa-wrapper					{position:fixed;width:100%;top:0;left:0;text-align:center;z-index:3000;}
 #jerboa-menu 					{width:100%;height:33px;background:url(img/button_bg.png) 0 0 repeat-x;}
 #jerboa-menu div	   			{float:left;padding:10px;cursor:pointer;line-height:0.9;}
@@ -41,8 +41,8 @@ audio, video {
 
 #jerboa-darkbox					{width:100%;height:100%;position:fixed;background:#000;opacity: 0.3;filter:Alpha(Opacity=30);z-index:3001;}
 #jerboa-resize					{position:absolute;z-index:2999;}
-#jerboa-resize div				{border:1px dashed #000;position:absolute;width:100%;height:100%;top:2px;left:2px;cursor:move;}
-#jerboa-resize	span			{position:absolute;width:6px;height:6px;background:#000;}
+#jerboa-resize >div				{border:1px dashed #000;position:absolute;width:100%;height:100%;top:2px;left:2px;cursor:move;}
+#jerboa-resize span				{position:absolute;width:6px;height:6px;background:#000;display:block;}
 .jerboa-panel					{background:url(img/the_gradient.gif) repeat-x;width:100%;height:56px;}
 .jerboa-panel div				{float:left;margin:auto 5px;padding:5px;}
 .jerboa-panel div span			{width:30px;height:30px;background:red;display:block;}

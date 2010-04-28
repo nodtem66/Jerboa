@@ -5,8 +5,8 @@
 */
 (function(){
 /*
-* Javascript Library
-* @author Den Odell
+* Javascript Library (Additional Edition)
+* @original author Den Odell
 * @from Pro JavaScript RIA Techniques Best Practices, Performance, and Presentation
 */
 DEBUG_MODE = 1;
@@ -26,7 +26,11 @@ $.onDomReady = function(callback)
 		{
 			callback();
 		} else {
-			setTimeout(arguments.callee.caller,50);
+			//IE Hack
+			var nameFunction = arguments.callee;
+			setTimeout(function(){
+				nameFunction(callback);
+			},50);
 		}
 
 	}
@@ -378,7 +382,6 @@ $.UI = {
 	cache: {}
 	,button: function(value) {
 		var _value = value || "";
-		//Set Button Class in <div></div>
 		if(!this.cache["button"+_value])
 			this.cache["button"+_value] = $.Element.set({tag:'div',attr: {'class':'jerboa-button'}} ).appendChild( $.Element.set({tag:'span',html: _value}) ).parentNode;;
 		return  this.cache["button"+_value].cloneNode(1);
@@ -402,22 +405,57 @@ $.UI = {
 		return element;
 	}
 };
+/*
+	Bind function
+	@author Nodtem66
+	@param 
+		callback 	- [Function] function to call
+		scope	 	- [Object] value of 'this' variable when call function
+		useThrottle - [Number] delay to run function
+	@return
+		Anomymous function 
+		
+	How to use :
+	1. Change scope of variables
+	2. Setting Static arguments
+	3. Limit speed to repeat the function :Prevent to Old Browser (such as IE) crash.
+	
+	Example :
+	1.1 Change scope to 'Jerboa' Object
+		$.bind(function,Jerboa,false) 
+	1.2 Change scope to 'window' Object
+		$.bind(function,window,false)
+	1.3 use default scope
+		$.bind(function,null,false)
+	2. function foo(a,b,c) { alert(a+b-c); }
+	2.1 bar = $.bind(foo,null,false,5)
+		bar(6,1) => 10 (from 5+6-1)
+	2.2 bar = $.bind(foo,null,5,8)
+		bar(9) 	 =>	4  (from 5+8-9)
+	3.1 Limit in 100 msec can run function in 1 time.
+		$.bind(function,null,100)
+	3.2 Limit in 1000 msec can run function in 1 time.
+		$.bind(function,null,1000)
+	3.3 No limit
+		$.bind(function,null,0) OR $.bind(function,null,false)
+*/
 $.bind = function(callback,scope,useThrottle) {
 	var scope = scope || window
-	,args = Array.prototype.slice.call(arguments,3)
+	,argsStatic = Array.prototype.slice.call(arguments,3)
 	;
 	if(useThrottle)
 	{
 		return function() {
+			var argsDynamic = arguments;
 			clearTimeout(callback.tId);
 			callback.tId = setTimeout(function(){
-				callback.apply(scope,args.concat(Array.prototype.slice.call(arguments,0)))
+				callback.apply(scope,argsStatic.concat(Array.prototype.slice.call(argsDynamic,0)))
 			},useThrottle);
 		}
 	}
 	else	
 		return function () {
-			callback.apply(scope,args.concat(Array.prototype.slice.call(arguments,0)))
+			callback.apply(scope,argsStatic.concat(Array.prototype.slice.call(arguments,0)))
 		};
 };
 
@@ -429,6 +467,7 @@ Jerboa = function(element)
 	,_document = document
 	,lib = $
 	;
+	
 	Jerboa = {
 		verstion: "0.001"
 		,env: {
@@ -442,7 +481,7 @@ Jerboa = function(element)
 			camino: /Camino/i.test(navigator.userAgent)
 		  }
 		,$: lib
-		,editElement: element || ""
+		,editElement: element || "edit"
 		,pathCss: "../../jerboa.css"
 		,currentPanel: ""
 		,currentToolbox: []
@@ -468,12 +507,14 @@ Jerboa = function(element)
 			}
 			if(!cssLoad)
 			{
+				
 				document.getElementsByTagName("head")[0].appendChild(
 					$.Element.set({tag:'link',attr:{rel:'stylesheet',type:'text/css',href:J.pathCss}})
 				);
+			
 			}
 			//init UI
-			
+			J.ui['screen'] = _document.getElementById(J.editElement);
 			J.ui['main'] = $.Element.set({tag: 'div',attr: {id: 'jerboa'}});
 			J.ui['main_menu'] = $.Element.set({tag: 'div',attr: {id: 'jerboa-wrapper'}});
 			J.ui['main'].appendChild(J.ui['main_menu']);
@@ -493,7 +534,7 @@ Jerboa = function(element)
 			
 			//Build Layer panel
 			J.ui['layer_panel'] = {
-				layout: $.Element.set({tag:'div',attr: {'class':'jerboa-window',style:'top:30px;left:0px;'},html: '<p>Layout Panel</p>'})
+				layout: $.Element.set({tag:'div',attr: {'class':'jerboa-window',style:'top:30px;left:0px;'},html: '<p>Layout Panel</p>',event: {add: 'mousedown',fn: $.bind(J.event.drag,J,0,'init','layer_panel') }})
 				,element: $.Element.set({tag:'div',html: '<ul></ul>'})
 				,addLayer: function() {
 					var _root = this.element.children[0]
@@ -556,14 +597,37 @@ Jerboa = function(element)
 					//console.log('hide');
 				}
 			};
-			J.ui['layer_panel'].layout.appendChild($.Element.set({tag:'p',event: {add:'click',fn: $.bind(J.event.hide,J,false,'layer_panel') }}));
+			J.ui['layer_panel'].layout.appendChild($.Element.set({tag:'p',event: {add:'click',fn: $.bind(J.event.hide,J,0,'layer_panel') }}));
 			J.ui['layer_panel'].layout.appendChild($.Element.create('span'));
 			J.ui['layer_panel'].layout.appendChild($.Element.set({tag:'span',event: {add:'click',fn: $.bind(J.ui['layer_panel'].addLayer,J.ui['layer_panel']) }}));
 			J.ui['layer_panel'].layout.appendChild($.Element.set({tag:'span',event: {add:'click',fn: $.bind(J.ui['layer_panel'].removeLayer,J.ui['layer_panel']) }}));
 			J.ui['layer_panel'].layout.appendChild(J.ui['layer_panel'].element);
-			J.ui['layer_panel'].layout.appendChild($.Element.set({tag: 'p',event: {add:'mousedown',fn: $.bind(J.event.resize,J,false,'init','layer_panel') }}));	
+			J.ui['layer_panel'].layout.appendChild($.Element.set({tag: 'p',event: {add:'mousedown',fn: $.bind(J.event.resize,J,0,'init','layer_panel') }}));	
 			J.ui['main'].appendChild(J.ui['layer_panel'].layout);
 			J.ui['layer_panel'].addLayer();
+			//light screen
+			J.ui['light_screen_top'] = $.Element.set({tag:'div',attr: {'class':'jerboa-lightbox',style: ''}});
+			J.ui['light_screen_left'] = $.Element.set({tag:'div',attr: {'class':'jerboa-lightbox',style: ''}});
+			J.ui['light_screen_right'] = $.Element.set({tag:'div',attr: {'class':'jerboa-lightbox',style: ''}});
+			J.ui['light_screen_bottom'] = $.Element.set({tag:'div',attr: {'class':'jerboa-lightbox',style: ''}});
+			J.ui['main'].appendChild(J.ui['light_screen_top']);
+			J.ui['main'].appendChild(J.ui['light_screen_left']);
+			J.ui['main'].appendChild(J.ui['light_screen_right']);
+			J.ui['main'].appendChild(J.ui['light_screen_bottom']);
+			J.refreshScreen.call(J);
+			//resize box
+			J.ui['resize_box'] = $.Element.set({tag:'div',attr:{id:'jerboa-resize','class':'jerboa-hide',style: ''},html: '<div></div>'});
+			J.ui['resize_box'].appendChild( $.Element.set({tag:'span',attr: {style: 'top:0;left:0;cursor:nw-resize;'}}) );
+			J.ui['resize_box'].appendChild( $.Element.set({tag:'span',attr: {style: 'top:0;left:48%;cursor:n-resize;'}}) );
+			J.ui['resize_box'].appendChild( $.Element.set({tag:'span',attr: {style: 'top:0;left:100%;cursor:ne-resize;'}}) );
+			J.ui['resize_box'].appendChild( $.Element.set({tag:'span',attr: {style: 'top:48%;left:0;cursor:w-resize;'}}) );
+			J.ui['resize_box'].appendChild( $.Element.set({tag:'span',attr: {style: 'top:48%;left:100%;cursor:e-resize;'}}) );
+			J.ui['resize_box'].appendChild( $.Element.set({tag:'span',attr: {style: 'top:100%;left:0;cursor:sw-resize;'}}) );
+			J.ui['resize_box'].appendChild( $.Element.set({tag:'span',attr: {style: 'top:100%;left:48%;cursor:s-resize;'}}) );
+			J.ui['resize_box'].appendChild( $.Element.set({tag:'span',attr: {style: 'top:100%;left:100%;cursor:se-resize;'}}) );
+			J.ui['main'].appendChild(J.ui['resize_box']);
+			
+			J.showResizer.call(J,1,$.CSS.getPosition(J.ui['screen']));
 			
 			_fragment.appendChild(J.ui['main']); //insert all ui to root of DOM tree
 			document.body.appendChild(_fragment); //insert a root of DOM tree to document.body
@@ -585,39 +649,110 @@ Jerboa = function(element)
 				{
 					
 					//console.log('resize init');
-					this.cache.tempFn1 = $.bind(this.event.resize,this,false,'run',nameUI); 
-					this.cache.tempFn2 = $.bind(this.event.resize,this,false,'finish',nameUI);
+					this.cache.tempFn1 = $.bind(this.event.resize,this,0,'run',nameUI); 
+					this.cache.tempFn2 = $.bind(this.event.resize,this,0,'end',nameUI);
 					
 					$.Events.add(_document,'mousemove',this.cache.tempFn1);
 					$.Events.add(_document,'mouseup',this.cache.tempFn2);
-					this.cache.resizeX = event.pageX;				
-					this.cache.resizeY = event.pageY;				
+					this.cache.x = event.pageX;				
+					this.cache.y = event.pageY;				
+					this.cache.element = this.ui[nameUI].element || this.ui[nameUI].layout ||this.ui[nameUI];
+					this.cache.w = this.cache.element.offsetWidth;
+					this.cache.h = this.cache.element.offsetHeight;
 				}
 				else if(type=='run')
 				{
-					var diffX = event.pageX - this.cache.resizeX
-					,diffY = event.pageY - this.cache.resizeY
-					,element = this.ui[nameUI].element || this.ui[nameUI]
-					,propElement = this.$.CSS.getPosition(element)
-					; 
+					this.cache.w += event.pageX - this.cache.x;
+					this.cache.h += event.pageY - this.cache.y;
 					//console.log('resize run');
 					//console.log(diffX+" "+diffY);
-					this.$.CSS.addStyle(element,{width:parseInt(propElement.width+diffX)+"px",height:parseInt(propElement.height+diffY)+"px"});
-					this.cache.resizeX = event.pageX;
-					this.cache.resizeY = event.pageY;
+					$.CSS.addStyle(this.cache.element,{width:this.cache.w+"px",height:this.cache.h+"px"});
+					this.cache.x = event.pageX;
+					this.cache.y = event.pageY;
 				}
-				else if(type=='finish')
+				else if(type=='end')
 				{
 					//console.log('resize finish');
 					$.Events.remove(_document,'mousemove',this.cache.tempFn1);
 					$.Events.remove(_document,'mouseup',this.cache.tempFn2);
 					delete this.cache.tempFn1;
 					delete this.cache.tempFn2;
-					delete this.cache.resizeX;
-					delete this.cache.resizeY;
+					delete this.cache.x;
+					delete this.cache.y;
+					delete this.cache.element;
+					delete this.cache.w;
+					delete this.cache.h;
 				}
 			}
-			
+			,drag: function(type,nameUI,e)
+			{
+				var $ = this.$
+				,event = $.Events.standardize(e)
+				;
+				event.preventDefault();
+				
+				if(type == 'init')
+				{
+					this.cache.tempFn3 = $.bind(this.event.drag,this,0,'run',nameUI);
+					this.cache.tempFn4 = $.bind(this.event.drag,this,0,'end',nameUI);
+					$.Events.add(_document,'mousemove',this.cache.tempFn3);
+					$.Events.add(_document,'mouseup',this.cache.tempFn4);
+					this.cache.element = this.ui[nameUI].layout || this.ui[nameUI];
+					this.cache.x = event.pageX;
+					this.cache.y = event.pageY;
+					this.cache.top = parseInt(this.cache.element.style.top);
+					this.cache.left = parseInt(this.cache.element.style.left);
+					
+					
+				}
+				else if(type == 'run')
+				{
+					
+					this.cache.top += event.pageY - this.cache.y;
+					this.cache.left += event.pageX - this.cache.x;
+					
+					//console.log(parseInt(event.pageX-this.cache.x)+","+parseInt(event.pageY-this.cache.y));
+					//console.log("("+this.cache.top+","+this.cache.left+")");
+					$.CSS.addStyle(this.cache.element,{top:this.cache.top+"px",left:this.cache.left+"px"});
+					this.cache.x = event.pageX;
+					this.cache.y = event.pageY;
+				}
+				else if(type == 'end')
+				{
+					$.Events.remove(_document,'mousemove',this.cache.tempFn3);
+					$.Events.remove(_document,'mouseup',this.cache.tempFn4);
+					delete this.cache.tempFn4;
+					delete this.cache.tempFn5;
+					delete this.cache.top;
+					delete this.cache.left;
+					delete this.cache.x;
+					delete this.cache.y;
+					delete this.element
+				}
+			}
+		}
+		,refreshScreen: function()
+		{
+				var $ = this.$
+				,propElement = $.CSS.getPosition(this.ui['screen'])
+				,propDoc = $.CSS.getPosition(_document.body)
+				;
+				
+				$.CSS.addStyle(this.ui['light_screen_left'],{top:'0px',left:'0px',width:propElement.x+'px',height:propDoc.height+'px'});
+				$.CSS.addStyle(this.ui['light_screen_top'],{top:'0px',left:propElement.x+'px',width:propElement.width+'px',height:propElement.y+'px'});
+				$.CSS.addStyle(this.ui['light_screen_right'],{top:'0px',left:parseInt(propElement.x+propElement.width)+'px',width:parseInt(propDoc.width - propElement.x - propElement.width)+'px',height:propDoc.height+'px'});
+				$.CSS.addStyle(this.ui['light_screen_bottom'],{top:parseInt(propElement.y+propElement.height)+'px',left:propElement.x+'px',width:propElement.width+'px',height:parseInt(propDoc.height - propElement.y - propElement.height)+'px'});
+		}
+		,showResizer: function(visibility,List)
+		{
+			var $=this.$
+			;
+			if(visibility)
+			{
+				$.CSS.addStyle(this.ui['resize_box'],{top:parseInt(List.y-3)+'px',left:parseInt(List.x-3)+'px',width:List.width+'px',height:List.height+'px'});
+				$.CSS.removeClass(this.ui['resize_box'],'jerboa-hide');
+			} 
+			else $.CSS.addClass(this.ui['resize_box'],'jerboa-hide');
 		}
 	};
 	if(DEBUG_MODE)
