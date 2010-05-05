@@ -12,6 +12,16 @@
 DEBUG_MODE = 1;
 $ = {};
 //var $ = {};
+$.env = {
+			ie: /MSIE/i.test(navigator.userAgent),
+			ie6: /MSIE 6/i.test(navigator.userAgent),
+			ie7: /MSIE 7/i.test(navigator.userAgent),
+			ie8: /MSIE 8/i.test(navigator.userAgent),
+			firefox: /Firefox/i.test(navigator.userAgent),
+			opera: /Opera/i.test(navigator.userAgent),
+			webkit: /Webkit/i.test(navigator.userAgent),
+			camino: /Camino/i.test(navigator.userAgent)
+		}
 
 $.onDomReady = function(callback)
 {
@@ -397,10 +407,11 @@ $.UI = {
 	,combobox: function() {
 		//TODO add combobox
 	}
-	,layerPanel: function() {
-		var element = $.Element.set({tag: 'li',event: {add:'click',fn: Jerboa.ui['layer_panel'].selectLayer }});
+	,layerPanel: function(index) {
+		var isFirst = index ? '' : 'jerboa-lactive'
+		,element = $.Element.set({tag: 'li',attr: {'class':isFirst,'index':index},event: {add:'click',fn: Jerboa.ui['layer_panel'].selectLayer}});
 		element.appendChild($.Element.set({tag:'span',event: {add:'click',fn: Jerboa.ui['layer_panel'].hideLayer }}));
-		element.appendChild($.Element.create('p'));
+		element.appendChild($.Element.set({tag: 'p',event: {add:'click',fn: $.bind(Jerboa.ui['layer_panel'].editNameLayer,Jerboa,0) }}));
 		
 		return element;
 	}
@@ -458,7 +469,22 @@ $.bind = function(callback,scope,useThrottle) {
 			callback.apply(scope,argsStatic.concat(Array.prototype.slice.call(arguments,0)))
 		};
 };
-
+$.getByClass = function(root,nameClass)
+{
+	var _element = [],i,len;
+	if($.env.ie)
+	{
+		for(i=0,len=root.children.length;i<len;i++)
+		{
+			if(root.children[i].className == nameClass)
+				_element.push(root.children[i]);
+			
+		}
+	}
+	else
+		_element = root.getElementsByClassName(nameClass);
+	return _element;
+}
 
 Jerboa = function(element)
 {
@@ -470,16 +496,6 @@ Jerboa = function(element)
 	
 	Jerboa = {
 		verstion: "0.001"
-		,env: {
-			ie: /MSIE/i.test(navigator.userAgent),
-			ie6: /MSIE 6/i.test(navigator.userAgent),
-			ie7: /MSIE 7/i.test(navigator.userAgent),
-			ie8: /MSIE 8/i.test(navigator.userAgent),
-			firefox: /Firefox/i.test(navigator.userAgent),
-			opera: /Opera/i.test(navigator.userAgent),
-			webkit: /Webkit/i.test(navigator.userAgent),
-			camino: /Camino/i.test(navigator.userAgent)
-		  }
 		,$: lib
 		,editElement: element || "edit"
 		,pathCss: "../../jerboa.css"
@@ -488,7 +504,9 @@ Jerboa = function(element)
 		,showJerboa: true 
 		,history: []
 		,ui: {}
-		,cache: {}
+		,cache: {
+			indexLayer: 0
+		}
 		,init: function() {
 			//Start Jerboa
 			var _fragment = document.createDocumentFragment() //build a root of DOM tree
@@ -515,6 +533,9 @@ Jerboa = function(element)
 			}
 			//init UI
 			J.ui['screen'] = _document.getElementById(J.editElement);
+			J.ui['screen'].element = $.Element.set({tag: 'div',attr: {'class':'jerboa-ignore','style':'position:relative;top:0;left:0;width:100%;height:100%;background:red;'},html: 'test'});
+			J.ui['screen'].appendChild(J.ui['screen'].element);
+			
 			J.ui['main'] = $.Element.set({tag: 'div',attr: {id: 'jerboa'}});
 			J.ui['main_menu'] = $.Element.set({tag: 'div',attr: {id: 'jerboa-wrapper'}});
 			J.ui['main'].appendChild(J.ui['main_menu']);
@@ -534,31 +555,132 @@ Jerboa = function(element)
 			
 			//Build Layer panel
 			J.ui['layer_panel'] = {
-				layout: $.Element.set({tag:'div',attr: {'class':'jerboa-window',style:'top:30px;left:0px;'},html: '<p>Layout Panel</p>',event: {add: 'mousedown',fn: $.bind(J.event.drag,J,0,'init','layer_panel') }})
-				,element: $.Element.set({tag:'div',html: '<ul></ul>'})
-				,addLayer: function() {
+				layout: $.Element.set({tag:'div',attr: {'class':'jerboa-window',style:'top:30px;left:0px;'},html: '<p>Layout Panel</p>',event: {add: 'mousedown',fn: (J.cache.tempFn5 = $.bind(J.event.drag,J,0,'init','layer_panel')) }})
+				,element: $.Element.set({tag:'div',html: '<ul></ul>',event:{remove: 'mousedown',fn: Jerboa.cache.tempFn5}})
+				,addLayer: function(nameLayer) {
 					var _root = this.element.children[0]
-					,_element = _root.appendChild($.UI.layerPanel())
+					,index = J.cache.indexLayer
+					,_element = _root.appendChild($.UI.layerPanel(index))
+					,nameLayer = nameLayer || "Layer "+ index 
+					,baseZIndex = 2000
 					;
-					//console.log('add'); 
+					J.cache.indexLayer++;
+					$.Element.set(_element.children[1],{html: nameLayer});
+					J.ui['screen'].element.appendChild($.Element.set({tag:'div',attr: {'index':index,'class':'jerboa-ignore','style':'position:absolute;top:0;left:0;width:100%;height:100%;background:yellow;opacity:0.3;z-index:'+parseInt(baseZIndex+index)+';'}}));
 				}
 				,removeLayer: function() {
-					//console.log('remove');
+					
 					var _root = this.element.children[0]
 					,_element = null
 					;
-					if(J.env.ie)
+					_element = $.getByClass(_root,'jerboa-lactive')[0];
+					
+					if(_element)
 					{
-						for(i=0,len=_root.children.length;i<len;i++)
+						var index = _element.getAttribute('index'),i,len
+						,item=J.ui['screen'].element.children
+						;
+						_root.removeChild(_element);
+						for(i=0,len=item.length;i<len;i++)
 						{
-							if(_root.children[i].className == 'jerboa-lactive')
-								_element = _root.children[i];				
+							if(item[i].getAttribute('index') == index)
+							{
+								J.ui['screen'].element.removeChild(item[i]);
+								break;
+							}
+						}
+						
+					}
+					
+				}
+				,moveupLayer: function() {
+					var _root = this.element.children[0]
+					,_element = null
+					;
+					_element = $.getByClass(_root,'jerboa-lactive')[0];
+					
+					if(_element)
+					{
+						if(_element.previousSibling)
+						{
+							var backIndex = _element.previousSibling.getAttribute('index')
+							,frontIndex = _element.getAttribute('index')
+							,frontProp,backProp,frontElement,backElement
+							,i,len,task,baseZINDEX = 2000
+							,item = J.ui['screen'].element
+							;
+							for(i=0,task=2,len=item.children.length;i<len && task > 0;i++)
+							{
+								if(item.children[i].getAttribute('index') == frontIndex)
+								{
+									frontElement = item.children[i];
+									frontProp = $.CSS.getObjectOfStyle(frontElement);
+									task--;
+								}
+								else if(item.children[i].getAttribute('index') == backIndex)
+								{
+									backElement = item.children[i];
+									backProp = $.CSS.getObjectOfStyle(backElement);
+									task--;
+								}
+							}
+							frontProp['z-index'] = parseInt(frontProp['z-index'])+parseInt(backProp['z-index']);
+							backProp['z-index'] = parseInt(frontProp['z-index']) - parseInt(backProp['z-index']);
+							frontProp['z-index'] = parseInt(frontProp['z-index']) - parseInt(backProp['z-index']);
+							
+							$.CSS.setObjectOfStyle(frontElement,frontProp);
+							$.CSS.setObjectOfStyle(backElement,backProp);
+							_root.insertBefore(_element,_element.previousSibling);
+							
 						}
 					}
-					else
-						_element = _root.getElementsByClassName('jerboa-lactive')[0];
+				}
+				,movedownLayer: function() {
+					var _root = this.element.children[0]
+					,_element = null
+					;
+					_element = $.getByClass(_root,'jerboa-lactive')[0];
 					
-					if(_element) _root.removeChild(_element);
+					if(_element)
+					{
+						if(_element.nextSibling)
+						{
+							var backIndex = _element.getAttribute('index')
+							,frontIndex,frontProp,backProp,frontElement,backElement
+							,i,len,task,baseZINDEX = 2000
+							,item = J.ui['screen'].element
+							;
+							if(_element.nextSibling.nextSibling) 
+								frontIndex = _element.nextSibling.getAttribute('index');
+							else
+								frontIndex = _root.lastChild.getAttribute('index');
+								
+							for(i=0,task=2,len=item.children.length;i<len && task > 0;i++)
+							{
+								if(item.children[i].getAttribute('index') == frontIndex)
+								{
+									frontElement = item.children[i];
+									frontProp = $.CSS.getObjectOfStyle(frontElement);
+									task--;
+								}
+								else if(item.children[i].getAttribute('index') == backIndex)
+								{
+									backElement = item.children[i];
+									backProp = $.CSS.getObjectOfStyle(backElement);
+									task--;
+								}
+							}
+							frontProp['z-index'] = parseInt(frontProp['z-index'])+parseInt(backProp['z-index']);
+							backProp['z-index'] = parseInt(frontProp['z-index']) - parseInt(backProp['z-index']);
+							frontProp['z-index'] = parseInt(frontProp['z-index']) - parseInt(backProp['z-index']);
+							
+							$.CSS.setObjectOfStyle(frontElement,frontProp);
+							$.CSS.setObjectOfStyle(backElement,backProp);
+						
+							_root.insertBefore(_element,_element.nextSibling.nextSibling);
+							
+						}
+					}
 				}
 				,selectLayer: function(e) {
 					var event = $.Events.standardize(e)
@@ -568,11 +690,8 @@ Jerboa = function(element)
 					;
 					if(!$.CSS.hasClass(_target,'jerboa-lactive'))
 					{
-						var _element;
-						if(J.env.ie)
-							_element = _target.parentNode.children;
-						else 
-							_element = _target.parentNode.getElementsByClassName('jerboa-lactive');
+						var _element = $.getByClass(_target.parentNode,'jerboa-lactive');
+						
 						for(i=0,len = _element.length;i<len;i++)
 						{
 							$.CSS.removeClass(_element[i],'jerboa-lactive');
@@ -581,8 +700,38 @@ Jerboa = function(element)
 					}
 					
 				}
-				,renameLayer: function() {
-				
+				,editNameLayer: function(e) {
+					var event = $.Events.standardize(e)
+					,_target = event.target
+					,oldName = _target.innerHTML
+					;
+					event.preventDefault();
+					
+					if(! this.cache.tempFn6) 
+						this.cache.tempFn6 = $.bind(this.ui['layer_panel'].renameLayer,this,0,true);
+					
+					if(_target.tagName.toLowerCase() == 'p')
+					{
+						if(this.cache.layer)
+						{
+							this.ui['layer_panel'].renameLayer.call(this,false);
+						}
+							
+						this.cache.layer = _target;
+						_target.innerHTML = '<input type="text" value="'+ oldName +'" />';
+						$.Element.set(this.ui['layer_panel'].layout,{event: {remove: 'mousedown',fn: this.cache.tempFn5}});
+						$.Element.set(this.ui['layer_panel'].layout,{event: {add: 'click',fn: this.cache.tempFn6}});
+					}					
+				}
+				,renameLayer: function(removeEvents) {
+					var element = this.cache.layer;
+					element.innerHTML = element.children[0].value;
+					delete this.cache.layer;
+					if(removeEvents)
+					{
+						$.Element.set(this.ui['layer_panel'].layout,{event: {add: 'mousedown',fn: this.cache.tempFn5}});
+						$.Element.set(this.ui['layer_panel'].layout,{event: {remove: 'click',fn: this.cache.tempFn6}})
+					}
 				}
 				,hideLayer: function(e) {
 					var event = $.Events.standardize(e)
@@ -596,11 +745,24 @@ Jerboa = function(element)
 					
 					//console.log('hide');
 				}
+				,serialize: function() {
+					var _element = this.element.children[0].children,i
+					,len = _element.length,text = ""
+					;
+					for(i=0;i<len;i++)
+					{
+						text += _element[i].getAttribute('index');
+						if(i!=len-1) text += "|";
+					}
+					return text;
+				}
 			};
 			J.ui['layer_panel'].layout.appendChild($.Element.set({tag:'p',event: {add:'click',fn: $.bind(J.event.hide,J,0,'layer_panel') }}));
 			J.ui['layer_panel'].layout.appendChild($.Element.create('span'));
-			J.ui['layer_panel'].layout.appendChild($.Element.set({tag:'span',event: {add:'click',fn: $.bind(J.ui['layer_panel'].addLayer,J.ui['layer_panel']) }}));
-			J.ui['layer_panel'].layout.appendChild($.Element.set({tag:'span',event: {add:'click',fn: $.bind(J.ui['layer_panel'].removeLayer,J.ui['layer_panel']) }}));
+			J.ui['layer_panel'].layout.appendChild($.Element.set({tag:'span',event: {add:'click',fn: $.bind(J.ui['layer_panel'].addLayer,J.ui['layer_panel'],0,null) }}));
+			J.ui['layer_panel'].layout.appendChild($.Element.set({tag:'span',event: {add:'click',fn: $.bind(J.ui['layer_panel'].removeLayer,J.ui['layer_panel'],0) }}));
+			J.ui['layer_panel'].layout.appendChild($.Element.set({tag:'span',event: {add:'click',fn: $.bind(J.ui['layer_panel'].moveupLayer,J.ui['layer_panel'],0) }}));
+			J.ui['layer_panel'].layout.appendChild($.Element.set({tag:'span',event: {add:'click',fn: $.bind(J.ui['layer_panel'].movedownLayer,J.ui['layer_panel'],0) }}));
 			J.ui['layer_panel'].layout.appendChild(J.ui['layer_panel'].element);
 			J.ui['layer_panel'].layout.appendChild($.Element.set({tag: 'p',event: {add:'mousedown',fn: $.bind(J.event.resize,J,0,'init','layer_panel') }}));	
 			J.ui['main'].appendChild(J.ui['layer_panel'].layout);
@@ -627,7 +789,7 @@ Jerboa = function(element)
 			J.ui['resize_box'].appendChild( $.Element.set({tag:'span',attr: {style: 'top:100%;left:100%;cursor:se-resize;'}}) );
 			J.ui['main'].appendChild(J.ui['resize_box']);
 			
-			J.showResizer.call(J,1,$.CSS.getPosition(J.ui['screen']));
+			//J.showResizer.call(J,1,$.CSS.getPosition(J.ui['screen']));
 			
 			_fragment.appendChild(J.ui['main']); //insert all ui to root of DOM tree
 			document.body.appendChild(_fragment); //insert a root of DOM tree to document.body
@@ -721,13 +883,13 @@ Jerboa = function(element)
 				{
 					$.Events.remove(_document,'mousemove',this.cache.tempFn3);
 					$.Events.remove(_document,'mouseup',this.cache.tempFn4);
+					delete this.cache.tempFn3;
 					delete this.cache.tempFn4;
-					delete this.cache.tempFn5;
 					delete this.cache.top;
 					delete this.cache.left;
 					delete this.cache.x;
 					delete this.cache.y;
-					delete this.element
+					delete this.cache.element;
 				}
 			}
 		}

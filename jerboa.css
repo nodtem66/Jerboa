@@ -21,6 +21,7 @@ audio, video {
     background:transparent;
 }
 #jerboa							{position:absolute;top:0px;left:0px;}
+#jerboa ul						{list-style:none;}
 #jerboa-wrapper					{position:fixed;width:100%;top:0;left:0;text-align:center;z-index:3000;}
 #jerboa-menu 					{width:100%;height:33px;background:url(img/button_bg.png) 0 0 repeat-x;}
 #jerboa-menu div	   			{float:left;padding:10px;cursor:pointer;line-height:0.9;}
@@ -54,18 +55,21 @@ audio, video {
 .jerboa-window div+p			{float:right;width:16px;height:16px;background:url(img/ui-icons.png) -80px -225px no-repeat;}
 .jerboa-window p+p:hover		{background-position:-16px -16px;cursor:pointer;}
 .jerboa-window div				{overflow:auto;clear:both;}
+.jerboa-window li p				{cursor:text;}
 .jerboa-window span				{display:block;background:url(img/ui-icons.png) -300px -300px no-repeat;width:16px;height:18px;}
 .jerboa-window span+span		{background-position:-16px -128px;float:left;margin:5px 2px;cursor:pointer;clear:both;}
 .jerboa-window span+span+span	{background-position:-176px -96px;clear:none;}
-.jerboa-window li 				{background:#C4C4C4;padding:5px;margin:5px auto;font-style:italic;cursor:pointer;}
+.jerboa-window span+span+span+span		{background-position: 0px 0px;}
+.jerboa-window span+span+span+span+span	{background-position: -64px 0px;}
+.jerboa-window li 				{background:#C4C4C4;padding:5px;margin:5px auto;font-style:italic;cursor:pointer;height:24px;line-height:24px;}
 .jerboa-window li span			{display:block;width:16px;height:16px;float:left;margin-right:20px;border:1px solid #4F4F4F;background:#AFAFAF;}
-.jerboa-window .jerboa-lactive	{background:#A4CDE4;border:1px solid #3465E7;}
+.jerboa-window .jerboa-lactive	{background:#A4CDE4;border:1px solid #3465E7;height:22px;}
 .jerboa-window .jerboa-lhide span{background:url(img/ui-icons.png) 0px -128px #AFAFAF;}
 .jerboa-window div+p:hover		{cursor:se-resize;}
 
 .jerboa-backbutton				{height:56px;width:20px;float:left;line-height:56px;cursor:pointer;}
 .jerboa-lightbox				{background:#000;opacity: 0.3;filter:Alpha(Opacity=30);position:absolute;z-index:1999;}
-.jerboa-hide 					{display:none;}
+
 .jerboa-button					{background:url(img/button_bg.png) 0 0 repeat-x #eaeaea;height:33px;line-height:33px;border:1px solid #999;float:left;cursor:pointer;}
 .jerboa-button span				{margin:auto 10px;}
 .jerboa-button:active			{background-position:0 -66px;}
@@ -74,19 +78,22 @@ audio, video {
 .jerboa-combobox p				{margin:5px auto;font-weight:normal;text-shadow:none;float:left;}
 .jerboa-combobox span			{background:url(img/icon_sprite.png) 0 -32px no-repeat;width:16px;height:16px;cursor:pointer;float:left;margin-top:5px;}
 .jerboa-combobox span + p + span{background-position:-16px -32px;}
-
+.jerboa-hide
+{
+	display:none;
+}
 #jerboa-errorbox ,#jerboa-infobox,.jerboa-box
 {
 	
 	box-shadow:0 0 10px #000;
 	-moz-box-shadow:0 0 10px #000;
 }
-.jerboa-button:hover,.jerboa-box input:focus,.jerboa-combobox:hover,.jerboa-window li>span:hover
+.jerboa-button:hover,#jerboa input:focus,.jerboa-combobox:hover,.jerboa-window li>span:hover
 {
 	box-shadow:0 0 5px #06F;
 	-moz-box-shadow:0 0 5px #06F;
 }
-#jerboa-processbar,#jerboa-processbar span,.jerboa-button,.jerboa-box input,.jerboa-combobox
+#jerboa-processbar,#jerboa-processbar span,.jerboa-button,#jerboa input,.jerboa-combobox
 {
 	border-radius:5px;
 	-moz-border-radius:5px;
@@ -99,7 +106,7 @@ audio, video {
 	font-size:14px;
 	color:#4f4f4f;
 }
-.jerboa-box input
+#jerboa input
 {
 	height:20px;background:url(img/inputshadow.gif) 0 0 no-repeat;
 	border: 1px solid #9d9d9d;
