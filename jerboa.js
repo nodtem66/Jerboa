@@ -501,6 +501,7 @@ Jerboa = function(element)
 		,pathCss: "../../jerboa.css"
 		,currentPanel: null
 		,currentToolbox: []
+		,currentLayer: 0
 		,showJerboa: true 
 		,history: []
 		,ui: {}
@@ -565,8 +566,10 @@ Jerboa = function(element)
 			//Build insert menu
 			J.cache.tempFn7 = $.bind(J.showUI,J,0,J.ui['menu'][0],false);
 			J.ui['menu'][2].appendChild( $.Element.set({tag:'span',attr: {'class': 'jerboa-backbutton'},html: '&lt;',event: {add:'click',fn: J.cache.tempFn7 }}) );
-			J.ui['menu'][2].appendChild( $.Element.set({tag:'div',html: "<span></span><p>Text</p>"}) );
+			J.ui['menu'][2].appendChild( $.Element.set({tag:'div',html: "<span></span><p>Text</p>",event: {add:'click',fn: $.bind(J.insert.text,J,0) }}) );
+			J.ui['menu'][2].appendChild( $.Element.set({tag:'div',html: "<span></span><p>Image</p>"}) );
 			J.ui['main_menu'].appendChild(J.ui['menu'][2]);
+			
 			//Build Layer panel
 			J.ui['layer_panel'] = {
 				layout: $.Element.set({tag:'div',attr: {'class':'jerboa-window jerboa-hide',style:'top:30px;left:0px;'},html: '<p>Layout Panel</p>',event: {add: 'mousedown',fn: (J.cache.tempFn5 = $.bind(J.event.drag,J,0,'init','layer_panel')) }})
@@ -685,7 +688,7 @@ Jerboa = function(element)
 						}
 						$.CSS.addClass(_target,'jerboa-lactive');
 					}
-					
+					J.currentLayer = parseInt(_target.getAttribute('index'));
 				}
 				,editNameLayer: function(e) {
 					var event = $.Events.standardize(e)
@@ -905,6 +908,49 @@ Jerboa = function(element)
 					delete this.cache.y;
 					delete this.cache.element;
 				}
+			}
+		}
+		,insert: {
+			text: function()
+			{
+				var $ = this.$
+				,_layer = this.ui['layer'][this.currentLayer]
+				,_element = _layer.appendChild($.Element.set({tag:'div',html:'<p>Insert Text Here</p>'}))
+				;
+				$.Element.set(_element,{event: {add:'click',fn: $.bind(this.text.edit,this,0,_element) }});
+				//$.Element.set(_element,{event: {add:'blur',fn: $.bind(this.text.save,this,0,_element) }});
+			}
+		}
+		,text: {
+			edit: function(element)
+			{
+				var $ = this.$
+				;
+				console.log('text edit');
+				//element.setAttribute('contenteditable','true');
+				var editable = $.Element.set({tag:'iframe',attr:{'id':'editable','src':'about:blank',width:'100%',height:'100px'}})
+				,tempData = element.innerHTML
+				;
+				element.innerHTML = "";
+				
+				
+				element.appendChild(editable);
+				
+				setTimeout(function(){
+				editable.contentDocument.body.innerHTML = tempData;
+				editable.contentDocument.designMode = 'on';
+				},100);
+				
+				
+				
+			}
+			,save: function(element)
+			{
+				var $ = this.$
+				;
+				console.log('text save');
+				//element.setAttribute('contenteditable','false');
+				document.designMode = 'off';
 			}
 		}
 		,refreshScreen: function()
