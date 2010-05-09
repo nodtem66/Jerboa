@@ -567,6 +567,8 @@ Jerboa = function(element)
 			J.cache.tempFn7 = $.bind(J.showUI,J,0,J.ui['menu'][0],false);
 			J.ui['menu'][2].appendChild( $.Element.set({tag:'span',attr: {'class': 'jerboa-backbutton'},html: '&lt;',event: {add:'click',fn: J.cache.tempFn7 }}) );
 			J.ui['menu'][2].appendChild( $.Element.set({tag:'div',html: "<span></span><p>Text</p>",event: {add:'click',fn: $.bind(J.insert.text,J,0) }}) );
+				//Insert Function
+				J.cache.tempFn8 = $.bind(J.text.save,J,0);
 			J.ui['menu'][2].appendChild( $.Element.set({tag:'div',html: "<span></span><p>Image</p>"}) );
 			J.ui['main_menu'].appendChild(J.ui['menu'][2]);
 			
@@ -759,7 +761,9 @@ Jerboa = function(element)
 			J.ui['main'].appendChild(J.ui['light_screen_bottom']);
 			J.refreshScreen.call(J);
 			//resize box
-			J.ui['resize_box'] = $.Element.set({tag:'div',attr:{id:'jerboa-resize','class':'jerboa-hide',style: ''},html: '<div></div>'});
+			J.ui['resize_box'] = $.Element.set({tag:'div',attr:{id:'jerboa-resize','class':'jerboa-hide',style: ''}});
+			J.ui['resize_box'].appendChild( $.Element.set({tag:'div' ,event:{'add':'dblclick',fn: $.bind(J.text.edit,J,0) } }) );
+			$.Element.set(J.ui['resize_box'].children[0],{event:{add:'mousedown',fn: $.bind(J.event.drag,J,0,'init','resize_box') }});
 			J.ui['resize_box'].appendChild( $.Element.set({tag:'span',attr: {style: 'top:0;left:0;cursor:nw-resize;'}}) );
 			J.ui['resize_box'].appendChild( $.Element.set({tag:'span',attr: {style: 'top:0;left:48%;cursor:n-resize;'}}) );
 			J.ui['resize_box'].appendChild( $.Element.set({tag:'span',attr: {style: 'top:0;left:100%;cursor:ne-resize;'}}) );
@@ -768,6 +772,7 @@ Jerboa = function(element)
 			J.ui['resize_box'].appendChild( $.Element.set({tag:'span',attr: {style: 'top:100%;left:0;cursor:sw-resize;'}}) );
 			J.ui['resize_box'].appendChild( $.Element.set({tag:'span',attr: {style: 'top:100%;left:48%;cursor:s-resize;'}}) );
 			J.ui['resize_box'].appendChild( $.Element.set({tag:'span',attr: {style: 'top:100%;left:100%;cursor:se-resize;'}}) );
+			
 			J.ui['main'].appendChild(J.ui['resize_box']);
 			
 			//J.showResizer.call(J,1,$.CSS.getPosition(J.ui['screen']));
@@ -877,6 +882,12 @@ Jerboa = function(element)
 					$.Events.add(_document,'mousemove',this.cache.tempFn3);
 					$.Events.add(_document,'mouseup',this.cache.tempFn4);
 					this.cache.element = this.ui[nameUI].layout || this.ui[nameUI];
+					if(nameUI == 'resize_box')
+					{
+						this.cache.screen_top = this.ui['screen'].offsetTop;
+						this.cache.screen_left = this.ui['screen'].offsetLeft;
+						this.cache.resize_ref = this.ui['resize_box'].ref;
+					}
 					this.cache.x = event.pageX;
 					this.cache.y = event.pageY;
 					this.cache.top = parseInt(this.cache.element.style.top);
@@ -893,6 +904,7 @@ Jerboa = function(element)
 					//console.log(parseInt(event.pageX-this.cache.x)+","+parseInt(event.pageY-this.cache.y));
 					//console.log("("+this.cache.top+","+this.cache.left+")");
 					$.CSS.addStyle(this.cache.element,{top:this.cache.top+"px",left:this.cache.left+"px"});
+					if(this.cache.resize_ref) $.CSS.addStyle(this.cache.resize_ref,{top:parseInt(this.cache.top-this.cache.screen_top+8)+"px",left:parseInt(this.cache.left-this.cache.screen_left+8)+"px"});
 					this.cache.x = event.pageX;
 					this.cache.y = event.pageY;
 				}
@@ -907,6 +919,7 @@ Jerboa = function(element)
 					delete this.cache.x;
 					delete this.cache.y;
 					delete this.cache.element;
+					delete this.cache.resize_ref;
 				}
 			}
 		}
@@ -915,42 +928,47 @@ Jerboa = function(element)
 			{
 				var $ = this.$
 				,_layer = this.ui['layer'][this.currentLayer]
-				,_element = _layer.appendChild($.Element.set({tag:'div',html:'<p>Insert Text Here</p>'}))
+				,_element = _layer.appendChild($.Element.set({tag:'div',attr:{'role':'paragraph','style':''},html:'<p>Insert Text Here</p>'}))
 				;
-				$.Element.set(_element,{event: {add:'click',fn: $.bind(this.text.edit,this,0,_element) }});
+				$.Element.set(_element,{event: {add:'click',fn: $.bind(this.text.edit,this,0) }});
 				//$.Element.set(_element,{event: {add:'blur',fn: $.bind(this.text.save,this,0,_element) }});
 			}
 		}
 		,text: {
-			edit: function(element)
+			edit: function(e)
 			{
 				var $ = this.$
+				,event = $.Events.standardize(e)
+				,element = event.target
 				;
-				console.log('text edit');
+				event.preventDefault();
+				if(element.getAttribute('role') != 'paragraph') element = element.parentNode;
+				console.log('text edit',element);
 				//element.setAttribute('contenteditable','true');
-				var editable = $.Element.set({tag:'iframe',attr:{'id':'editable','src':'about:blank',width:'100%',height:'100px'}})
-				,tempData = element.innerHTML
+				this.showResizer.call(this,true,element);
+				var editable = $.Element.set({tag:'div',attr:{'contenteditable':'true','style':'width:100%;position:static;'},event: {add: 'blur',fn: this.cache.tempFn8 },html:element.innerHTML})
 				;
 				element.innerHTML = "";
-				
-				
 				element.appendChild(editable);
-				
-				setTimeout(function(){
-				editable.contentDocument.body.innerHTML = tempData;
-				editable.contentDocument.designMode = 'on';
-				},100);
-				
+								
+				editable.focus();
 				
 				
 			}
-			,save: function(element)
+			,save: function(e)
 			{
 				var $ = this.$
+				,event = $.Events.standardize(e)
+				,_target = event.target
 				;
-				console.log('text save');
-				//element.setAttribute('contenteditable','false');
-				document.designMode = 'off';
+				event.preventDefault();
+				
+				_target.parentNode.innerHTML = _target.innerHTML;
+				
+				this.showResizer.call(this,0);
+				
+				
+				
 			}
 		}
 		,refreshScreen: function()
@@ -965,14 +983,16 @@ Jerboa = function(element)
 				$.CSS.addStyle(this.ui['light_screen_right'],{top:'0px',left:parseInt(propElement.x+propElement.width)+'px',width:parseInt(propDoc.width - propElement.x - propElement.width)+'px',height:propDoc.height+'px'});
 				$.CSS.addStyle(this.ui['light_screen_bottom'],{top:parseInt(propElement.y+propElement.height)+'px',left:propElement.x+'px',width:propElement.width+'px',height:parseInt(propDoc.height - propElement.y - propElement.height)+'px'});
 		}
-		,showResizer: function(visibility,List)
+		,showResizer: function(visibility,element)
 		{
 			var $=this.$
 			;
 			if(visibility)
 			{
-				$.CSS.addStyle(this.ui['resize_box'],{top:parseInt(List.y-3)+'px',left:parseInt(List.x-3)+'px',width:List.width+'px',height:List.height+'px'});
+				var List = $.CSS.getPosition(element);
+				$.CSS.addStyle(this.ui['resize_box'],{top:parseInt(List.y-8)+'px',left:parseInt(List.x-8)+'px',width:parseInt(List.width+10)+'px',height:parseInt(List.height+10)+'px'});
 				$.CSS.removeClass(this.ui['resize_box'],'jerboa-hide');
+				this.ui['resize_box'].ref = element;
 			} 
 			else $.CSS.addClass(this.ui['resize_box'],'jerboa-hide');
 		}
