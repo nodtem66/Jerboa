@@ -43,8 +43,8 @@ audio, video {
 #jerboa-processbar span			{position:absolute;top:0;left:0;height:20px;background:url(img/progress_bar.gif) repeat-x;z-index:2999;}
 
 #jerboa-darkbox					{width:100%;height:100%;position:fixed;background:#000;opacity: 0.3;filter:Alpha(Opacity=30);z-index:3001;}
-#jerboa-resize					{position:absolute;z-index:2999;height:auto;}
-#jerboa-resize >div				{border:1px dashed #000;position:relative;width:100%;height:100%;top:2px;left:2px;cursor:move;}
+#jerboa-resize					{position:absolute;z-index:2999;}
+#jerboa-resize >div				{border:1px dashed #000;position:absolute;width:100%;height:100%;top:2px;left:2px;cursor:move;}
 #jerboa-resize span				{position:absolute;width:6px;height:6px;background:#000;display:block;}
 .jerboa-panel					{background:url(img/the_gradient.gif) repeat-x;width:100%;height:56px;}
 .jerboa-panel div				{float:left;margin:auto 5px;padding:5px;cursor:pointer;}
