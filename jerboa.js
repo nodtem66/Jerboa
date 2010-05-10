@@ -550,28 +550,20 @@ Jerboa = function(element)
 			//Build menu bar
 			J.ui['menu'] = [];
 			J.ui['menu'].push( $.Element.set({tag:'div',attr: {id:'jerboa-menu'}}) );
-			J.ui['menu'].push( $.Element.set({tag:'div',attr: {'class':'jerboa-box jerboa-hidea','style':'width:300px;height:70px;'}}) );
 			J.ui['menu'].push( $.Element.set({tag:'div',attr: {id:'jerboa-insert','class':'jerboa-panel jerboa-hide'}}) );
 			
 			
 			
-			//Build Page Size menu
-			J.ui['menu'][1].appendChild( $.Element.set({tag:'p',html: 'Page Height',attr:{'style':'float:left;margin-right:25px;'}}) );
-			J.ui['menu'][1].appendChild( $.Element.set({tag:'p'}) );
-			J.ui['menu'][1].lastChild.appendChild( $.UI.textfield() );
-			J.ui['menu'][1].lastChild.innerHTML = J.ui['menu'][1].lastChild.innerHTML + ' px';
-			J.ui['menu'][1].appendChild( $.Element.set($.UI.button('OK'),{event: {add:'click',fn: $.bind(J.setPageHeight,J,0) }}) );
-			J.ui['menu'][1].lastChild.setAttribute('style','margin-left:110px;margin-top:10px;'); 
-			J.ui['main'].appendChild(J.ui['menu'][1]);
+			
 			
 			//Build insert menu
 			J.cache.tempFn7 = $.bind(J.showUI,J,0,J.ui['menu'][0],false);
-			J.ui['menu'][2].appendChild( $.Element.set({tag:'span',attr: {'class': 'jerboa-backbutton'},html: '&lt;',event: {add:'click',fn: J.cache.tempFn7 }}) );
-			J.ui['menu'][2].appendChild( $.Element.set({tag:'div',html: "<span></span><p>Text</p>",event: {add:'click',fn: $.bind(J.insert.text,J,0) }}) );
+			J.ui['menu'][1].appendChild( $.Element.set({tag:'span',attr: {'class': 'jerboa-backbutton'},html: '&lt;',event: {add:'click',fn: J.cache.tempFn7 }}) );
+			J.ui['menu'][1].appendChild( $.Element.set({tag:'div',html: "<span></span><p>Text</p>",event: {add:'click',fn: $.bind(J.insert.text,J,0) }}) );
 				//Insert Function
 				J.cache.tempFn8 = $.bind(J.text.save,J,0);
-			J.ui['menu'][2].appendChild( $.Element.set({tag:'div',html: "<span></span><p>Image</p>"}) );
-			J.ui['main_menu'].appendChild(J.ui['menu'][2]);
+			J.ui['menu'][1].appendChild( $.Element.set({tag:'div',html: "<span></span><p>Image</p>"}) );
+			J.ui['main_menu'].appendChild(J.ui['menu'][1]);
 			
 			//Build Layer panel
 			J.ui['layer_panel'] = {
@@ -751,6 +743,9 @@ Jerboa = function(element)
 			J.ui['main'].appendChild(J.ui['layer_panel'].layout);
 			J.ui['layer_panel'].addLayer();
 			
+			//Build Text panel
+			J.ui['text_panel'] = '';
+			
 			//light screen
 			J.ui['light_screen_top'] = $.Element.set({tag:'div',attr: {'class':'jerboa-lightbox',style: ''}});
 			J.ui['light_screen_left'] = $.Element.set({tag:'div',attr: {'class':'jerboa-lightbox',style: ''}});
@@ -761,6 +756,7 @@ Jerboa = function(element)
 			J.ui['main'].appendChild(J.ui['light_screen_right']);
 			J.ui['main'].appendChild(J.ui['light_screen_bottom']);
 			J.refreshScreen.call(J);
+			
 			//resize box
 			J.ui['resize_box'] = $.Element.set({tag:'div',attr:{id:'jerboa-resize','class':'jerboa-hide',style: ''}});
 			J.ui['resize_box'].appendChild( $.Element.set({tag:'div',event:{add:'mousedown',fn: $.bind(J.event.drag,J,0,'init','resize_box') } }) );
@@ -775,7 +771,24 @@ Jerboa = function(element)
 			
 			J.ui['main'].appendChild(J.ui['resize_box']);
 			
-			//J.showResizer.call(J,1,$.CSS.getPosition(J.ui['screen']));
+			//Build Jerboa Setting Box
+			J.ui['setting_box'] = $.Element.set({tag:'div',attr:{'class':'jerboa-box'}});
+				//Build Page Size Setting
+				J.ui['setting_box']['page_size'] = $.Element.set({tag:'div'});
+				J.ui['setting_box']['page_size'].appendChild( $.Element.set({tag:'p',html: 'Page Height',attr:{'style':'float:left;margin-right:25px;'}}) );
+				J.ui['setting_box']['page_size'].appendChild( $.Element.set({tag:'p',attr:{'style':'float:left;'}}) );
+				J.ui['setting_box']['page_size'].lastChild.appendChild( $.UI.textfield() );
+				J.ui['setting_box']['page_size'].lastChild.innerHTML = J.ui['setting_box']['page_size'].lastChild.innerHTML + ' px';
+				J.ui['setting_box']['page_size'].appendChild( $.Element.set($.UI.button('OK'),{event: {add:'click',fn: $.bind(J.setPageHeight,J,0) }}) );
+				J.ui['setting_box']['page_size'].lastChild.setAttribute('style','margin-left:110px;margin-top:10px;clear:both;'); 
+				J.ui['setting_box'].appendChild(J.ui['setting_box']['page_size']);
+				
+				//Build Text Font Setting
+				J.ui['setting_box']['font'] = $.Element.set({tag:'div',attr:{'class':'jerboa-hide'},html: '<table><tr><td colspan="6">Paragraph</td></tr><tr style="font-variant:small-caps"><td width="10"></td><td>word spacing</td><td width="20"></td><td><input type="text" maxlength="3" style="width:25px" /></td><td>px</td>				</tr><tr height="10"><td colspan="6"></td></tr>	<tr style="font-variant:small-caps"><td width="10"></td><td>letter spacing</td><td width="20"></td><td><input type="text" maxlength="3" style="width:25px" /></td><td>px</td></tr><tr height="10"><td colspan="6"></td></tr><tr style="font-variant:small-caps">				<td width="10"></td><td>line height</td><td width="20"></td><td><input type="text" maxlength="3" style="width:25px" /></td><td>px</td></tr><tr height="10"><td colspan="6"></td></tr><tr><td colspan="3"></td><td colspan="3"></td></tr></table>'});
+				J.ui['setting_box']['font'].children[0].children[0].lastChild.lastChild.appendChild( $.Element.set({event:{add:'click',fn:function(){alert('a');}},attr:{'class':'jerboa-button'},html: '<span>OK</span>'}) );
+				J.ui['setting_box'].appendChild(J.ui['setting_box']['font']);
+			J.ui['main'].appendChild(J.ui['setting_box']);
+			//Build Infobox
 			J.ui['infobox'] = {
 				layout: $.Element.set({tag:'div',attr: {id:'jerboa-infobox','class':'jerboa-hide','style':''}})
 				,element: $.Element.set({tag:'p'})
@@ -788,6 +801,7 @@ Jerboa = function(element)
 			J.ui['infobox'].layout.appendChild(J.ui['infobox'].element);
 			J.ui['main'].appendChild(J.ui['infobox'].layout);
 			
+			//Build Error box
 			J.ui['errorbox'] = {
 				layout: $.Element.set({tag:'div',attr: {id:'jerboa-errorbox','class':'jerboa-hide','style':''}})
 				,element: $.Element.set({tag:'p'})
@@ -806,8 +820,8 @@ Jerboa = function(element)
 			$.CSS.removeClass(J.ui['dark_screen'],'jerboa-hide');
 			
 			//Build main menu bar
-			J.ui['menu'][0].appendChild( $.Element.set({tag:'div',html:'Page Size',event: {add:'click',fn: $.bind(J.showUI,J,0,J.ui['menu'][1]) }}) );
-			J.ui['menu'][0].appendChild( $.Element.set({tag:'div',html:'Insert',event: {add:'click',fn: $.bind(J.showUI,J,0,J.ui['menu'][2],false) }}) );
+			J.ui['menu'][0].appendChild( $.Element.set({tag:'div',html:'Page Size',event: {add:'click',fn: $.bind(J.showUI,J,0,[J.ui['setting_box'],J.ui['setting_box']['page_size'],J.ui['dark_screen']]) }}) );
+			J.ui['menu'][0].appendChild( $.Element.set({tag:'div',html:'Insert',event: {add:'click',fn: $.bind(J.showUI,J,0,J.ui['menu'][1],false) }}) );
 			J.ui['menu'][0].appendChild( $.Element.set({tag:'div',html:'Layer',event: {add:'click',fn: $.bind(J.showUI,J,0,J.ui['layer_panel'].layout) }}) );
 			J.ui['menu'][0].appendChild( $.Element.set({tag:'div',html:'Report Error'}) );
 			J.currentPanel = J.ui['menu'][0];
@@ -1069,22 +1083,32 @@ Jerboa = function(element)
 		,setPageHeight: function()
 		{
 			var $=this.$
-			,_height = this.ui['menu'][1].children[1].children[0].value
+			,_height = this.ui['setting_box']['page_size'].children[1].children[0].value
 			;
 			$.CSS.addStyle(this.ui['screen'].element,{'height':_height+'px'});
-			$.CSS.addClass(this.ui['menu'][1],'jerboa-hide');
+			$.CSS.addClass(this.ui['setting_box'],'jerboa-hide');
+			$.CSS.addClass(this.ui['setting_box']['page_size'],'jerboa-hide');
 			$.CSS.addClass(this.ui['dark_screen'],'jerboa-hide');
 			this.refreshScreen.call(this);
 		}
 		,showUI: function(element,isPopup)
 		{
-			this.$.CSS.removeClass(element,'jerboa-hide');
+			if(element.length)
+			{
+				for(var i=0,len=element.length;i<len;i++)
+				{
+					this.$.CSS.removeClass(element[i],'jerboa-hide');
+				}
+			}
+			else 
+				this.$.CSS.removeClass(element,'jerboa-hide');
 			if(!isPopup)
 			{
 				this.$.CSS.addClass(this.currentPanel,'jerboa-hide');
 				this.currentPanel = element;
 				
 			}
+			
 			
 		}
 	};
