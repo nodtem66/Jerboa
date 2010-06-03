@@ -74,6 +74,7 @@ $.Events = {
 			// Otherwise, use the Internet Explorer-specific method
 			element.detachEvent("on" + eventType, callback);
 		}
+		
 },
 	// The standardize method produces a unified set of event
 	// properties, regardless of the browser
@@ -405,7 +406,7 @@ $.UI = {
 		return this.cache["textfield"+_name+_value].cloneNode(1);
 	}
 	,combobox: function() {
-		//TODO add combobox
+		//TODO: add combobox
 	}
 	,layerPanel: function(index) {
 		var isFirst = index ? '' : 'jerboa-lactive'
@@ -551,7 +552,7 @@ Jerboa = function(element)
 			J.ui['menu'] = [];
 			J.ui['menu'].push( $.Element.set({tag:'div',attr: {id:'jerboa-menu'}}) );
 			J.ui['menu'].push( $.Element.set({tag:'div',attr: {id:'jerboa-insert','class':'jerboa-panel jerboa-hide'}}) );
-			
+			J.ui['menu'].push( $.Element.set({tag:'div',attr: {id:'jerboa-text','class':'jerboa-panel jerboa-hide'}}) );
 			
 			
 			
@@ -560,10 +561,18 @@ Jerboa = function(element)
 			J.cache.tempFn7 = $.bind(J.showUI,J,0,J.ui['menu'][0],false);
 			J.ui['menu'][1].appendChild( $.Element.set({tag:'span',attr: {'class': 'jerboa-backbutton'},html: '&lt;',event: {add:'click',fn: J.cache.tempFn7 }}) );
 			J.ui['menu'][1].appendChild( $.Element.set({tag:'div',html: "<span></span><p>Text</p>",event: {add:'click',fn: $.bind(J.insert.text,J,0) }}) );
-				//Insert Function
-				J.cache.tempFn8 = $.bind(J.text.save,J,0);
 			J.ui['menu'][1].appendChild( $.Element.set({tag:'div',html: "<span></span><p>Image</p>"}) );
-			J.ui['main_menu'].appendChild(J.ui['menu'][1]);
+			J.ui['main_menu'].appendChild(J.ui['menu'][1]);	
+			
+			//Build text menu
+			J.cache.tempFn8 = $.bind(J.text.save,J,0);
+			J.ui['menu'][2].appendChild( $.Element.set({tag:'span',attr: {'class': 'jerboa-backbutton'},html: '&lt;',event: {add:'click',fn: J.cache.tempFn7 }}) );
+			J.ui['menu'][2].appendChild( $.Element.set({tag:'div',html:'<div class="jerboa-group"><div></div><div></div><div></div><div></div></div>'}));
+			J.ui['menu'][2].appendChild( $.Element.set({tag:'div',html:'<div class="jerboa-group"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>'}));
+			J.ui['menu'][2].appendChild( $.Element.set({tag:'div',html:'<div class="jerboa-group"><div></div><div></div></div>'}));
+         J.ui['menu'][2].appendChild( $.Element.set({tag:'div',html:'Edit CSS'}));
+			J.ui['main_menu'].appendChild(J.ui['menu'][2]);
+			
 			
 			//Build Layer panel
 			J.ui['layer_panel'] = {
@@ -599,6 +608,7 @@ Jerboa = function(element)
 					}
 					
 				}
+				
 				,moveupLayer: function() {
 					var _root = this.element.children[0]
 					,_element = null
@@ -739,7 +749,7 @@ Jerboa = function(element)
 			J.ui['layer_panel'].layout.appendChild($.Element.set({tag:'span',event: {add:'click',fn: $.bind(J.ui['layer_panel'].moveupLayer,J.ui['layer_panel'],0) }}));
 			J.ui['layer_panel'].layout.appendChild($.Element.set({tag:'span',event: {add:'click',fn: $.bind(J.ui['layer_panel'].movedownLayer,J.ui['layer_panel'],0) }}));
 			J.ui['layer_panel'].layout.appendChild(J.ui['layer_panel'].element);
-			J.ui['layer_panel'].layout.appendChild($.Element.set({tag: 'p',event: {add:'mousedown',fn: $.bind(J.event.resize,J,0,'init','layer_panel','sw') }}));	
+			J.ui['layer_panel'].layout.appendChild($.Element.set({tag: 'p',event: {add:'mousedown',fn: $.bind(J.event.resize,J,0,'init','layer_panel','se') }}));	
 			J.ui['main'].appendChild(J.ui['layer_panel'].layout);
 			J.ui['layer_panel'].addLayer();
 			
@@ -874,55 +884,82 @@ Jerboa = function(element)
 					if(direct in {'e':'','ne':'','se':''})
 						this.cache.w += event.pageX - this.cache.x;
 					if(direct in {'w':'','nw':'','sw':''})
+					{
 						this.cache.w -= event.pageX - this.cache.x;
+						this.cache.left += event.pageX - this.cache.x;
+					}
 					if(direct in {'s':'','se':'','sw':''})
 						this.cache.h += event.pageY - this.cache.y;
 					if(direct in {'n':'','ne':'','nw':''})
-					
-					this.cache.h -= event.pageY - this.cache.y;
-					this.cache.left += event.pageX - this.cache.x;
-					this.cache.top += event.pageY - this.cache.y;
-					this.cache.x = event.pageX;
-					this.cache.y = event.pageY;
+   				{
+   					this.cache.h -= event.pageY - this.cache.y;
+   					this.cache.top += event.pageY - this.cache.y;
+					}
+
 					
 					switch(direct)
 					{
 						case 'n':
-							$.CSS.addStyle(this.cache.element,{top:this.cache.top+"px",height:this.cache.h+"px"});
-							if(this.cache.resize_ref) $.CSS.addStyle(this.cache.resize_ref,{top:parseInt(this.cache.top-this.cache.screen_top+8)+"px",height:this.cache.h+"px"});
+						   if(this.cache.top > this.cache.screen_top - 8)
+						   {
+							   $.CSS.addStyle(this.cache.element,{top:this.cache.top+"px",height:this.cache.h+"px"});
+							   if(this.cache.resize_ref) $.CSS.addStyle(this.cache.resize_ref,{top:parseInt(this.cache.top-this.cache.screen_top+8)+"px",height:this.cache.h+"px"});
+							}
 							break;
 						case 'nw':
-							$.CSS.addStyle(this.cache.element,{top:this.cache.top+"px",left:this.cache.left+"px",width:this.cache.w+"px",height:this.cache.h+"px"});
-							if(this.cache.resize_ref) $.CSS.addStyle(this.cache.resize_ref,{top:parseInt(this.cache.top-this.cache.screen_top+8)+"px",left:parseInt(this.cache.left-this.cache.screen_left+8)+"px",width:parseInt(this.cache.w-10)+"px",height:this.cache.h+"px"});
+						   if(this.cache.top > this.cache.screen_top - 8 && this.cache.left > this.cache.screen_left - 8)
+						   {
+							   $.CSS.addStyle(this.cache.element,{top:this.cache.top+"px",left:this.cache.left+"px",width:this.cache.w+"px",height:this.cache.h+"px"});
+							   if(this.cache.resize_ref) $.CSS.addStyle(this.cache.resize_ref,{top:parseInt(this.cache.top-this.cache.screen_top+8)+"px",left:parseInt(this.cache.left-this.cache.screen_left+8)+"px",width:parseInt(this.cache.w-10)+"px",height:this.cache.h+"px"});
+							}
 							break;
 						case 'ne':
-							$.CSS.addStyle(this.cache.element,{top:this.cache.top+"px",width:this.cache.w+"px",height:this.cache.h+"px"});
-							if(this.cache.resize_ref) $.CSS.addStyle(this.cache.resize_ref,{top:parseInt(this.cache.top-this.cache.screen_top+8)+"px",width:parseInt(this.cache.w-10)+"px",height:this.cache.h+"px"});
+						   if(this.cache.top > this.cache.screen_top - 8 && this.cache.w + this.cache.left < this.cache.screen_left + this.cache.screen_width)
+						   {
+   							$.CSS.addStyle(this.cache.element,{top:this.cache.top+"px",width:this.cache.w+"px",height:this.cache.h+"px"});
+	   						if(this.cache.resize_ref) $.CSS.addStyle(this.cache.resize_ref,{top:parseInt(this.cache.top-this.cache.screen_top+8)+"px",width:parseInt(this.cache.w-10)+"px",height:this.cache.h+"px"});
+							}
 							break;
 						case 'w':
-							$.CSS.addStyle(this.cache.element,{left:this.cache.left+"px",width:this.cache.w+"px"});
-							if(this.cache.resize_ref) $.CSS.addStyle(this.cache.resize_ref,{left:parseInt(this.cache.left-this.cache.screen_left+8)+"px",width:parseInt(this.cache.w-10)+"px"});
+						   if(this.cache.left > this.cache.screen_left)
+						   {
+							   $.CSS.addStyle(this.cache.element,{left:this.cache.left+"px",width:this.cache.w+"px"});
+							   if(this.cache.resize_ref) $.CSS.addStyle(this.cache.resize_ref,{left:parseInt(this.cache.left-this.cache.screen_left+8)+"px",width:parseInt(this.cache.w-10)+"px"});
+							}
 							break;
 						case 'e':
-							$.CSS.addStyle(this.cache.element,{width:this.cache.w+"px"});
-							if(this.cache.resize_ref) $.CSS.addStyle(this.cache.resize_ref,{width:parseInt(this.cache.w-10)+"px"});
+						   if(this.cache.w + this.cache.left < this.cache.screen_left + this.cache.screen_width)
+						   {  
+							   $.CSS.addStyle(this.cache.element,{width:this.cache.w+"px"});
+							   if(this.cache.resize_ref) $.CSS.addStyle(this.cache.resize_ref,{width:parseInt(this.cache.w-10)+"px"});
+							}
 							break;
 						case 's':
-							$.CSS.addStyle(this.cache.element,{height:this.cache.h+"px"});
-							if(this.cache.resize_ref) $.CSS.addStyle(this.cache.resize_ref,{height:this.cache.h+"px"});
+							if(this.cache.h + this.cache.top < this.cache.screen_top + this.cache.screen_height)
+							{
+							   $.CSS.addStyle(this.cache.element,{height:this.cache.h+"px"});
+							   if(this.cache.resize_ref) $.CSS.addStyle(this.cache.resize_ref,{height:this.cache.h+"px"});
+							}
 							break;
 						case 'sw':
-							$.CSS.addStyle(this.cache.element,{left:this.cache.left+"px",width:this.cache.w+"px",height:this.cache.h+"px"});
-							if(this.cache.resize_ref) $.CSS.addStyle(this.cache.resize_ref,{left:parseInt(this.cache.left-this.cache.screen_left+8)+"px",width:parseInt(this.cache.w-10)+"px",height:this.cache.h+"px"});
+   						if(this.cache.left > this.cache.screen_left && this.cache.h + this.cache.top < this.cache.screen_top + this.cache.screen_height)
+   						{
+							   $.CSS.addStyle(this.cache.element,{left:this.cache.left+"px",width:this.cache.w+"px",height:this.cache.h+"px"});
+							   if(this.cache.resize_ref) $.CSS.addStyle(this.cache.resize_ref,{left:parseInt(this.cache.left-this.cache.screen_left+8)+"px",width:parseInt(this.cache.w-10)+"px",height:this.cache.h+"px"});
+							}
 							break;
 						case 'se':
-							$.CSS.addStyle(this.cache.element,{width:this.cache.w+"px",height:this.cache.h+"px"});
-							if(this.cache.resize_ref) $.CSS.addStyle(this.cache.resize_ref,{width:parseInt(this.cache.w-10)+"px",height:this.cache.h+"px"});
+                     if(this.cache.w + this.cache.left < this.cache.screen_left + this.cache.screen_width && this.cache.h + this.cache.top < this.cache.screen_top + this.cache.screen_height)
+							{
+							   $.CSS.addStyle(this.cache.element,{width:this.cache.w+"px",height:this.cache.h+"px"});
+							   if(this.cache.resize_ref) $.CSS.addStyle(this.cache.resize_ref,{width:parseInt(this.cache.w-10)+"px",height:this.cache.h+"px"});
+							}
 							break;
 						default:
 						
 					}
-					
+					this.cache.x = event.pageX;
+					this.cache.y = event.pageY;
 					
 				}
 				else if(type=='end')
@@ -1027,30 +1064,45 @@ Jerboa = function(element)
 				;
 				event.preventDefault();
 				if(element.getAttribute('role') != 'paragraph') element = element.parentNode;
-				console.log('text edit',element);
-				//element.setAttribute('contenteditable','true');
+				//console.log('text edit',element);
+
+				//Set resizable box
 				this.showResizer.call(this,true,element);
-				var editable = $.Element.set({tag:'div',attr:{'contenteditable':'true','style':'width:100%;position:static;'},event: {add: 'blur',fn: this.cache.tempFn8 },html:element.innerHTML})
+				var editable = $.Element.set({tag:'div',attr:{'contenteditable':'true','style':'width:100%;position:static;'},html:element.innerHTML})
 				;
+		      $.Element.set(this.ui['screen'],{event:{add:'click',fn: this.cache.tempFn8}});
+		      $.Element.set(this.ui['light_screen_top'],{event: {add:'click',fn: this.cache.tempFn8}});
+		      $.Element.set(this.ui['light_screen_left'],{event: {add:'click',fn: this.cache.tempFn8}});
+		      $.Element.set(this.ui['light_screen_right'],{event: {add:'click',fn: this.cache.tempFn8}});
+		      $.Element.set(this.ui['light_screen_bottom'],{event: {add:'click',fn: this.cache.tempFn8}});
+
 				element.innerHTML = "";
 				element.appendChild(editable);
-								
+				//Set cursor to textbox				
 				editable.focus();
-				
+				//Show text format toolbar
+				this.showUI.call(this,this.ui['menu'][2],false);
 				
 			}
 			,save: function(e)
 			{
 				var $ = this.$
 				,event = $.Events.standardize(e)
-				,_target = event.target
+				,_target = this.ui['resize_box'].ref
 				;
 				event.preventDefault();
+            //console.log(_target);
+				_target.innerHTML = _target.children[0].innerHTML;
 				
-				_target.parentNode.innerHTML = _target.innerHTML;
+				$.Element.set(this.ui['screen'],{event:{remove:'click',fn: this.cache.tempFn8}});
+		      $.Element.set(this.ui['light_screen_top'],{event: {remove:'click',fn: this.cache.tempFn8}});
+		      $.Element.set(this.ui['light_screen_left'],{event: {remove:'click',fn: this.cache.tempFn8}});
+		      $.Element.set(this.ui['light_screen_right'],{event: {remove:'click',fn: this.cache.tempFn8}});
+		      $.Element.set(this.ui['light_screen_bottom'],{event: {remove:'click',fn: this.cache.tempFn8}});
+
 				
 				this.showResizer.call(this,0);
-				
+				this.showUI.call(this,this.ui['menu'][0],false);
 				
 				
 			}

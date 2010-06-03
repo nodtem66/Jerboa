@@ -49,7 +49,7 @@ audio, video {
 
 #jerboa-text >div				{line-height:50px;}
 #jerboa-text >div:last-child	{float:right;color:red;text-decoration:underline;}
-.jerboa-panel					{background:url(img/the_gradient.gif) repeat-x;width:100%;height:56px;}
+.jerboa-panel					{background:url(img/the_gradient.gif) repeat-x;width:100%;height:56px;float:left;}
 .jerboa-panel >div				{float:left;margin:auto 5px;padding:5px;cursor:pointer;}
 .jerboa-panel >div span			{width:30px;height:30px;display:block;}
 .jerboa-box						{position:fixed;height:auto;top:0;left:30%;background:#eaeaea;z-index:3002;padding:10px;}
