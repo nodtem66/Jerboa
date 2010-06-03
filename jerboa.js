@@ -499,7 +499,7 @@ Jerboa = function(element)
 		verstion: "0.001"
 		,$: lib
 		,editElement: element || "edit"
-		,pathCss: "../../jerboa.css"
+		,currentPath: "../../"
 		,currentPanel: null
 		,currentToolbox: []
 		,currentLayer: 0
@@ -529,7 +529,7 @@ Jerboa = function(element)
 			{
 				
 				document.getElementsByTagName("head")[0].appendChild(
-					$.Element.set({tag:'link',attr:{rel:'stylesheet',type:'text/css',href:J.pathCss}})
+					$.Element.set({tag:'link',attr:{rel:'stylesheet',type:'text/css',href:J.currentPath+"jerboa.css"}})
 				);
 			
 			}
@@ -553,26 +553,6 @@ Jerboa = function(element)
 			J.ui['menu'].push( $.Element.set({tag:'div',attr: {id:'jerboa-menu'}}) );
 			J.ui['menu'].push( $.Element.set({tag:'div',attr: {id:'jerboa-insert','class':'jerboa-panel jerboa-hide'}}) );
 			J.ui['menu'].push( $.Element.set({tag:'div',attr: {id:'jerboa-text','class':'jerboa-panel jerboa-hide'}}) );
-			
-			
-			
-			
-			//Build insert menu
-			J.cache.tempFn7 = $.bind(J.showUI,J,0,J.ui['menu'][0],false);
-			J.ui['menu'][1].appendChild( $.Element.set({tag:'span',attr: {'class': 'jerboa-backbutton'},html: '&lt;',event: {add:'click',fn: J.cache.tempFn7 }}) );
-			J.ui['menu'][1].appendChild( $.Element.set({tag:'div',html: "<span></span><p>Text</p>",event: {add:'click',fn: $.bind(J.insert.text,J,0) }}) );
-			J.ui['menu'][1].appendChild( $.Element.set({tag:'div',html: "<span></span><p>Image</p>"}) );
-			J.ui['main_menu'].appendChild(J.ui['menu'][1]);	
-			
-			//Build text menu
-			J.cache.tempFn8 = $.bind(J.text.save,J,0);
-			J.ui['menu'][2].appendChild( $.Element.set({tag:'span',attr: {'class': 'jerboa-backbutton'},html: '&lt;',event: {add:'click',fn: J.cache.tempFn7 }}) );
-			J.ui['menu'][2].appendChild( $.Element.set({tag:'div',html:'<div class="jerboa-group"><div></div><div></div><div></div><div></div></div>'}));
-			J.ui['menu'][2].appendChild( $.Element.set({tag:'div',html:'<div class="jerboa-group"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>'}));
-			J.ui['menu'][2].appendChild( $.Element.set({tag:'div',html:'<div class="jerboa-group"><div></div><div></div></div>'}));
-         J.ui['menu'][2].appendChild( $.Element.set({tag:'div',html:'Edit CSS'}));
-			J.ui['main_menu'].appendChild(J.ui['menu'][2]);
-			
 			
 			//Build Layer panel
 			J.ui['layer_panel'] = {
@@ -753,9 +733,6 @@ Jerboa = function(element)
 			J.ui['main'].appendChild(J.ui['layer_panel'].layout);
 			J.ui['layer_panel'].addLayer();
 			
-			//Build Text panel
-			J.ui['text_panel'] = '';
-			
 			//light screen
 			J.ui['light_screen_top'] = $.Element.set({tag:'div',attr: {'class':'jerboa-lightbox',style: ''}});
 			J.ui['light_screen_left'] = $.Element.set({tag:'div',attr: {'class':'jerboa-lightbox',style: ''}});
@@ -793,13 +770,15 @@ Jerboa = function(element)
 				J.ui['setting_box']['page_size'].lastChild.setAttribute('style','margin-left:110px;margin-top:10px;clear:both;'); 
 				J.ui['setting_box'].appendChild(J.ui['setting_box']['page_size']);
 				
-				//Build Text Font Setting
-				J.ui['setting_box']['font'] = $.Element.set({tag:'div',attr:{'class':'jerboa-hide'},html: '<table><tr><td colspan="6">Paragraph</td></tr><tr style="font-variant:small-caps"><td width="10"></td><td>word spacing</td><td width="20"></td><td><input type="text" maxlength="3" style="width:25px" /></td><td>px</td>				</tr><tr height="10"><td colspan="6"></td></tr>	<tr style="font-variant:small-caps"><td width="10"></td><td>letter spacing</td><td width="20"></td><td><input type="text" maxlength="3" style="width:25px" /></td><td>px</td></tr><tr height="10"><td colspan="6"></td></tr><tr style="font-variant:small-caps">				<td width="10"></td><td>line height</td><td width="20"></td><td><input type="text" maxlength="3" style="width:25px" /></td><td>px</td></tr><tr height="10"><td colspan="6"></td></tr><tr><td colspan="3"></td><td colspan="3"></td></tr></table>'});
-				J.ui['setting_box']['font'].children[0].children[0].lastChild.lastChild.appendChild( $.Element.set({event:{add:'click',fn:function(){alert('a');}},attr:{'class':'jerboa-button'},html: '<span>OK</span>'}) );
-				J.ui['setting_box'].appendChild(J.ui['setting_box']['font']);
-			J.ui['main'].appendChild(J.ui['setting_box']);
-			//Build Infobox
-			J.ui['infobox'] = {
+				//Build Paragraph Setting
+				J.ui['setting_box']['paragraph'] = $.Element.set({tag:'div',attr:{'class':'jerboa-hide'},html: '<table><tr><td colspan="6">Paragraph</td></tr><tr style="font-variant:small-caps"><td width="10"></td><td>word spacing</td><td width="20"></td><td><input type="text" maxlength="3" style="width:25px" /></td><td>px</td>				</tr><tr height="10"><td colspan="6"></td></tr>	<tr style="font-variant:small-caps"><td width="10"></td><td>letter spacing</td><td width="20"></td><td><input type="text" maxlength="3" style="width:25px" /></td><td>px</td></tr><tr height="10"><td colspan="6"></td></tr><tr style="font-variant:small-caps">				<td width="10"></td><td>line height</td><td width="20"></td><td><input type="text" maxlength="3" style="width:25px" /></td><td>px</td></tr><tr height="10"><td colspan="6"></td></tr><tr><td colspan="3"></td><td colspan="3"></td></tr></table>'});
+				J.ui['setting_box']['paragraph'].children[0].children[0].lastChild.lastChild.appendChild( $.Element.set({event:{add:'click',fn:$.bind(J.setParagraph,J,0)},attr:{'class':'jerboa-button'},html: '<span>OK</span>'}) );
+				J.ui['setting_box'].appendChild(J.ui['setting_box']['paragraph']);
+			   J.ui['main'].appendChild(J.ui['setting_box']);
+			   //TODO: Build Text font Setting
+			   
+			   //Build Infobox
+			   J.ui['infobox'] = {
 				layout: $.Element.set({tag:'div',attr: {id:'jerboa-infobox','class':'jerboa-hide','style':''}})
 				,element: $.Element.set({tag:'p'})
 				,setText: function(text)
@@ -836,6 +815,38 @@ Jerboa = function(element)
 			J.ui['menu'][0].appendChild( $.Element.set({tag:'div',html:'Report Error'}) );
 			J.currentPanel = J.ui['menu'][0];
 			J.ui['main_menu'].appendChild(J.ui['menu'][0]);
+			
+			
+			
+			
+			//Build insert menu
+			J.cache.tempFn7 = $.bind(J.showUI,J,0,J.ui['menu'][0],false);
+			J.ui['menu'][1].appendChild( $.Element.set({tag:'span',attr: {'class': 'jerboa-backbutton'},html: '&lt;',event: {add:'click',fn: J.cache.tempFn7 }}) );
+			J.ui['menu'][1].appendChild( $.Element.set({tag:'div',html: "<span></span><p>Text</p>",event: {add:'click',fn: $.bind(J.insert.text,J,0) }}) );
+			J.ui['menu'][1].appendChild( $.Element.set({tag:'div',html: "<span></span><p>Image</p>"}) );
+			J.ui['main_menu'].appendChild(J.ui['menu'][1]);	
+			
+			//Build text menu
+			J.cache.tempFn8 = $.bind(J.text.save,J,0);
+			J.ui['menu'][2].appendChild( $.Element.set({tag:'span',attr: {'class': 'jerboa-backbutton'},html: '&lt;',event: {add:'click',fn: J.cache.tempFn7 }}) );
+			J.ui['menu'][2].appendChild( $.Element.set({tag:'div',html:'<div class="jerboa-group"><div></div><div></div><div></div><div></div></div>'}));
+			J.ui['menu'][2].appendChild( $.Element.set({tag:'div',html:'<div class="jerboa-group"><div></div><div></div><div><b>B</b></div><div><i>I</i></div><div><u>U</u></div><div></div><div></div><div></div><div></div></div>'}));
+			J.ui['menu'][2].appendChild( $.Element.set({tag:'div',html:'<div class="jerboa-group"><div><b><i>F</i></b></div><div><b>P</b></div></div>'}));
+         J.ui['menu'][2].appendChild( $.Element.set({tag:'div',html:'Edit CSS'}));
+			
+			J.ui['menu'][2].children[1].children[0].children[0].appendChild( $.Element.set({tag:'span',attr: {'style':"background:url('"+J.currentPath+"img/color7.png')"},event: {add:'click',fn:$.bind(J.text.format,J,0,'indent')}}) );
+			J.ui['menu'][2].children[1].children[0].children[1].appendChild( $.Element.set({tag:'span',attr: {'style':"background:url('"+J.currentPath+"img/color6.png')"}}) );
+			J.ui['menu'][2].children[1].children[0].children[2].appendChild( $.Element.set({tag:'span',attr: {'style':"background:url('"+J.currentPath+"img/color8.png')"}}) );
+			J.ui['menu'][2].children[1].children[0].children[3].appendChild( $.Element.set({tag:'span',attr: {'style':"background:url('"+J.currentPath+"img/color9.png')"}}) );
+			J.ui['menu'][2].children[2].children[0].children[0].appendChild( $.Element.set({tag:'span',attr: {'style':"background:url('"+J.currentPath+"img/color.png')"}}) );
+			J.ui['menu'][2].children[2].children[0].children[1].appendChild( $.Element.set({tag:'span',attr: {'style':"background:url('"+J.currentPath+"img/color1.png')"}}) );
+			J.ui['menu'][2].children[2].children[0].children[5].appendChild( $.Element.set({tag:'span',attr: {'style':"background:url('"+J.currentPath+"img/color2.png')"}}) );
+			J.ui['menu'][2].children[2].children[0].children[6].appendChild( $.Element.set({tag:'span',attr: {'style':"background:url('"+J.currentPath+"img/color3.png')"}}) );
+			J.ui['menu'][2].children[2].children[0].children[7].appendChild( $.Element.set({tag:'span',attr: {'style':"background:url('"+J.currentPath+"img/color4.png')"}}) );
+			J.ui['menu'][2].children[2].children[0].children[8].appendChild( $.Element.set({tag:'span',attr: {'style':"background:url('"+J.currentPath+"img/color5.png')"}}) );
+			$.Element.set(J.ui['menu'][2].children[3].children[0].children[0],{event:{add:'click',fn: $.bind(J.showUI,J,0,[J.ui['dark_screen'],J.ui['setting_box'],J.ui['setting_box']['font']])}});
+			$.Element.set(J.ui['menu'][2].children[3].children[0].children[1],{event:{add:'click',fn: $.bind(J.showUI,J,0,[J.ui['dark_screen'],J.ui['setting_box'],J.ui['setting_box']['paragraph']])}});
+			J.ui['main_menu'].appendChild(J.ui['menu'][2]);
 			
 			_fragment.appendChild(J.ui['main']); //insert all ui to root of DOM tree
 			document.body.appendChild(_fragment); //insert a root of DOM tree to document.body
@@ -978,6 +989,7 @@ Jerboa = function(element)
 			}
 			,drag: function(type,nameUI,e)
 			{
+			   //TODO: merge to resize event
 				var $ = this.$
 				,event = $.Events.standardize(e)
 				;
@@ -1106,6 +1118,17 @@ Jerboa = function(element)
 				
 				
 			}
+			,format: function(_cmd,_arg)
+			{
+			   var $ = this.$
+			   ,_resize_ref = this.ui['resize_box'].ref
+			   ;
+
+      	   _resize_ref.children[0].execCommand(_cmd,false,_arg);
+			   //_resize_ref.children[0].focus();
+
+			   console.log(_resize_ref.children[0]);
+			}
 		}
 		,refreshScreen: function()
 		{
@@ -1143,6 +1166,23 @@ Jerboa = function(element)
 			$.CSS.addClass(this.ui['dark_screen'],'jerboa-hide');
 			this.refreshScreen.call(this);
 		}
+		,setParagraph: function()
+		{
+		   var $ = this.$
+		   ,_root = this.ui['setting_box']['paragraph'].children[0].children[0]
+		   ,_word_spacing = _root.children[1].children[3].children[0].value
+		   ,_letter_spacing = _root.children[3].children[3].children[0].value
+		   ,_line_height = _root.children[5].children[3].children[0].value
+		   ,_resize_ref = this.ui['resize_box'].ref 
+		   ;
+         
+         $.CSS.addStyle(_resize_ref,{'word-spacing':_word_spacing+'px','letter-spacing':_letter_spacing+'px','line-height':_line_height+'px'});
+         $.CSS.addClass(this.ui['setting_box'],'jerboa-hide');
+			$.CSS.addClass(this.ui['setting_box']['paragraph'],'jerboa-hide');
+			$.CSS.addClass(this.ui['dark_screen'],'jerboa-hide');
+			
+			_resize_ref.children[0].focus();
+  		}
 		,showUI: function(element,isPopup)
 		{
 			if(element.length)
