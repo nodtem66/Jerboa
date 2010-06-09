@@ -394,7 +394,7 @@ $.UI = {
 	,button: function(value) {
 		var _value = value || "";
 		if(!this.cache["button"+_value])
-			this.cache["button"+_value] = $.Element.set({tag:'div',attr: {'class':'jerboa-button'}} ).appendChild( $.Element.set({tag:'span',html: _value}) ).parentNode;;
+			this.cache["button"+_value] = $.Element.set({tag:'div',attr: {'class':'jerboa-button'}} ).appendChild( $.Element.set({tag:'span',attr: {'class':'jerboa-ignore'},html: _value}) ).parentNode;;
 		return  this.cache["button"+_value].cloneNode(1);
 	}
 	,textfield: function(name,value) {
@@ -405,9 +405,7 @@ $.UI = {
 			this.cache["textfield"+_name+_value] = $.Element.set({tag:'input',attr: {'id':_name,'name':_name,'type':'text','value': _value}} );
 		return this.cache["textfield"+_name+_value].cloneNode(1);
 	}
-	,combobox: function() {
-		//TODO: add combobox
-	}
+
 	,layerPanel: function(index) {
 		var isFirst = index ? '' : 'jerboa-lactive'
 		,element = $.Element.set({tag: 'li',attr: {'class':isFirst,'index':index},event: {add:'click',fn: Jerboa.ui['layer_panel'].selectLayer}});
@@ -501,9 +499,9 @@ Jerboa = function(element)
 		,editElement: element || "edit"
 		,currentPath: "../../"
 		,currentPanel: null
-		,currentToolbox: []
 		,currentLayer: 0
-		,showJerboa: true 
+		,currentState: '' 
+		,currentEditElement: null
 		,history: []
 		,ui: {}
 		,cache: {
@@ -513,6 +511,7 @@ Jerboa = function(element)
 			//Start Jerboa
 			var _fragment = document.createDocumentFragment() //build a root of DOM tree
 			,J = Jerboa	,i,len,cssLoad=false,$ = J.$
+			,addDocumentEvent = $.bind($.Events.add,null,0,document)
 			;
 			
 			//debug mode
@@ -533,6 +532,7 @@ Jerboa = function(element)
 				);
 			
 			}
+			
 			//init UI
 			J.ui['screen'] = _document.getElementById(J.editElement);
 			$.CSS.addStyle(J.ui['screen'],{'padding':'0'});
@@ -555,6 +555,17 @@ Jerboa = function(element)
 			J.ui['menu'].push( $.Element.set({tag:'div',attr: {id:'jerboa-text','class':'jerboa-panel jerboa-hide'}}) );
 			
 			//Build Layer panel
+			J.ui['layer'][0] = $.Element.set({tag:'div',attr: {'index':0,'class':'jerboa-layer jerboa-ignore','style':'z-index:2000;'}});
+			J.ui['screen'].element.appendChild(J.ui['layer'][0]);
+			
+			//init temp Function
+			J.cache.tempFn7 = $.bind(J.show.menu,J,0,J.ui['menu'][0]);
+			//J.cache.tempFn8 = $.bind(J.text.save,J,0);
+			//J.cache.tempFn9 = $.bind(J.text.edit,J,0);
+			//J.cache.tempFn10 = $.bind(J.text.move,J,0);
+
+			
+			/*
 			J.ui['layer_panel'] = {
 				layout: $.Element.set({tag:'div',attr: {'class':'jerboa-window jerboa-hide',style:'top:30px;left:0px;'},html: '<p>Layout Panel</p>',event: {add: 'mousedown',fn: (J.cache.tempFn5 = $.bind(J.event.drag,J,0,'init','layer_panel')) }})
 				,element: $.Element.set({tag:'div',html: '<ul></ul>',event:{remove: 'mousedown',fn: Jerboa.cache.tempFn5}})
@@ -662,7 +673,7 @@ Jerboa = function(element)
 					,_target = event.target
 					;
 					event.preventDefault();
-					;
+					
 					if(!$.CSS.hasClass(_target,'jerboa-lactive'))
 					{
 						var _element = $.getByClass(_target.parentNode,'jerboa-lactive');
@@ -732,37 +743,24 @@ Jerboa = function(element)
 			J.ui['layer_panel'].layout.appendChild($.Element.set({tag: 'p',event: {add:'mousedown',fn: $.bind(J.event.resize,J,0,'init','layer_panel','se') }}));	
 			J.ui['main'].appendChild(J.ui['layer_panel'].layout);
 			J.ui['layer_panel'].addLayer();
-			
+			*/
 			//light screen
-			J.ui['light_screen_top'] = $.Element.set({tag:'div',attr: {'class':'jerboa-lightbox',style: ''}});
-			J.ui['light_screen_left'] = $.Element.set({tag:'div',attr: {'class':'jerboa-lightbox',style: ''}});
-			J.ui['light_screen_right'] = $.Element.set({tag:'div',attr: {'class':'jerboa-lightbox',style: ''}});
-			J.ui['light_screen_bottom'] = $.Element.set({tag:'div',attr: {'class':'jerboa-lightbox',style: ''}});
+			J.ui['light_screen_top'] = $.Element.set({tag:'div',attr: {'class':'jerboa-lightbox jerboa-ignore',style: ''}});
+			J.ui['light_screen_left'] = $.Element.set({tag:'div',attr: {'class':'jerboa-lightbox jerboa-ignore',style: ''}});
+			J.ui['light_screen_right'] = $.Element.set({tag:'div',attr: {'class':'jerboa-lightbox jerboa-ignore',style: ''}});
+			J.ui['light_screen_bottom'] = $.Element.set({tag:'div',attr: {'class':'jerboa-lightbox jerboa-ignore',style: ''}});
 			J.ui['main'].appendChild(J.ui['light_screen_top']);
 			J.ui['main'].appendChild(J.ui['light_screen_left']);
 			J.ui['main'].appendChild(J.ui['light_screen_right']);
 			J.ui['main'].appendChild(J.ui['light_screen_bottom']);
 			J.refreshScreen.call(J);
 			
-			//resize box
-			J.ui['resize_box'] = $.Element.set({tag:'div',attr:{id:'jerboa-resize','class':'jerboa-hide',style: ''}});
-			J.ui['resize_box'].appendChild( $.Element.set({tag:'div',event:{add:'mousedown',fn: $.bind(J.event.drag,J,0,'init','resize_box') } }) );
-			J.ui['resize_box'].appendChild( $.Element.set({tag:'span',event:{'add':'mousedown',fn: $.bind(J.event.resize,J,0,'init','resize_box','nw')},attr: {style: 'top:0;left:0;cursor:nw-resize;'}}) );
-			J.ui['resize_box'].appendChild( $.Element.set({tag:'span',event:{'add':'mousedown',fn: $.bind(J.event.resize,J,0,'init','resize_box','n')},attr: {style: 'top:0;left:48%;cursor:n-resize;'}}) );
-			J.ui['resize_box'].appendChild( $.Element.set({tag:'span',event:{'add':'mousedown',fn: $.bind(J.event.resize,J,0,'init','resize_box','ne')},attr: {style: 'top:0;left:100%;cursor:ne-resize;'}}) );
-			J.ui['resize_box'].appendChild( $.Element.set({tag:'span',event:{'add':'mousedown',fn: $.bind(J.event.resize,J,0,'init','resize_box','w')},attr: {style: 'top:48%;left:0;cursor:w-resize;'}}) );
-			J.ui['resize_box'].appendChild( $.Element.set({tag:'span',event:{'add':'mousedown',fn: $.bind(J.event.resize,J,0,'init','resize_box','e')},attr: {style: 'top:48%;left:100%;cursor:e-resize;'}}) );
-			J.ui['resize_box'].appendChild( $.Element.set({tag:'span',event:{'add':'mousedown',fn: $.bind(J.event.resize,J,0,'init','resize_box','sw')},attr: {style: 'top:100%;left:0;cursor:sw-resize;'}}) );
-			J.ui['resize_box'].appendChild( $.Element.set({tag:'span',event:{'add':'mousedown',fn: $.bind(J.event.resize,J,0,'init','resize_box','s')},attr: {style: 'top:100%;left:48%;cursor:s-resize;'}}) );
-			J.ui['resize_box'].appendChild( $.Element.set({tag:'span',event:{'add':'mousedown',fn: $.bind(J.event.resize,J,0,'init','resize_box','se')},attr: {style: 'top:100%;left:100%;cursor:se-resize;'}}) );
-			
-			J.ui['main'].appendChild(J.ui['resize_box']);
 			
 			//Build Jerboa Setting Box
 			J.ui['setting_box'] = $.Element.set({tag:'div',attr:{'class':'jerboa-box'}});
 				//Build Page Size Setting
 				J.ui['setting_box']['page_size'] = $.Element.set({tag:'div'});
-				J.ui['setting_box']['page_size'].appendChild( $.Element.set({tag:'p',html: 'Page Height',attr:{'style':'float:left;margin-right:25px;'}}) );
+				J.ui['setting_box']['page_size'].appendChild( $.Element.set({tag:'p',html: 'Page Height',attr:{'class':'jerboa-ignore','style':'float:left;margin-right:25px;'}}) );
 				J.ui['setting_box']['page_size'].appendChild( $.Element.set({tag:'p',attr:{'style':'float:left;'}}) );
 				J.ui['setting_box']['page_size'].lastChild.appendChild( $.UI.textfield() );
 				J.ui['setting_box']['page_size'].lastChild.innerHTML = J.ui['setting_box']['page_size'].lastChild.innerHTML + ' px';
@@ -775,17 +773,17 @@ Jerboa = function(element)
 				J.ui['setting_box']['paragraph'].children[0].children[0].lastChild.lastChild.appendChild( $.Element.set({event:{add:'click',fn:$.bind(J.setParagraph,J,0)},attr:{'class':'jerboa-button'},html: '<span>OK</span>'}) );
 				J.ui['setting_box'].appendChild(J.ui['setting_box']['paragraph']);
 			   J.ui['main'].appendChild(J.ui['setting_box']);
-			   //TODO: Build Text font Setting
+
 			   
-			   //Build Infobox
-			   J.ui['infobox'] = {
-				layout: $.Element.set({tag:'div',attr: {id:'jerboa-infobox','class':'jerboa-hide','style':''}})
-				,element: $.Element.set({tag:'p'})
-				,setText: function(text)
-				{
-					J.ui['infobox'].element.innerHTML = "<span></span>"+text;
-					return J.ui['infobox'].layout;
-				}
+		   //Build Infobox
+		   J.ui['infobox'] = {
+			   layout: $.Element.set({tag:'div',attr: {id:'jerboa-infobox','class':'jerboa-hide','style':''}})
+			   ,element: $.Element.set({tag:'p'})
+			   ,setText: function(text)
+			   {
+				   J.ui['infobox'].element.innerHTML = "<span></span>"+text;
+				   return J.ui['infobox'].layout;
+			   }
 			};
 			J.ui['infobox'].layout.appendChild(J.ui['infobox'].element);
 			J.ui['main'].appendChild(J.ui['infobox'].layout);
@@ -809,10 +807,10 @@ Jerboa = function(element)
 			$.CSS.removeClass(J.ui['dark_screen'],'jerboa-hide');
 			
 			//Build main menu bar
-			J.ui['menu'][0].appendChild( $.Element.set({tag:'div',html:'Page Size',event: {add:'click',fn: $.bind(J.showUI,J,0,[J.ui['setting_box'],J.ui['setting_box']['page_size'],J.ui['dark_screen']]) }}) );
-			J.ui['menu'][0].appendChild( $.Element.set({tag:'div',html:'Insert',event: {add:'click',fn: $.bind(J.showUI,J,0,J.ui['menu'][1],false) }}) );
-			J.ui['menu'][0].appendChild( $.Element.set({tag:'div',html:'Layer',event: {add:'click',fn: $.bind(J.showUI,J,0,J.ui['layer_panel'].layout) }}) );
-			J.ui['menu'][0].appendChild( $.Element.set({tag:'div',html:'Report Error'}) );
+			J.ui['menu'][0].appendChild( $.Element.set({tag:'div',html:'Page Size',attr:{'class':'jerboa-ignore'},event: {add:'click',fn: $.bind(J.show.setting_box,J,0,[J.ui['setting_box'],J.ui['setting_box']['page_size'],J.ui['dark_screen']]) }}) );
+			J.ui['menu'][0].appendChild( $.Element.set({tag:'div',html:'Insert',attr: {'class':'jerboa-ignore'},event: {add:'click',fn: $.bind(J.show.menu,J,0,J.ui['menu'][1]) }}) );
+			//J.ui['menu'][0].appendChild( $.Element.set({tag:'div',html:'Layer',event: {add:'click',fn: $.bind(J.showUI,J,0,J.ui['layer_panel'].layout) }}) );
+			J.ui['menu'][0].appendChild( $.Element.set({tag:'div',html:'Report Error',attr:{'class':'jerboa-ignore'}}) );
 			J.currentPanel = J.ui['menu'][0];
 			J.ui['main_menu'].appendChild(J.ui['menu'][0]);
 			
@@ -820,241 +818,25 @@ Jerboa = function(element)
 			
 			
 			//Build insert menu
-			J.cache.tempFn7 = $.bind(J.showUI,J,0,J.ui['menu'][0],false);
-			J.ui['menu'][1].appendChild( $.Element.set({tag:'span',attr: {'class': 'jerboa-backbutton'},html: '&lt;',event: {add:'click',fn: J.cache.tempFn7 }}) );
-			J.ui['menu'][1].appendChild( $.Element.set({tag:'div',html: "<span></span><p>Text</p>",event: {add:'click',fn: $.bind(J.insert.text,J,0) }}) );
-			J.ui['menu'][1].appendChild( $.Element.set({tag:'div',html: "<span></span><p>Image</p>"}) );
+			J.ui['menu'][1].appendChild( $.Element.set({tag:'span',attr: {'class': 'jerboa-backbutton jerboa-ignore'},html: '&lt;',event: {add:'click',fn: J.cache.tempFn7 }}) );
+			J.ui['menu'][1].appendChild( $.Element.set({tag:'div',html: "<span></span><p class=\"jerboa-ignore\">Text</p>",event: {add:'click',fn: $.bind(J.insert.text,J,0)}}) );
+			J.ui['menu'][1].appendChild( $.Element.set({tag:'div',html: "<span></span><p class=\"jerboa-ignore\">Image</p>"}) );
 			J.ui['main_menu'].appendChild(J.ui['menu'][1]);	
 			
 			//Build text menu
-			J.cache.tempFn8 = $.bind(J.text.save,J,0);
-			J.ui['menu'][2].appendChild( $.Element.set({tag:'span',attr: {'class': 'jerboa-backbutton'},html: '&lt;',event: {add:'click',fn: J.cache.tempFn7 }}) );
-			J.ui['menu'][2].appendChild( $.Element.set({tag:'div',html:'<div class="jerboa-group"><div></div><div></div><div></div><div></div></div>'}));
-			J.ui['menu'][2].appendChild( $.Element.set({tag:'div',html:'<div class="jerboa-group"><div></div><div></div><div><b>B</b></div><div><i>I</i></div><div><u>U</u></div><div></div><div></div><div></div><div></div></div>'}));
-			J.ui['menu'][2].appendChild( $.Element.set({tag:'div',html:'<div class="jerboa-group"><div><b><i>F</i></b></div><div><b>P</b></div></div>'}));
-         J.ui['menu'][2].appendChild( $.Element.set({tag:'div',html:'Edit CSS'}));
-			
-			J.ui['menu'][2].children[1].children[0].children[0].appendChild( $.Element.set({tag:'span',attr: {'style':"background:url('"+J.currentPath+"img/color7.png')"},event: {add:'click',fn:$.bind(J.text.format,J,0,'indent')}}) );
-			J.ui['menu'][2].children[1].children[0].children[1].appendChild( $.Element.set({tag:'span',attr: {'style':"background:url('"+J.currentPath+"img/color6.png')"}}) );
-			J.ui['menu'][2].children[1].children[0].children[2].appendChild( $.Element.set({tag:'span',attr: {'style':"background:url('"+J.currentPath+"img/color8.png')"}}) );
-			J.ui['menu'][2].children[1].children[0].children[3].appendChild( $.Element.set({tag:'span',attr: {'style':"background:url('"+J.currentPath+"img/color9.png')"}}) );
-			J.ui['menu'][2].children[2].children[0].children[0].appendChild( $.Element.set({tag:'span',attr: {'style':"background:url('"+J.currentPath+"img/color.png')"}}) );
-			J.ui['menu'][2].children[2].children[0].children[1].appendChild( $.Element.set({tag:'span',attr: {'style':"background:url('"+J.currentPath+"img/color1.png')"}}) );
-			J.ui['menu'][2].children[2].children[0].children[5].appendChild( $.Element.set({tag:'span',attr: {'style':"background:url('"+J.currentPath+"img/color2.png')"}}) );
-			J.ui['menu'][2].children[2].children[0].children[6].appendChild( $.Element.set({tag:'span',attr: {'style':"background:url('"+J.currentPath+"img/color3.png')"}}) );
-			J.ui['menu'][2].children[2].children[0].children[7].appendChild( $.Element.set({tag:'span',attr: {'style':"background:url('"+J.currentPath+"img/color4.png')"}}) );
-			J.ui['menu'][2].children[2].children[0].children[8].appendChild( $.Element.set({tag:'span',attr: {'style':"background:url('"+J.currentPath+"img/color5.png')"}}) );
-			$.Element.set(J.ui['menu'][2].children[3].children[0].children[0],{event:{add:'click',fn: $.bind(J.showUI,J,0,[J.ui['dark_screen'],J.ui['setting_box'],J.ui['setting_box']['font']])}});
-			$.Element.set(J.ui['menu'][2].children[3].children[0].children[1],{event:{add:'click',fn: $.bind(J.showUI,J,0,[J.ui['dark_screen'],J.ui['setting_box'],J.ui['setting_box']['paragraph']])}});
+			J.ui['menu'][2].appendChild( $.Element.set({tag:'iframe',attr:{'id':'jb-text','src':'about:blank','style':'width:100%;border:0;'}}) );
 			J.ui['main_menu'].appendChild(J.ui['menu'][2]);
 			
 			_fragment.appendChild(J.ui['main']); //insert all ui to root of DOM tree
 			document.body.appendChild(_fragment); //insert a root of DOM tree to document.body
-		}
-		,event: {
-			hide: function(nameUI) {
-				var _element = this.ui[nameUI].layout || this.ui[nameUI];
-				;
-				this.$.CSS.addClass(_element,'jerboa-hide');
-				
-			}
-			,resize: function(type,nameUI,direct,e) {
-				var $ = this.$
-				,event = $.Events.standardize(e)
-				;
-				event.preventDefault();
-				
-				if(type== 'init')
-				{
-					
-					
-					this.cache.tempFn1 = $.bind(this.event.resize,this,0,'run',nameUI,direct); 
-					this.cache.tempFn2 = $.bind(this.event.resize,this,0,'end',nameUI,direct);
-					
-					$.Events.add(_document,'mousemove',this.cache.tempFn1);
-					$.Events.add(_document,'mouseup',this.cache.tempFn2);
-					this.cache.x = event.pageX;				
-					this.cache.y = event.pageY;
-					
-					this.cache.element = this.ui[nameUI].element || this.ui[nameUI].layout ||this.ui[nameUI];
-					this.cache.w = this.cache.element.offsetWidth;
-					this.cache.h = this.cache.element.offsetHeight;
-					this.cache.top = parseInt(this.cache.element.style.top);
-					this.cache.left = parseInt(this.cache.element.style.left);
-					if(nameUI == 'resize_box')
-					{
-						this.cache.screen_top = this.ui['screen'].offsetTop;
-						this.cache.screen_left = this.ui['screen'].offsetLeft;
-						this.cache.screen_width = this.ui['screen'].offsetWidth;
-						this.cache.screen_height = this.ui['screen'].offsetHeight;
-						this.cache.resize_ref = this.ui['resize_box'].ref;
-					}
-				}
-				else if(type=='run')
-				{
-					if(direct in {'e':'','ne':'','se':''})
-						this.cache.w += event.pageX - this.cache.x;
-					if(direct in {'w':'','nw':'','sw':''})
-					{
-						this.cache.w -= event.pageX - this.cache.x;
-						this.cache.left += event.pageX - this.cache.x;
-					}
-					if(direct in {'s':'','se':'','sw':''})
-						this.cache.h += event.pageY - this.cache.y;
-					if(direct in {'n':'','ne':'','nw':''})
-   				{
-   					this.cache.h -= event.pageY - this.cache.y;
-   					this.cache.top += event.pageY - this.cache.y;
-					}
-
-					
-					switch(direct)
-					{
-						case 'n':
-						   if(this.cache.top > this.cache.screen_top - 8)
-						   {
-							   $.CSS.addStyle(this.cache.element,{top:this.cache.top+"px",height:this.cache.h+"px"});
-							   if(this.cache.resize_ref) $.CSS.addStyle(this.cache.resize_ref,{top:parseInt(this.cache.top-this.cache.screen_top+8)+"px",height:this.cache.h+"px"});
-							}
-							break;
-						case 'nw':
-						   if(this.cache.top > this.cache.screen_top - 8 && this.cache.left > this.cache.screen_left - 8)
-						   {
-							   $.CSS.addStyle(this.cache.element,{top:this.cache.top+"px",left:this.cache.left+"px",width:this.cache.w+"px",height:this.cache.h+"px"});
-							   if(this.cache.resize_ref) $.CSS.addStyle(this.cache.resize_ref,{top:parseInt(this.cache.top-this.cache.screen_top+8)+"px",left:parseInt(this.cache.left-this.cache.screen_left+8)+"px",width:parseInt(this.cache.w-10)+"px",height:this.cache.h+"px"});
-							}
-							break;
-						case 'ne':
-						   if(this.cache.top > this.cache.screen_top - 8 && this.cache.w + this.cache.left < this.cache.screen_left + this.cache.screen_width)
-						   {
-   							$.CSS.addStyle(this.cache.element,{top:this.cache.top+"px",width:this.cache.w+"px",height:this.cache.h+"px"});
-	   						if(this.cache.resize_ref) $.CSS.addStyle(this.cache.resize_ref,{top:parseInt(this.cache.top-this.cache.screen_top+8)+"px",width:parseInt(this.cache.w-10)+"px",height:this.cache.h+"px"});
-							}
-							break;
-						case 'w':
-						   if(this.cache.left > this.cache.screen_left)
-						   {
-							   $.CSS.addStyle(this.cache.element,{left:this.cache.left+"px",width:this.cache.w+"px"});
-							   if(this.cache.resize_ref) $.CSS.addStyle(this.cache.resize_ref,{left:parseInt(this.cache.left-this.cache.screen_left+8)+"px",width:parseInt(this.cache.w-10)+"px"});
-							}
-							break;
-						case 'e':
-						   if(this.cache.w + this.cache.left < this.cache.screen_left + this.cache.screen_width)
-						   {  
-							   $.CSS.addStyle(this.cache.element,{width:this.cache.w+"px"});
-							   if(this.cache.resize_ref) $.CSS.addStyle(this.cache.resize_ref,{width:parseInt(this.cache.w-10)+"px"});
-							}
-							break;
-						case 's':
-							if(this.cache.h + this.cache.top < this.cache.screen_top + this.cache.screen_height)
-							{
-							   $.CSS.addStyle(this.cache.element,{height:this.cache.h+"px"});
-							   if(this.cache.resize_ref) $.CSS.addStyle(this.cache.resize_ref,{height:this.cache.h+"px"});
-							}
-							break;
-						case 'sw':
-   						if(this.cache.left > this.cache.screen_left && this.cache.h + this.cache.top < this.cache.screen_top + this.cache.screen_height)
-   						{
-							   $.CSS.addStyle(this.cache.element,{left:this.cache.left+"px",width:this.cache.w+"px",height:this.cache.h+"px"});
-							   if(this.cache.resize_ref) $.CSS.addStyle(this.cache.resize_ref,{left:parseInt(this.cache.left-this.cache.screen_left+8)+"px",width:parseInt(this.cache.w-10)+"px",height:this.cache.h+"px"});
-							}
-							break;
-						case 'se':
-                     if(this.cache.w + this.cache.left < this.cache.screen_left + this.cache.screen_width && this.cache.h + this.cache.top < this.cache.screen_top + this.cache.screen_height)
-							{
-							   $.CSS.addStyle(this.cache.element,{width:this.cache.w+"px",height:this.cache.h+"px"});
-							   if(this.cache.resize_ref) $.CSS.addStyle(this.cache.resize_ref,{width:parseInt(this.cache.w-10)+"px",height:this.cache.h+"px"});
-							}
-							break;
-						default:
-						
-					}
-					this.cache.x = event.pageX;
-					this.cache.y = event.pageY;
-					
-				}
-				else if(type=='end')
-				{
-					//console.log('resize finish');
-					$.Events.remove(_document,'mousemove',this.cache.tempFn1);
-					$.Events.remove(_document,'mouseup',this.cache.tempFn2);
-					delete this.cache.tempFn1;
-					delete this.cache.tempFn2;
-					delete this.cache.x;
-					delete this.cache.y;
-					delete this.cache.element;
-					delete this.cache.w;
-					delete this.cache.h;
-				}
-			}
-			,drag: function(type,nameUI,e)
-			{
-			   //TODO: merge to resize event
-				var $ = this.$
-				,event = $.Events.standardize(e)
-				;
-				event.preventDefault();
-				
-				if(type == 'init')
-				{
-					this.cache.tempFn3 = $.bind(this.event.drag,this,0,'run',nameUI);
-					this.cache.tempFn4 = $.bind(this.event.drag,this,0,'end',nameUI);
-					$.Events.add(_document,'mousemove',this.cache.tempFn3);
-					$.Events.add(_document,'mouseup',this.cache.tempFn4);
-					this.cache.element = this.ui[nameUI].layout || this.ui[nameUI];
-					if(nameUI == 'resize_box')
-					{
-						this.cache.screen_top = this.ui['screen'].offsetTop;
-						this.cache.screen_left = this.ui['screen'].offsetLeft;
-						this.cache.screen_width = this.ui['screen'].offsetWidth;
-						this.cache.screen_height = this.ui['screen'].offsetHeight;
-						this.cache.resize_ref = this.ui['resize_box'].ref;
-						
-					}
-					this.cache.x = event.pageX;
-					this.cache.y = event.pageY;
-					this.cache.top = parseInt(this.cache.element.style.top);
-					this.cache.left = parseInt(this.cache.element.style.left);
-					
-					
-				}
-				else if(type == 'run')
-				{
-					
-					this.cache.top += event.pageY - this.cache.y;
-					this.cache.left += event.pageX - this.cache.x;
-					if(this.cache.resize_ref)
-					{
-						if(this.cache.top < this.cache.screen_top -8)
-							this.cache.top -= event.pageY - this.cache.y;
-						else if(this.cache.top+this.ui[nameUI].offsetHeight > this.cache.screen_top + this.cache.screen_height)
-							this.cache.top -= event.pageY - this.cache.y;
-						if(this.cache.left < this.cache.screen_left -8)
-							this.cache.left -= event.pageX - this.cache.x;
-						else if(this.cache.left+this.ui[nameUI].offsetWidth > this.cache.screen_left + this.cache.screen_width)
-							this.cache.left -= event.pageX - this.cache.x;
-						
-					}
-					
-					$.CSS.addStyle(this.cache.element,{top:this.cache.top+"px",left:this.cache.left+"px"});
-					if(this.cache.resize_ref) $.CSS.addStyle(this.cache.resize_ref,{top:parseInt(this.cache.top-this.cache.screen_top+8)+"px",left:parseInt(this.cache.left-this.cache.screen_left+8)+"px"});
-					this.cache.x = event.pageX;
-					this.cache.y = event.pageY;
-				}
-				else if(type == 'end')
-				{
-					$.Events.remove(_document,'mousemove',this.cache.tempFn3);
-					$.Events.remove(_document,'mouseup',this.cache.tempFn4);
-					delete this.cache.tempFn3;
-					delete this.cache.tempFn4;
-					delete this.cache.top;
-					delete this.cache.left;
-					delete this.cache.x;
-					delete this.cache.y;
-					delete this.cache.element;
-					delete this.cache.resize_ref;
-				}
-			}
+         
+         
+         //document.getElementById('jb-text').contentDocument.lastChild.children[0].innerHTML = '<meta http-equiv="Content-Type"content="text/html; charset=UTF-8"><link type="text/css"rel="stylesheet"href="./jerboa.css"/>'.replace(/\.\//i,J.currentPath);
+         //document.getElementById('jb-text').contentDocument.body.innerHTML = '<body><div id="jerboa"><div id="jerboa-wrapper"><div id="jerboa-text"class="jerboa-panel jerboa-hidae"><span class="jerboa-backbutton">&lt;</span><div><div class="jerboa-group"><div><span style="background:url(\'img/color7.png\')"></span></div><div><span style="background:url(\'img/color6.png\')"></span></div><div><span style="background:url(\'img/color8.png\')"></span></div><div><span style="background:url(\'img/color9.png\')"></span></div></div></div><div><div class="jerboa-group"><div><span style="background:url(\'img/color.png\')"></span></div><div><span style="background:url(\'img/color1.png\')"></span></div><div><b>B</b></div><div><i>I</i></div><div><u>U</u></div><div><span style="background:url(\'img/color2.png\')"></span></div><div><span style="background:url(\'img/color3.png\')"></span></div><div><span style="background:url(\'img/color4.png\')"></span></div><div><span style="background:url(\'img/color5.png\')"></span></div></div></div><div><div class="jerboa-group"><div><b><i>F</i></b></div><div><b>P</b></div></div></div><div>Edit CSS</div></div></div></div></body>'.replace(/img\//ig,J.currentPath+'img/');
+			
+			//Add Golbal event
+         addDocumentEvent('click',J.click);
+         addDocumentEvent('dblclick',J.dbclick);
 		}
 		,insert: {
 			text: function()
@@ -1063,72 +845,16 @@ Jerboa = function(element)
 				,_layer = this.ui['layer'][this.currentLayer]
 				,_element = _layer.appendChild($.Element.set({tag:'div',attr:{'role':'paragraph','style':''},html:'<p>Insert Text Here</p>'}))
 				;
-				$.Element.set(_element,{event: {add:'click',fn: $.bind(this.text.edit,this,0) }});
-				//$.Element.set(_element,{event: {add:'blur',fn: $.bind(this.text.save,this,0,_element) }});
+				this.show.menu.call(this,this.ui['menu'][0]);
 			}
 		}
 		,text: {
-			edit: function(e)
-			{
-				var $ = this.$
-				,event = $.Events.standardize(e)
-				,element = event.target
-				;
-				event.preventDefault();
-				if(element.getAttribute('role') != 'paragraph') element = element.parentNode;
-				//console.log('text edit',element);
-
-				//Set resizable box
-				this.showResizer.call(this,true,element);
-				var editable = $.Element.set({tag:'div',attr:{'contenteditable':'true','style':'width:100%;position:static;'},html:element.innerHTML})
-				;
-		      $.Element.set(this.ui['screen'],{event:{add:'click',fn: this.cache.tempFn8}});
-		      $.Element.set(this.ui['light_screen_top'],{event: {add:'click',fn: this.cache.tempFn8}});
-		      $.Element.set(this.ui['light_screen_left'],{event: {add:'click',fn: this.cache.tempFn8}});
-		      $.Element.set(this.ui['light_screen_right'],{event: {add:'click',fn: this.cache.tempFn8}});
-		      $.Element.set(this.ui['light_screen_bottom'],{event: {add:'click',fn: this.cache.tempFn8}});
-
-				element.innerHTML = "";
-				element.appendChild(editable);
-				//Set cursor to textbox				
-				editable.focus();
-				//Show text format toolbar
-				this.showUI.call(this,this.ui['menu'][2],false);
-				
-			}
-			,save: function(e)
-			{
-				var $ = this.$
-				,event = $.Events.standardize(e)
-				,_target = this.ui['resize_box'].ref
-				;
-				event.preventDefault();
-            //console.log(_target);
-				_target.innerHTML = _target.children[0].innerHTML;
-				
-				$.Element.set(this.ui['screen'],{event:{remove:'click',fn: this.cache.tempFn8}});
-		      $.Element.set(this.ui['light_screen_top'],{event: {remove:'click',fn: this.cache.tempFn8}});
-		      $.Element.set(this.ui['light_screen_left'],{event: {remove:'click',fn: this.cache.tempFn8}});
-		      $.Element.set(this.ui['light_screen_right'],{event: {remove:'click',fn: this.cache.tempFn8}});
-		      $.Element.set(this.ui['light_screen_bottom'],{event: {remove:'click',fn: this.cache.tempFn8}});
-
-				
-				this.showResizer.call(this,0);
-				this.showUI.call(this,this.ui['menu'][0],false);
-				
-				
-			}
-			,format: function(_cmd,_arg)
-			{
-			   var $ = this.$
-			   ,_resize_ref = this.ui['resize_box'].ref
-			   ;
-
-      	   _resize_ref.children[0].execCommand(_cmd,false,_arg);
-			   //_resize_ref.children[0].focus();
-
-			   console.log(_resize_ref.children[0]);
-			}
+			edit: function()
+			{}
+			,save: function()
+			{}
+			,format: function()
+			{}
 		}
 		,refreshScreen: function()
 		{
@@ -1141,19 +867,6 @@ Jerboa = function(element)
 				$.CSS.addStyle(this.ui['light_screen_top'],{top:'0px',left:propElement.x+'px',width:propElement.width+'px',height:propElement.y+'px'});
 				$.CSS.addStyle(this.ui['light_screen_right'],{top:'0px',left:parseInt(propElement.x+propElement.width)+'px',width:parseInt(propDoc.width - propElement.x - propElement.width)+'px',height:propDoc.height+'px'});
 				$.CSS.addStyle(this.ui['light_screen_bottom'],{top:parseInt(propElement.y+propElement.height)+'px',left:propElement.x+'px',width:propElement.width+'px',height:parseInt(propDoc.height - propElement.y - propElement.height)+'px'});
-		}
-		,showResizer: function(visibility,element)
-		{
-			var $=this.$
-			;
-			if(visibility)
-			{
-				var List = $.CSS.getPosition(element);
-				$.CSS.addStyle(this.ui['resize_box'],{top:parseInt(List.y-8)+'px',left:parseInt(List.x-8)+'px',width:parseInt(List.width+10)+'px',height:parseInt(List.height+10)+'px'});
-				$.CSS.removeClass(this.ui['resize_box'],'jerboa-hide');
-				this.ui['resize_box'].ref = element;
-			} 
-			else $.CSS.addClass(this.ui['resize_box'],'jerboa-hide');
 		}
 		,setPageHeight: function()
 		{
@@ -1183,25 +896,188 @@ Jerboa = function(element)
 			
 			_resize_ref.children[0].focus();
   		}
-		,showUI: function(element,isPopup)
-		{
-			if(element.length)
-			{
-				for(var i=0,len=element.length;i<len;i++)
-				{
-					this.$.CSS.removeClass(element[i],'jerboa-hide');
-				}
-			}
-			else 
-				this.$.CSS.removeClass(element,'jerboa-hide');
-			if(!isPopup)
-			{
+		,show: {
+		   menu: function(element)
+		   {
 				this.$.CSS.addClass(this.currentPanel,'jerboa-hide');
-				this.currentPanel = element;
-				
-			}
-			
-			
+				this.$.CSS.removeClass(element,'jerboa-hide');
+				this.currentPanel = element;	   
+		   }
+		   ,setting_box: function(element)
+		   {
+		      if(element.length)
+			   {
+				   for(var i=0,len=element.length;i<len;i++)
+				   {
+					   this.$.CSS.removeClass(element[i],'jerboa-hide');
+				   }
+			   }
+			   else 
+				   this.$.CSS.removeClass(element,'jerboa-hide');
+		      
+		   }
+		}
+		,hide: function(element) {
+				if(element.length)
+			   {
+				   for(var i=0,len=element.length;i<len;i++)
+				   {
+					   this.$.CSS.addClass(element[i],'jerboa-hide');
+				   }
+			   }
+			   else 
+				   this.$.CSS.addClass(element,'jerboa-hide');
+		}
+		,touch: function(e) {
+   	   //Controller of resize and drag element
+	      var $ = Jerboa.$
+	      ,data = Jerboa.cache
+	      ,event = $.Events.standardize(e)
+	      ,sizeBorder = 1 //px
+	      ;
+	      event.preventDefault();
+	      if(e.type == "mousedown")
+	      {
+	         data.x = event.pageX;
+            data.y = event.pageY;
+            $.Events.add(document,'mousemove',Jerboa.touch);
+            $.Events.add(document,'mouseup',Jerboa.touch);
+	         console.log('down');    
+        } else if(e.type == "mousemove")
+        {
+            if(e.shiftKey)
+            {
+               data.root_w += event.pageX - data.x;
+               data.root_h += event.pageY - data.y;
+            } else if(/move$/i.test(Jerboa.currentState)) {
+               data.root_left += event.pageX - data.x;
+               data.root_top += event.pageY - data.y;
+            }
+            if(data.root_top + data.root_h + 2*sizeBorder > data.screen_h) data[e.shiftKey? "root_h":"root_top"] -= event.pageY - data.y;
+            else if(data.root_top < 0) data.root_top -= event.pageY - data.y;
+            if(data.root_left + data.root_w + 2*sizeBorder > data.screen_w) data[e.shiftKey? "root_w":"root_left"] -= event.pageX - data.x;
+            else if(data.root_left < 0) data.root_left -= event.pageX - data.x;
+            
+            if(e.shiftKey)
+               $.CSS.addStyle(Jerboa.currentEditElement,{width:data.root_w+'px',height: data.root_h+'px'});
+            else if(/move$/i.test(Jerboa.currentState))
+               $.CSS.addStyle(Jerboa.currentEditElement,{top:data.root_top+'px',left: data.root_left+'px'});
+            data.x = event.pageX;
+            data.y = event.pageY;
+	            
+        } else if(e.type == "mouseup")
+	     {
+	         delete data.x;
+	         delete data.y;
+	         $.Events.remove(document,'mousemove',Jerboa.touch);
+	         $.Events.remove(document,'mouseup',Jerboa.touch);
+	     }
+		   
+		}
+		,click: function(e) {
+		   var $ = Jerboa.$
+	      ,event = $.Events.standardize(e)
+	      ,data = Jerboa.cache
+	      ;
+	      event.preventDefault();
+         //TODO: Find the Root to edit
+         if(Jerboa.currentState == 'textedit') return false;
+         if(!$.CSS.hasClass(event.target,'jerboa-ignore'))
+         {
+            //TODO: Detect another kind of media
+            switch(Jerboa.detectMedia(event.target))
+            {
+            case 'text':
+               var _root = event.target;
+               while(!$.CSS.hasClass(_root.parentNode,'jerboa-ignore'))
+               {
+                  _root = _root.parentNode;
+               }
+               if(Jerboa.currentEditElement == _root && Jerboa.currentState == 'textmove') return false;
+               if(Jerboa.currentEditElement != null) Jerboa.restoreNormalState();
+               //console.log(_root);
+               Jerboa.currentEditElement = _root;
+               $.CSS.addClass(_root,'jerboa-touch');
+               $.Events.add(_root,'mousedown',Jerboa.touch);
+               Jerboa.currentState = 'textmove';
+               
+               data.screen_top = Jerboa.ui['screen'].offsetTop;
+					data.screen_left = Jerboa.ui['screen'].offsetLeft;
+					data.screen_w = Jerboa.ui['screen'].offsetWidth ;
+					data.screen_h = Jerboa.ui['screen'].offsetHeight ;
+					data.root_top = _root.offsetTop;
+					data.root_left = _root.offsetLeft;
+					data.root_w = _root.offsetWidth;
+					data.root_h = _root.offsetHeight;
+               return false;
+               break;
+            case 'image':
+               break;
+            default: break;
+            }
+         }
+         Jerboa.restoreNormalState();
+		}
+		,dbclick: function(e) {
+		   var $ = Jerboa.$
+	      ,event = $.Events.standardize(e)
+	      ,data = Jerboa.cache;
+	      event.preventDefault();
+         
+         console.log('dblclick');
+         if(!$.CSS.hasClass(event.target,'jerboa-ignore'))
+         {
+            switch(Jerboa.detectMedia(event.target))
+            {
+            case 'text':
+               //Find the Root to start edit mode
+               var _root = event.target;
+               while(!$.CSS.hasClass(_root.parentNode,'jerboa-ignore'))
+               {
+                  _root = _root.parentNode;
+               }
+               if(Jerboa.currentEditElement == _root && Jerboa.currentState == 'textedit') return false;
+               if(Jerboa.currentEditElement != null) Jerboa.restoreNormalState();
+               Jerboa.currentEditElement = _root;
+               $.CSS.addClass(_root,'jerboa-touch');
+               $.Events.add(_root,'mousedown',Jerboa.touch);
+               Jerboa.currentState = 'textedit';
+               
+               return false;
+               break;
+            case 'image':
+               break;
+               
+            default: break;
+            }
+         }
+         
+		
+		}
+		,detectMedia: function(element)
+		{
+		   //TODO: Detect another kind of media
+		   if(element.childElementCount ==0 && element.lastChild && element.lastChild.nodeType == 3)
+		   {
+		      return 'text';
+		   
+		   } else if(element.tagName.toLowerCase() == 'img')
+		   {
+		      return 'image';
+		   }
+		}
+		,restoreNormalState: function()
+		{
+		   switch(Jerboa.currentState)
+		   {
+		   case 'textmove':
+		      $.CSS.removeClass(Jerboa.currentEditElement,'jerboa-touch');
+            $.Events.remove(Jerboa.currentEditElement,'mousedown',Jerboa.touch);
+            Jerboa.currentEditElement = null;
+            Jerboa.currentState = '';
+            break;
+		   default: break;
+		   }
 		}
 	};
 	if(DEBUG_MODE)
@@ -1223,4 +1099,4 @@ Jerboa = function(element)
 };
 
 })();
-//console.log(Jerboa);
+
