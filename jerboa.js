@@ -9,8 +9,8 @@
 * @original author Den Odell
 * @from Pro JavaScript RIA Techniques Best Practices, Performance, and Presentation
 */
-DEBUG_MODE = 1;
-$ = {};
+DEBUG_MODE = 0;
+var $ = {};
 //var $ = {};
 $.env = {
 			ie: /MSIE/i.test(navigator.userAgent),
@@ -394,7 +394,7 @@ $.UI = {
 	,button: function(value) {
 		var _value = value || "";
 		if(!this.cache["button"+_value])
-			this.cache["button"+_value] = $.Element.set({tag:'div',attr: {'class':'jerboa-button'}} ).appendChild( $.Element.set({tag:'span',attr: {'class':'jerboa-ignore'},html: _value}) ).parentNode;;
+			this.cache["button"+_value] = $.Element.set({tag:'div',attr: {'class':'jerboa-button jerboa-ignore'}} ).appendChild( $.Element.set({tag:'span',attr: {'class':'jerboa-ignore'},html: _value}) ).parentNode;;
 		return  this.cache["button"+_value].cloneNode(1);
 	}
 	,textfield: function(name,value) {
@@ -402,7 +402,7 @@ $.UI = {
 		, _name = name || ""
 		;
 		if(!this.cache["textfield"+_name+_value])
-			this.cache["textfield"+_name+_value] = $.Element.set({tag:'input',attr: {'id':_name,'name':_name,'type':'text','value': _value}} );
+			this.cache["textfield"+_name+_value] = $.Element.set({tag:'input',attr: {'id':_name,'name':_name,'class':'jerboa-ignore','type':'text','value': _value}} );
 		return this.cache["textfield"+_name+_value].cloneNode(1);
 	}
 
@@ -498,7 +498,7 @@ Jerboa = function(element)
 		verstion: "0.001"
 		,$: lib
 		,editElement: element || "edit"
-		,currentPath: path
+		,currentPath: "../../"
 		,currentPanel: null
 		,currentLayer: 0
 		,currentState: '' 
@@ -513,11 +513,13 @@ Jerboa = function(element)
 			var _fragment = document.createDocumentFragment() //build a root of DOM tree
 			,J = Jerboa	,i,len,cssLoaded=false,$ = J.$
 			,addDocumentEvent = $.bind($.Events.add,null,0,document)
-			,loader = document.getElementById('jerboa-loader');
+			,loader = document.getElementById('jerboa-loader')
+			,old_content = ''
 			;
 			
 			//debug mode
-			_document.getElementById("test_edit").innerHTML = "";
+			if(DEBUG_MODE)
+			   _document.getElementById("test_edit").innerHTML = "";
 			
 			//init CSS
 			loader.innerHTML = 'load jerboa';
@@ -537,10 +539,11 @@ Jerboa = function(element)
 			}
          
 			//init UI
-			J.ui['screen'] = _document.getElementById(J.editElement);
+			J.ui['screen'] = document.getElementById(J.editElement);
 			$.CSS.addStyle(J.ui['screen'],{'padding':'0'});
 			J.ui['screen'].element = $.Element.set({tag: 'div',attr: {'class':'jerboa-ignore','style':'position:relative;top:0;left:0;width:100%;height:auto;overflow:hidden;'}});
-			
+			old_content = J.ui['screen'].innerHTML;
+			J.ui['screen'].innerHTML = "";
 			J.ui['screen'].appendChild(J.ui['screen'].element);
 			J.ui['layer'] = [];
 			J.ui['main'] = $.Element.set({tag: 'div',attr: {id: 'jerboa'}});
@@ -548,7 +551,7 @@ Jerboa = function(element)
 			J.ui['main'].appendChild(J.ui['main_menu']);
 			
 			//Dark screen
-			J.ui['dark_screen'] = $.Element.set({tag:'div',attr:{id:'jerboa-darkbox','class':'jerboa-hide'}});
+			J.ui['dark_screen'] = $.Element.set({tag:'div',attr:{id:'jerboa-darkbox','class':'jerboa-hide jerboa-ignore'}});
 			J.ui['main'].appendChild(J.ui['dark_screen']);
 			
 			//Build menu bar
@@ -558,7 +561,7 @@ Jerboa = function(element)
 			J.ui['menu'].push( $.Element.set({tag:'div',attr: {id:'jerboa-text','class':'jerboa-panel jerboa-hide'}}) );
 			
 			//Build Layer panel
-			J.ui['layer'][0] = $.Element.set({tag:'div',attr: {'index':0,'class':'jerboa-layer jerboa-ignore','style':'z-index:2000;'}});
+			J.ui['layer'][0] = $.Element.set({tag:'div',attr: {'index':0,'class':'jerboa-layer jerboa-ignore','style':'z-index:2000;'},html: old_content});
 			J.ui['screen'].element.appendChild(J.ui['layer'][0]);
 			
 			//init temp Function
@@ -760,11 +763,11 @@ Jerboa = function(element)
 			
 			
 			//Build Jerboa Setting Box
-			J.ui['setting_box'] = $.Element.set({tag:'div',attr:{'class':'jerboa-box'}});
+			J.ui['setting_box'] = $.Element.set({tag:'div',attr:{'class':'jerboa-box jerboa-ignore'}});
 				//Build Page Size Setting
 				J.ui['setting_box']['page_size'] = $.Element.set({tag:'div'});
 				J.ui['setting_box']['page_size'].appendChild( $.Element.set({tag:'p',html: 'Page Height',attr:{'class':'jerboa-ignore','style':'float:left;margin-right:25px;'}}) );
-				J.ui['setting_box']['page_size'].appendChild( $.Element.set({tag:'p',attr:{'style':'float:left;'}}) );
+				J.ui['setting_box']['page_size'].appendChild( $.Element.set({tag:'p',attr:{'style':'float:left;','class':'jerboa-ignore'}}) );
 				J.ui['setting_box']['page_size'].lastChild.appendChild( $.UI.textfield() );
 				J.ui['setting_box']['page_size'].lastChild.innerHTML = J.ui['setting_box']['page_size'].lastChild.innerHTML + ' px';
 				J.ui['setting_box']['page_size'].appendChild( $.Element.set($.UI.button('OK'),{event: {add:'click',fn: $.bind(J.setPageHeight,J,0) }}) );
@@ -772,7 +775,7 @@ Jerboa = function(element)
 				J.ui['setting_box'].appendChild(J.ui['setting_box']['page_size']);
 				
 				//Build Paragraph Setting
-				J.ui['setting_box']['paragraph'] = $.Element.set({tag:'div',attr:{'class':'jerboa-hide'},html: '<table><tr><td colspan="6">Paragraph</td></tr><tr style="font-variant:small-caps"><td width="10"></td><td>word spacing</td><td width="20"></td><td><input type="text" maxlength="3" style="width:25px" /></td><td>px</td>				</tr><tr height="10"><td colspan="6"></td></tr>	<tr style="font-variant:small-caps"><td width="10"></td><td>letter spacing</td><td width="20"></td><td><input type="text" maxlength="3" style="width:25px" /></td><td>px</td></tr><tr height="10"><td colspan="6"></td></tr><tr style="font-variant:small-caps">				<td width="10"></td><td>line height</td><td width="20"></td><td><input type="text" maxlength="3" style="width:25px" /></td><td>px</td></tr><tr height="10"><td colspan="6"></td></tr><tr><td colspan="3"></td><td colspan="3"></td></tr></table>'});
+				J.ui['setting_box']['paragraph'] = $.Element.set({tag:'div',attr:{'class':'jerboa-hide'},html: '<table><tr><td colspan="6">Paragraph</td></tr><tr style="font-variant:small-caps"><td width="10"></td><td>word spacing</td><td width="20"></td><td><input type="text" maxlength="3" style="width:25px" /></td><td>px</td>				</tr><tr height="10"><td colspan="6"></td></tr>	<tr style="font-variant:small-caps"><td width="10"></td><td>letter spacing</td><td width="20"></td><td><input type="text" maxlength="3" style="width:25px" /></td><td>px</td></tr><tr height="10"><td colspan="6"></td></tr><tr><td colspan="3"></td><td colspan="3"></td></tr></table>'});
 				J.ui['setting_box']['paragraph'].children[0].children[0].lastChild.lastChild.appendChild( $.Element.set({event:{add:'click',fn:$.bind(J.setParagraph,J,0)},attr:{'class':'jerboa-button'},html: '<span>OK</span>'}) );
 				J.ui['setting_box'].appendChild(J.ui['setting_box']['paragraph']);
 			   J.ui['main'].appendChild(J.ui['setting_box']);
@@ -813,7 +816,7 @@ Jerboa = function(element)
 			J.ui['menu'][0].appendChild( $.Element.set({tag:'div',html:'Page Size',attr:{'class':'jerboa-ignore'},event: {add:'click',fn: $.bind(J.show.setting_box,J,0,[J.ui['setting_box'],J.ui['setting_box']['page_size'],J.ui['dark_screen']]) }}) );
 			J.ui['menu'][0].appendChild( $.Element.set({tag:'div',html:'Insert',attr: {'class':'jerboa-ignore'},event: {add:'click',fn: $.bind(J.show.menu,J,0,J.ui['menu'][1]) }}) );
 			//J.ui['menu'][0].appendChild( $.Element.set({tag:'div',html:'Layer',event: {add:'click',fn: $.bind(J.showUI,J,0,J.ui['layer_panel'].layout) }}) );
-			J.ui['menu'][0].appendChild( $.Element.set({tag:'div',html:'Report Error',attr:{'class':'jerboa-ignore'}}) );
+			J.ui['menu'][0].appendChild( $.Element.set({tag:'div',html:'Finish',attr:{'class':'jerboa-ignore'},event: {add: 'click',fn: $.bind(J.save,J,0)}}) );
 			J.currentPanel = J.ui['menu'][0];
 			J.ui['main_menu'].appendChild(J.ui['menu'][0]);
 			
@@ -827,7 +830,7 @@ Jerboa = function(element)
 			J.ui['main_menu'].appendChild(J.ui['menu'][1]);	
 			
 			//Build text menu
-			J.ui['menu'][2].appendChild( $.Element.set({tag:'iframe',attr:{'id':'jb-text','src':'about:blank','style':'width:100%;height:56px;border:0;'}}) );
+			J.ui['menu'][2].appendChild( $.Element.set({tag:'iframe',attr:{'id':'jb-text','src':'about:blank','style':'width:100%;border:0;'}}) );
 			J.ui['main_menu'].appendChild(J.ui['menu'][2]);
 			
 			_fragment.appendChild(J.ui['main']); //insert all ui to root of DOM tree
@@ -837,11 +840,28 @@ Jerboa = function(element)
          loader.innerHTML = 'init text toolbar';
          setTimeout(function(){
             var _iframe = document.getElementById('jb-text').contentDocument;
-            _iframe.lastChild.children[0].innerHTML = '<meta http-equiv="Content-Type"content="text/html; charset=UTF-8"><link type="text/css"rel="stylesheet"href="./jerboa.css"/>'.replace(/\.\//i,J.currentPath);
+
+            _iframe.getElementsByTagName('head')[0].innerHTML = '<meta http-equiv="Content-Type"content="text/html; charset=UTF-8"><link rel="stylesheet" type="text/css" href="../../jerboa.css" />';
             _iframe.body.innerHTML = '<div id="jerboa"><div id="jerboa-wrapper"><div id="jerboa-text"class="jerboa-panel jerboa-hidae"><span class="jerboa-backbutton">&lt;</span><div><div class="jerboa-group"><div><span style="background:url(\'img/color7.png\')"></span></div><div><span style="background:url(\'img/color6.png\')"></span></div><div><span style="background:url(\'img/color8.png\')"></span></div><div><span style="background:url(\'img/color9.png\')"></span></div></div></div><div><div class="jerboa-group"><div><span style="background:url(\'img/color.png\')"></span></div><div><span style="background:url(\'img/color1.png\')"></span></div><div><b>B</b></div><div><i>I</i></div><div><u>U</u></div><div><span style="background:url(\'img/color2.png\')"></span></div><div><span style="background:url(\'img/color3.png\')"></span></div><div><span style="background:url(\'img/color4.png\')"></span></div><div><span style="background:url(\'img/color5.png\')"></span></div></div></div><div><div class="jerboa-group"><div><b><i>F</i></b></div><div><b>P</b></div></div></div></div></div></div>'.replace(/img\//ig,J.currentPath+'img/');
+
             _iframe = _iframe.body.children[0].children[0].children[0];
             $.Events.add(_iframe.children[0],'click',J.cache.tempFn7);
-            $.Events.add(_iframe.children[1].children[0].children[0],'click',$.bind(J.text.format,null,0,'Bold'));
+            $.Events.add(_iframe.children[1].children[0].children[0],'click',$.bind(J.text.format,null,0,'outdent'));
+            $.Events.add(_iframe.children[1].children[0].children[1],'click',$.bind(J.text.format,null,0,'indent'));
+            $.Events.add(_iframe.children[1].children[0].children[2],'click',$.bind(J.text.format,null,0,'insertunorderedlist'));
+            $.Events.add(_iframe.children[1].children[0].children[3],'click',$.bind(J.text.format,null,0,'insertorderedlist'));
+            
+            $.Events.add(_iframe.children[2].children[0].children[0],'click',$.bind(J.text.format,null,0,'forecolor'));
+            $.Events.add(_iframe.children[2].children[0].children[1],'click',$.bind(J.text.format,null,0,'backcolor'));
+            $.Events.add(_iframe.children[2].children[0].children[2],'click',$.bind(J.text.format,null,0,'bold'));
+            $.Events.add(_iframe.children[2].children[0].children[3],'click',$.bind(J.text.format,null,0,'italic'));
+            $.Events.add(_iframe.children[2].children[0].children[4],'click',$.bind(J.text.format,null,0,'underline'));
+            $.Events.add(_iframe.children[2].children[0].children[5],'click',$.bind(J.text.format,null,0,'justifyleft'));
+            $.Events.add(_iframe.children[2].children[0].children[6],'click',$.bind(J.text.format,null,0,'justifycenter'));
+            $.Events.add(_iframe.children[2].children[0].children[7],'click',$.bind(J.text.format,null,0,'justifyright'));
+            $.Events.add(_iframe.children[2].children[0].children[8],'click',$.bind(J.text.format,null,0,'justifyfull'));
+            
+            $.Events.add(_iframe.children[3].children[0].children[1],'click',$.bind(J.show.setting_box,J,0,[J.ui['dark_screen'],J.ui['setting_box'],J.ui['setting_box']['paragraph']]));
             loader.innerHTML = 'start jerboa';
          },1000);
          setTimeout(function(){
@@ -859,21 +879,30 @@ Jerboa = function(element)
 			{
 				var $ = this.$
 				,_layer = this.ui['layer'][this.currentLayer]
-				,_element = _layer.appendChild($.Element.set({tag:'div',attr:{'role':'paragraph','style':''},html:'<p>Insert Text Here</p>'}))
+				,_element = _layer.appendChild($.Element.set({tag:'div',attr:{'role':'paragraph','style':''},html:'<p style="text-align:left;">Insert Text Here</p>'}))
 				;
 				this.show.menu.call(this,this.ui['menu'][0]);
 			}
 		}
 		,text: {
-		   save: function(e)
-		   {
-		      var event = Jerboa.$.Events.standardize(e);
-
-		      Jerboa.restoreNormalState();
-		   }
-			,format: function(command)
+		   format: function(command)
 			{
-			   document.execCommand(command,0,0);
+			   var haveArgCommand = {'forecolor':true,'backcolor':true}
+			   ,  cssCommand = {'justifyleft':true,'justifycenter':true,'justifyright':true,'justifyfull':true}
+			   ,  args = null
+			   ;
+			   if(cssCommand[command] == true)
+			   {
+			      if(!document.execCommand(command,false,args))
+			         Jerboa.$.CSS.addStyle(Jerboa.currentEditElement,{'text-align':command.replace(/justify/ig,'')});
+			      return false;
+			   }
+			   if(haveArgCommand[command] == true)
+			   {
+			      args = prompt("Insert RGB color","000000");
+			      args = '#'+args;
+			   }   
+			   document.execCommand(command,false,args);
 			}
 		}
 		,refreshScreen: function()
@@ -905,16 +934,14 @@ Jerboa = function(element)
 		   ,_root = this.ui['setting_box']['paragraph'].children[0].children[0]
 		   ,_word_spacing = _root.children[1].children[3].children[0].value
 		   ,_letter_spacing = _root.children[3].children[3].children[0].value
-		   ,_line_height = _root.children[5].children[3].children[0].value
-		   ,_resize_ref = this.ui['resize_box'].ref 
 		   ;
          
-         $.CSS.addStyle(_resize_ref,{'word-spacing':_word_spacing+'px','letter-spacing':_letter_spacing+'px','line-height':_line_height+'px'});
+         $.CSS.addStyle(this.currentEditElement,{'word-spacing':_word_spacing+'px','letter-spacing':_letter_spacing+'px'});
          $.CSS.addClass(this.ui['setting_box'],'jerboa-hide');
 			$.CSS.addClass(this.ui['setting_box']['paragraph'],'jerboa-hide');
 			$.CSS.addClass(this.ui['dark_screen'],'jerboa-hide');
 			
-			_resize_ref.children[0].focus();
+
   		}
 		,show: {
 		   menu: function(element)
@@ -999,7 +1026,7 @@ Jerboa = function(element)
 	      ,event = $.Events.standardize(e)
 	      ,data = Jerboa.cache
 	      ;
-         console.log(event.target);
+
          if(Jerboa.currentState == 'textedit'){
             if($.CSS.hasClass(event.target,'jerboa-ignore'))
                Jerboa.restoreNormalState();
@@ -1109,12 +1136,17 @@ Jerboa = function(element)
             Jerboa.currentEditElement.setAttribute('contenteditable','false');
             $.Events.remove(Jerboa.currentEditElement,'mousedown',Jerboa.touch);
             //$.Events.remove(Jerboa.currentEditElement,'blur',Jerboa.restoreNormalState);
-
+            Jerboa.show.menu.call(Jerboa,Jerboa.ui['menu'][0]);
             Jerboa.currentEditElement = null;
             Jerboa.currentState = '';
             break;
 		   default: break;
 		   }
+		}
+		,save: function()
+		{
+		
+		
 		}
 	};
 	if(DEBUG_MODE)
