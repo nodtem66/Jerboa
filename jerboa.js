@@ -491,13 +491,14 @@ Jerboa = function(element)
 	var _window = window
 	,_document = document
 	,lib = $
+	,path = "../../"
 	;
-	
+   document.write('<div id="jerboa-loader" style="position:fixed;width:100%;z-index:3003;height:100%;background:#FFF url('+path+'img/loader.gif) no-repeat center 120px;text-align:center;line-height:200px;font-variant:small-caps;">loading...</div>');
 	Jerboa = {
 		verstion: "0.001"
 		,$: lib
 		,editElement: element || "edit"
-		,currentPath: "../../"
+		,currentPath: path
 		,currentPanel: null
 		,currentLayer: 0
 		,currentState: '' 
@@ -510,21 +511,23 @@ Jerboa = function(element)
 		,init: function() {
 			//Start Jerboa
 			var _fragment = document.createDocumentFragment() //build a root of DOM tree
-			,J = Jerboa	,i,len,cssLoad=false,$ = J.$
+			,J = Jerboa	,i,len,cssLoaded=false,$ = J.$
 			,addDocumentEvent = $.bind($.Events.add,null,0,document)
+			,loader = document.getElementById('jerboa-loader');
 			;
 			
 			//debug mode
 			_document.getElementById("test_edit").innerHTML = "";
 			
 			//init CSS
+			loader.innerHTML = 'load jerboa';
 			for(i=0,len=document.styleSheets.length;i<len;i++) {
 				if(/jerboa\.css/i.test(document.styleSheets[i].href)) {
 				   cssLoaded=true;
 				  break;
 				}
 			}
-			if(!cssLoad)
+			if(!cssLoaded)
 			{
 				
 				document.getElementsByTagName("head")[0].appendChild(
@@ -532,7 +535,7 @@ Jerboa = function(element)
 				);
 			
 			}
-			
+         
 			//init UI
 			J.ui['screen'] = _document.getElementById(J.editElement);
 			$.CSS.addStyle(J.ui['screen'],{'padding':'0'});
@@ -824,19 +827,32 @@ Jerboa = function(element)
 			J.ui['main_menu'].appendChild(J.ui['menu'][1]);	
 			
 			//Build text menu
-			J.ui['menu'][2].appendChild( $.Element.set({tag:'iframe',attr:{'id':'jb-text','src':'about:blank','style':'width:100%;border:0;'}}) );
+			J.ui['menu'][2].appendChild( $.Element.set({tag:'iframe',attr:{'id':'jb-text','src':'about:blank','style':'width:100%;height:56px;border:0;'}}) );
 			J.ui['main_menu'].appendChild(J.ui['menu'][2]);
 			
 			_fragment.appendChild(J.ui['main']); //insert all ui to root of DOM tree
 			document.body.appendChild(_fragment); //insert a root of DOM tree to document.body
          
-         
-         //document.getElementById('jb-text').contentDocument.lastChild.children[0].innerHTML = '<meta http-equiv="Content-Type"content="text/html; charset=UTF-8"><link type="text/css"rel="stylesheet"href="./jerboa.css"/>'.replace(/\.\//i,J.currentPath);
-         //document.getElementById('jb-text').contentDocument.body.innerHTML = '<body><div id="jerboa"><div id="jerboa-wrapper"><div id="jerboa-text"class="jerboa-panel jerboa-hidae"><span class="jerboa-backbutton">&lt;</span><div><div class="jerboa-group"><div><span style="background:url(\'img/color7.png\')"></span></div><div><span style="background:url(\'img/color6.png\')"></span></div><div><span style="background:url(\'img/color8.png\')"></span></div><div><span style="background:url(\'img/color9.png\')"></span></div></div></div><div><div class="jerboa-group"><div><span style="background:url(\'img/color.png\')"></span></div><div><span style="background:url(\'img/color1.png\')"></span></div><div><b>B</b></div><div><i>I</i></div><div><u>U</u></div><div><span style="background:url(\'img/color2.png\')"></span></div><div><span style="background:url(\'img/color3.png\')"></span></div><div><span style="background:url(\'img/color4.png\')"></span></div><div><span style="background:url(\'img/color5.png\')"></span></div></div></div><div><div class="jerboa-group"><div><b><i>F</i></b></div><div><b>P</b></div></div></div><div>Edit CSS</div></div></div></div></body>'.replace(/img\//ig,J.currentPath+'img/');
+         //init text toolbar
+         loader.innerHTML = 'init text toolbar';
+         setTimeout(function(){
+            var _iframe = document.getElementById('jb-text').contentDocument;
+            _iframe.lastChild.children[0].innerHTML = '<meta http-equiv="Content-Type"content="text/html; charset=UTF-8"><link type="text/css"rel="stylesheet"href="./jerboa.css"/>'.replace(/\.\//i,J.currentPath);
+            _iframe.body.innerHTML = '<div id="jerboa"><div id="jerboa-wrapper"><div id="jerboa-text"class="jerboa-panel jerboa-hidae"><span class="jerboa-backbutton">&lt;</span><div><div class="jerboa-group"><div><span style="background:url(\'img/color7.png\')"></span></div><div><span style="background:url(\'img/color6.png\')"></span></div><div><span style="background:url(\'img/color8.png\')"></span></div><div><span style="background:url(\'img/color9.png\')"></span></div></div></div><div><div class="jerboa-group"><div><span style="background:url(\'img/color.png\')"></span></div><div><span style="background:url(\'img/color1.png\')"></span></div><div><b>B</b></div><div><i>I</i></div><div><u>U</u></div><div><span style="background:url(\'img/color2.png\')"></span></div><div><span style="background:url(\'img/color3.png\')"></span></div><div><span style="background:url(\'img/color4.png\')"></span></div><div><span style="background:url(\'img/color5.png\')"></span></div></div></div><div><div class="jerboa-group"><div><b><i>F</i></b></div><div><b>P</b></div></div></div></div></div></div>'.replace(/img\//ig,J.currentPath+'img/');
+            _iframe = _iframe.body.children[0].children[0].children[0];
+            $.Events.add(_iframe.children[0],'click',J.cache.tempFn7);
+            $.Events.add(_iframe.children[1].children[0].children[0],'click',$.bind(J.text.format,null,0,'Bold'));
+            loader.innerHTML = 'start jerboa';
+         },1000);
+         setTimeout(function(){
+            document.body.removeChild(loader);
+         },1500);
 			
-			//Add Golbal event
+			//Add Global event
          addDocumentEvent('click',J.click);
          addDocumentEvent('dblclick',J.dbclick);
+         
+         
 		}
 		,insert: {
 			text: function()
@@ -849,12 +865,16 @@ Jerboa = function(element)
 			}
 		}
 		,text: {
-			edit: function()
-			{}
-			,save: function()
-			{}
-			,format: function()
-			{}
+		   save: function(e)
+		   {
+		      var event = Jerboa.$.Events.standardize(e);
+
+		      Jerboa.restoreNormalState();
+		   }
+			,format: function(command)
+			{
+			   document.execCommand(command,0,0);
+			}
 		}
 		,refreshScreen: function()
 		{
@@ -935,14 +955,14 @@ Jerboa = function(element)
 	      ,event = $.Events.standardize(e)
 	      ,sizeBorder = 1 //px
 	      ;
-	      event.preventDefault();
+	      if(Jerboa.currentState != 'textedit') event.preventDefault();
 	      if(e.type == "mousedown")
 	      {
 	         data.x = event.pageX;
             data.y = event.pageY;
             $.Events.add(document,'mousemove',Jerboa.touch);
             $.Events.add(document,'mouseup',Jerboa.touch);
-	         console.log('down');    
+  
         } else if(e.type == "mousemove")
         {
             if(e.shiftKey)
@@ -979,9 +999,13 @@ Jerboa = function(element)
 	      ,event = $.Events.standardize(e)
 	      ,data = Jerboa.cache
 	      ;
-	      event.preventDefault();
-         //TODO: Find the Root to edit
-         if(Jerboa.currentState == 'textedit') return false;
+         console.log(event.target);
+         if(Jerboa.currentState == 'textedit'){
+            if($.CSS.hasClass(event.target,'jerboa-ignore'))
+               Jerboa.restoreNormalState();
+            return false;
+         }
+         event.preventDefault();
          if(!$.CSS.hasClass(event.target,'jerboa-ignore'))
          {
             //TODO: Detect another kind of media
@@ -1023,8 +1047,7 @@ Jerboa = function(element)
 	      ,event = $.Events.standardize(e)
 	      ,data = Jerboa.cache;
 	      event.preventDefault();
-         
-         console.log('dblclick');
+
          if(!$.CSS.hasClass(event.target,'jerboa-ignore'))
          {
             switch(Jerboa.detectMedia(event.target))
@@ -1041,6 +1064,11 @@ Jerboa = function(element)
                Jerboa.currentEditElement = _root;
                $.CSS.addClass(_root,'jerboa-touch');
                $.Events.add(_root,'mousedown',Jerboa.touch);
+               //$.Events.add(_root,'blur',Jerboa.restoreNormalState);
+
+               Jerboa.show.menu.call(Jerboa,Jerboa.ui['menu'][2]);
+               _root.setAttribute('contenteditable','true');
+               _root.focus();
                Jerboa.currentState = 'textedit';
                
                return false;
@@ -1057,22 +1085,31 @@ Jerboa = function(element)
 		,detectMedia: function(element)
 		{
 		   //TODO: Detect another kind of media
-		   if(element.childElementCount ==0 && element.lastChild && element.lastChild.nodeType == 3)
+		   if(element.tagName.toLowerCase() == 'img')
+		   {
+		      return 'image';
+		   } else
 		   {
 		      return 'text';
 		   
-		   } else if(element.tagName.toLowerCase() == 'img')
-		   {
-		      return 'image';
 		   }
 		}
-		,restoreNormalState: function()
+		,restoreNormalState: function(e)
 		{
 		   switch(Jerboa.currentState)
 		   {
 		   case 'textmove':
 		      $.CSS.removeClass(Jerboa.currentEditElement,'jerboa-touch');
             $.Events.remove(Jerboa.currentEditElement,'mousedown',Jerboa.touch);
+            Jerboa.currentEditElement = null;
+            Jerboa.currentState = '';
+            break;
+         case 'textedit':            
+            $.CSS.removeClass(Jerboa.currentEditElement,'jerboa-touch');
+            Jerboa.currentEditElement.setAttribute('contenteditable','false');
+            $.Events.remove(Jerboa.currentEditElement,'mousedown',Jerboa.touch);
+            //$.Events.remove(Jerboa.currentEditElement,'blur',Jerboa.restoreNormalState);
+
             Jerboa.currentEditElement = null;
             Jerboa.currentState = '';
             break;

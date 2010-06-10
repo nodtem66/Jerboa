@@ -38,9 +38,8 @@ audio, video {
 #jerboa-infobox p				{margin:10px;}
 #jerboa-infobox p span 			{background:url(img/icon_sprite.png) 0 0;float:left;width:16px;height:16px;margin-right:0.3em;}
 
-#jerboa-processbar				{position:fixed;width:300px;z-index:3002;height:20px;background:url(img/progress_bar.gif) 0 -50px repeat-x;}
-#jerboa-processbar p			{position:absolute;width:100%;text-align:center;line-height:20px;z-index:3000;font-size:14px;color:#0d2054;}
-#jerboa-processbar span			{position:absolute;top:0;left:0;height:20px;background:url(img/progress_bar.gif) repeat-x;z-index:2999;}
+#jerboa-processbar				{position:fixed;width:100%;z-index:3003;height:100%;background:#FFF url(img/loader.gif) no-repeat center 120px;text-align:center;line-height:200px;font-variant:small-caps;}
+
 
 #jerboa-darkbox					{width:100%;height:100%;position:fixed;background:#000;opacity: 0.3;filter:Alpha(Opacity=30);z-index:3001;}
 #jerboa-resize					{position:absolute;z-index:2999;}
@@ -50,7 +49,7 @@ audio, video {
 #jerboa-text >div				{line-height:50px;}
 #jerboa-text >div:last-child	{float:right;color:red;text-decoration:underline;}
 .jerboa-panel					{background:url(img/the_gradient.gif) repeat-x;width:100%;height:56px;float:left;}
-.jerboa-panel >div				{float:left;margin:auto 5px;padding:5px;cursor:pointer;}
+.jerboa-panel >div				{float:left;margin:auto 5px;cursor:pointer;}
 .jerboa-panel >div span			{width:30px;height:30px;display:block;}
 .jerboa-box						{position:fixed;height:auto;top:0;left:30%;background:#eaeaea;z-index:3002;padding:10px;}
 /*
