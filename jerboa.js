@@ -1239,10 +1239,13 @@ Jerboa = function(element,path)
 		   Jerboa.$.Events.remove(document,'dblclick',Jerboa.dbclick);
 		}
 	};
-	if(DEBUG_MODE)
+	if(document.body)
+	{
+	   Jerboa.init();
+	}
+	else if(DEBUG_MODE)
 	{
 		Jerboa.$.onDomReady(Jerboa.init);
-		
 	} 
 	else 
 	{
