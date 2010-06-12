@@ -9,7 +9,7 @@
 * @original author Den Odell
 * @from Pro JavaScript RIA Techniques Best Practices, Performance, and Presentation
 */
-DEBUG_MODE = 0;
+DEBUG_MODE = 1;
 var $ = {};
 //var $ = {};
 $.env = {
@@ -556,6 +556,7 @@ Jerboa = function(element,path)
 			}
          
 			//init UI
+
 			J.ui['screen'] = document.getElementById(J.editElement);
 			$.CSS.addStyle(J.ui['screen'],{'padding':'0'});
 			if(J.ui['screen'].children[0] && J.ui['screen'].children[0].className == 'jerboa-ignore')
@@ -569,6 +570,7 @@ Jerboa = function(element,path)
    			J.ui['screen'].appendChild(J.ui['screen'].element);
 			}
 			//Build Layer panel
+
 			J.ui['layer'] = [];
 			if(J.ui['screen'].element.children[0] && $.CSS.hasClass(J.ui['screen'].element.children[0],'jerboa-layer'))
 			{
@@ -1234,19 +1236,26 @@ Jerboa = function(element,path)
 
 		   //end of program
 		   document.body.removeChild(Jerboa.ui['main']);
+		   for(i=0,len=document.styleSheets.length;i<len;i++) {
+				if(/jerboa\.css/i.test(document.styleSheets[i].href)) {
+				   document.getElementsByTagName('head')[0].removeChild(document.styleSheets[i].ownerNode);
+				  break;
+				}
+			}
+		   
 		   Jerboa.restoreNormalState();
 		   Jerboa.$.Events.remove(document,'click',Jerboa.click);
 		   Jerboa.$.Events.remove(document,'dblclick',Jerboa.dbclick);
 		}
 	};
-	if(document.body)
+	if(DEBUG_MODE)
+	{
+		Jerboa.$.onDomReady(Jerboa.init);
+	}
+	else if(document.body)
 	{
 	   Jerboa.init();
 	}
-	else if(DEBUG_MODE)
-	{
-		Jerboa.$.onDomReady(Jerboa.init);
-	} 
 	else 
 	{
 	if(_window.$)
