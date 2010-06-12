@@ -158,7 +158,7 @@ $.Events = {
 		return {
 			x: x,
 			y: y
-		}
+		};
 },
 	// The getMousePositionOffset method returns the distance of the mouse
 	// pointer from the top left of the element the event occurred on
@@ -177,7 +177,7 @@ $.Events = {
 		return {
 			x: x,
 			y: y
-		}
+		};
 },
 	// The getRelatedTarget method returns the element node the event was set up to
 	// fire on, which can be different from the element the event actually fired on
@@ -256,20 +256,19 @@ $.CSS = {
 	getPosition: function(element) {
 		var x = 0, y = 0;
 		var elementBackup = element;
-		if (element.offsetParent) {
+		
 			// The offsetLeft and offsetTop properties get the position of the
 			// element with respect to its parent node. To get the position with
 			// respect to the page itself, we need to go up the tree, adding the
 			// offsets together each time until we reach the node at the top of
 			// the document, by which point, we'll have coordinates for the
 			// position of the element in the page
-			do {
+			
 				x += element.offsetLeft;
 				y += element.offsetTop;
 				// Deliberately using = to force the loop to execute on the next
 				// parent node in the page hierarchy
-			} while (element = element.offsetParent)
-		}
+			
 		
 		// Return an object literal with the x and y coordinates of the element,
 		// along with the actual width and height of the element
@@ -281,8 +280,13 @@ $.CSS = {
 		};
 },
 	getObjectOfStyle: function(element) {
-		var listStyle = element.getAttribute('style'),i,len,objectStyle={}
-		,cssValue;
+		var listStyle = element.getAttribute('style')
+		,i=0
+		,len=0
+		,objectStyle={}
+		,cssValue=''
+		;
+
 		if(listStyle)
 		{
 			listStyle = listStyle.split(';');
@@ -304,10 +308,12 @@ $.CSS = {
 			}	
 			
 		}
-		return objectStyle
+		return objectStyle;
 },
 	setObjectOfStyle: function(element,objectStyle) {
-		var listStyle="",item;
+		var listStyle=""
+		,item
+		;
 		for(item in objectStyle)
 		{
 			listStyle = listStyle.concat(item+':'+objectStyle[item]+';');
@@ -327,7 +333,9 @@ $.CSS = {
 	for(i=0,len=List.length;i<len;i++)
 	{
 		if(objStyle[List[i]])
+		{
 			delete objStyle[List[i]];
+		}
 	}
 	this.setObjectOfStyle(element,objStyle);
 }	
@@ -346,7 +354,8 @@ $.Utils = {
 	// case string and converting it into a hyphenated one.
 	// e.g., marginLeft becomes margin-left 
 	toHyphens: function(camelCaseValue) {
-		var result = camelCaseValue.replace(/[A-Z]/g, function(character) {
+		var result;
+		result = camelCaseValue.replace(/[A-Z]/g, function(character) {
 			return ('-'+ character.charAt(0).toLowerCase());
 		});
 		return result;
@@ -361,16 +370,21 @@ $.Element = {
 			List = arguments[0];
 			element = this.create(List.tag || List.Tag || "div");
 		}
-		var listAttr = List.Attr || List.attr || {} //example attr: {id: xxx,class: yyy}
-		, listEvent = List.event || List.Event || {} // example event: {add: click,fn: function1}
+		var listAttr = List.Attr || List.attr || {}  
+		, listEvent = List.event || List.Event || {} 
 		;
+		//example attr: {id: xxx,class: yyy}
+		//example event: {add: click,fn: function1}
 		
 		//Add event <tag onclick="function1"></tag>
 		if(listEvent.add)
+		{
 			$.Events.add(element,listEvent.add,listEvent.fn);
+		}
 		else if(listEvent.remove)
+		{
 			$.Events.remove(element,listEvent.remove,listEvent.fn);
-		
+		}
 		//Add attribute <tag attr1="value"></tag>
 		for(var key in listAttr)
 		{
@@ -394,7 +408,7 @@ $.UI = {
 	,button: function(value) {
 		var _value = value || "";
 		if(!this.cache["button"+_value])
-			this.cache["button"+_value] = $.Element.set({tag:'div',attr: {'class':'jerboa-button jerboa-ignore'}} ).appendChild( $.Element.set({tag:'span',attr: {'class':'jerboa-ignore'},html: _value}) ).parentNode;;
+			this.cache["button"+_value] = $.Element.set({tag:'div',attr: {'class':'jerboa-button jerboa-ignore'}} ).appendChild( $.Element.set({tag:'span',attr: {'class':'jerboa-ignore'},html: _value}) ).parentNode;
 		return  this.cache["button"+_value].cloneNode(1);
 	}
 	,textfield: function(name,value) {
@@ -459,13 +473,13 @@ $.bind = function(callback,scope,useThrottle) {
 			var argsDynamic = arguments;
 			clearTimeout(callback.tId);
 			callback.tId = setTimeout(function(){
-				callback.apply(scope,argsStatic.concat(Array.prototype.slice.call(argsDynamic,0)))
+				callback.apply(scope,argsStatic.concat(Array.prototype.slice.call(argsDynamic,0)));
 			},useThrottle);
-		}
+		};
 	}
 	else	
 		return function () {
-			callback.apply(scope,argsStatic.concat(Array.prototype.slice.call(arguments,0)))
+			callback.apply(scope,argsStatic.concat(Array.prototype.slice.call(arguments,0)));
 		};
 };
 $.getByClass = function(root,nameClass)
@@ -1202,7 +1216,7 @@ Jerboa = function(element,path)
                   console.log('Jerboa send fail');
             }
          
-         }
+         };
          if(method == 'POST')
          {
             xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
