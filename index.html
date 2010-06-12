@@ -4,31 +4,36 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-
-	<title>nodtem66/Jerboa @ GitHub</title>
+  <meta property="og:title" content="Jerboa WYSIWYG Editor (beta)"/>
+  <meta property="og:site_name" content="Jerboa on Github :)"/>
+	<title>Jerboa @ GitHub :)</title>
 	
 	<style type="text/css">
 		body {
   		margin-top: 1.0em;
-  		background-color: #154c17;
+  		background-color: #fff;
 		  font-family: "Helvetica,Arial,FreeSans";
-  		color: #ffffff;
+  		color: #000;
     }
     #container {
       margin: 0 auto;
       width: 700px;
     }
-		h1 { font-size: 3.8em; color: #eab3e8; margin-bottom: 3px; }
-		h1 .small { font-size: 0.4em; }
+		h1 { font-size: 3.8em; color: #000; margin-bottom: 3px;position:relative;text-shadow:0 0 5px;width:350px;}
+		h1 .small { font-size: 0.4em;}
+		h1 .version {position:absolute;top:10px;left:225px;color:#0CF;}
 		h1 a { text-decoration: none }
-		h2 { font-size: 1.5em; color: #eab3e8; }
-    h3 { text-align: center; color: #eab3e8; }
-    a { color: #eab3e8; }
-    .description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px; font-style: italic;}
+		h2 { font-size: 1.5em; color: #000;text-shadow:0 1px 3px #222;}
+    h3 { text-align: center; color: #000; }
+    a { color: #09f; }
+    p>a {background:#09f;color:#fff;padding:5px;font-variant:small-caps;border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;}
+    .description { font-size: 0.8em; margin-bottom: 30px; margin-top: 30px; font-style: italic;color:#999;}
     .download { float: right; }
 		pre { background: #000; color: #fff; padding: 15px;}
     hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
-    .footer { text-align:center; padding-top:30px; font-style: italic; }
+    small {background:#ffe500;}
+    big {text-shadow:0 0 2px #000;}
+    .footer { text-align:left; padding-top:30px; font-style: italic; }
 	</style>
 	
 </head>
@@ -40,25 +45,67 @@
 
     <div class="download">
       <a href="http://github.com/nodtem66/Jerboa/zipball/master">
-        <img border="0" width="90" src="http://github.com/images/modules/download/zip.png"></a>
+        <img border="0" width="90" src="http://github.com/images/modules/download/zip.png"/></a>
       <a href="http://github.com/nodtem66/Jerboa/tarball/master">
-        <img border="0" width="90" src="http://github.com/images/modules/download/tar.png"></a>
+        <img border="0" width="90" src="http://github.com/images/modules/download/tar.png"/></a>
     </div>
 
     <h1><a href="http://github.com/nodtem66/Jerboa">Jerboa</a>
-      <span class="small">by <a href="http://github.com/nodtem66">nodtem66</a></span></h1>
-
-    <div class="description">
-      WYGIWYS editor (not support IE [<8])
+      
+      <span class="small version">Alpha</span>
+    </h1>
+    <div class="description" id="jerboa-edit">
+      <div><p>WYGIWYS editor on the fly (not support IE5,IE6,IE7) ^^</p></div>
     </div>
+    
 
-    <h2>Authors</h2>
-<p>Jirawat Iamsamang (nodtem66@gmail.com)<br/><br/>      </p>
-<h2>Contact</h2>
-<p>Jirawat Iamsamang (nodtem66@gmail.com)<br/>      </p>
+    <h2>Fast Demo</h2>
+    <p>
+    <small>CLICK</small>&#160;&#160;&#160; <a href="javascript:alert('test');">jerboa</a>
+    </p>
+    <p><small>NOTE</small> You can <small>BOOKMARK THAT LINK</small> to run in another page
+    <br/>To run Jerboa ,please check the page,There is an id <big>jerboa-editor?
+<pre>
+&lt;div id="jerboa-edit"&gt;
+  &lt;div&gt;
+    &lt;p&gt;content to be edit&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+</pre>  
+    </p>
+    <h2>Install</h2>
+    <p>
+    Put this code at the last line in <small>HEAD</small> tag
+<pre>&lt;script type="text/javascript" src="http://github.com/nodtem66/jerboa/raw/master/jerboa.js" &gt;
+&lt;/script&gt;
 
-
-    <h2>Download</h2>
+&lt;script&gt;
+  Jerboa('id of element to be write','http://github.com/nodtem66/jerboa/raw/master/');
+  //Optional
+  Jerboa.save = function()
+  {
+    /* write the code to fire when Jerboa ends (Click 'finish')
+    Example:
+      When Jerboa finished
+      Send the HTML code to script 'save.php' with a number of parameters
+    */
+    var codeHTML = document.getElementById('id of element').innerHTML;
+    Jerboa.send({
+      url: 'save.php?param_1=value&param2=value'
+      ,method: 'post'
+      ,'param_3': 'value'
+      ,'param_4': 'value'
+      ,'param_5': codeHTML
+    });
+  }
+&lt;/script&gt;
+</pre>
+Then, set the id of elementin you <small>BODY</small> tag
+<pre>
+&lt;div id="...."&gt;&lt;/div&gt;
+</pre> 
+    </p>
+    <h2>Source Code</h2>
     <p>
       You can download this project in either
       <a href="http://github.com/nodtem66/Jerboa/zipball/master">zip</a> or
@@ -68,11 +115,16 @@
       by running:
       <pre>$ git clone git://github.com/nodtem66/Jerboa</pre>
     </p>
+    <h2>Contact</h2>
+    <p style="position:relative;"><img src="mail.png" alt="email" style="position:relative;top:5px;"/> <a href="http://github.com/nodtem66/Jerboa" >jerboa@gitgub</a>
 
-    <div class="footer">
-      get the source code on GitHub : <a href="http://github.com/nodtem66/Jerboa">nodtem66/Jerboa</a>
-    </div>
-
+    </p>
+  
+  <div class="footer">
+    <p>
+    <iframe src="http://www.facebook.com/plugins/like.php?href=http%3A%2F%2Fnodtem66.github.com%2FJerboa&amp;layout=standard&amp;show_faces=false&amp;width=450&amp;action=like&amp;colorscheme=light&amp;height=35" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:450px; height:35px;" allowTransparency="true"></iframe>
+    </p>
+  </div>
   </div>
 
   
