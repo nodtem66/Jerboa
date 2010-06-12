@@ -21,7 +21,7 @@ $.env = {
 			opera: /Opera/i.test(navigator.userAgent),
 			webkit: /Webkit/i.test(navigator.userAgent),
 			camino: /Camino/i.test(navigator.userAgent)
-		}
+		};
 
 $.onDomReady = function(callback)
 {
@@ -44,7 +44,7 @@ $.onDomReady = function(callback)
 		}
 
 	}
-}
+};
 // Add a new namespace to the $ library to hold all event-related code,
 // using an object literal notation to add multiple methods at once
 $.Events = {
@@ -278,7 +278,7 @@ $.CSS = {
 			y: y,
 			height: elementBackup.offsetHeight,
 			width: elementBackup.offsetWidth
-		}
+		};
 },
 	getObjectOfStyle: function(element) {
 		var listStyle = element.getAttribute('style'),i,len,objectStyle={}
@@ -483,22 +483,22 @@ $.getByClass = function(root,nameClass)
 	else
 		_element = root.getElementsByClassName(nameClass);
 	return _element;
-}
+};
 
-Jerboa = function(element)
+Jerboa = function(element,path)
 {
 	
 	var _window = window
 	,_document = document
 	,lib = $
-	,path = "../../"
+	,path = path || "../../"
 	;
-   document.write('<div id="jerboa-loader" style="position:fixed;width:100%;z-index:3003;height:100%;background:#FFF url('+path+'img/loader.gif) no-repeat center 120px;text-align:center;line-height:200px;font-variant:small-caps;">loading...</div>');
+   document.write('<div id="jerboa-loader" style="position:fixed;top:0;left:0;width:100%;z-index:3003;height:100%;background:#FFF url('+path+'img/loader.gif) no-repeat center 120px;text-align:center;line-height:200px;font-variant:small-caps;">loading...</div>');
 	Jerboa = {
 		verstion: "0.001"
 		,$: lib
 		,editElement: element || "edit"
-		,currentPath: "../../"
+		,currentPath: path
 		,currentPanel: null
 		,currentLayer: 0
 		,currentState: '' 
@@ -519,7 +519,7 @@ Jerboa = function(element)
 			
 			//debug mode
 			if(DEBUG_MODE)
-			   _document.getElementById("test_edit").innerHTML = "";
+			   document.getElementById(J.editElement).innerHTML = "";
 			
 			//init CSS
 			loader.innerHTML = 'load jerboa';
@@ -541,11 +541,28 @@ Jerboa = function(element)
 			//init UI
 			J.ui['screen'] = document.getElementById(J.editElement);
 			$.CSS.addStyle(J.ui['screen'],{'padding':'0'});
-			J.ui['screen'].element = $.Element.set({tag: 'div',attr: {'class':'jerboa-ignore','style':'position:relative;top:0;left:0;width:100%;height:auto;overflow:hidden;'}});
-			old_content = J.ui['screen'].innerHTML;
-			J.ui['screen'].innerHTML = "";
-			J.ui['screen'].appendChild(J.ui['screen'].element);
+			if(J.ui['screen'].children[0] && J.ui['screen'].children[0].className == 'jerboa-ignore')
+			{
+			   J.ui['screen'].element = J.ui['screen'].children[0];
+			   old_content = J.ui['screen'].element.innerHTML;
+			} else {
+			   J.ui['screen'].element = $.Element.set({tag: 'div',attr: {'class':'jerboa-ignore','style':'position:relative;top:0;left:0;width:100%;height:auto;overflow:hidden;'}});
+			   old_content = J.ui['screen'].innerHTML;
+			   J.ui['screen'].innerHTML = "";
+   			J.ui['screen'].appendChild(J.ui['screen'].element);
+			}
+			//Build Layer panel
 			J.ui['layer'] = [];
+			if(J.ui['screen'].element.children[0] && $.CSS.hasClass(J.ui['screen'].element.children[0],'jerboa-layer'))
+			{
+			   J.ui['layer'][0] = J.ui['screen'].element.children[0];
+			} else {
+			   J.ui['layer'][0] = $.Element.set({tag:'div',attr: {'index':0,'class':'jerboa-layer jerboa-ignore','style':'z-index:2000;'},html: old_content});
+   			J.ui['screen'].element.appendChild(J.ui['layer'][0]);
+			}
+			
+			
+
 			J.ui['main'] = $.Element.set({tag: 'div',attr: {id: 'jerboa'}});
 			J.ui['main_menu'] = $.Element.set({tag: 'div',attr: {id: 'jerboa-wrapper'}});
 			J.ui['main'].appendChild(J.ui['main_menu']);
@@ -556,13 +573,11 @@ Jerboa = function(element)
 			
 			//Build menu bar
 			J.ui['menu'] = [];
-			J.ui['menu'].push( $.Element.set({tag:'div',attr: {id:'jerboa-menu'}}) );
+			J.ui['menu'].push( $.Element.set({tag:'div',attr: {id:'jerboa-menu','class':'jerboa-ignore'}}) );
 			J.ui['menu'].push( $.Element.set({tag:'div',attr: {id:'jerboa-insert','class':'jerboa-panel jerboa-hide'}}) );
 			J.ui['menu'].push( $.Element.set({tag:'div',attr: {id:'jerboa-text','class':'jerboa-panel jerboa-hide'}}) );
 			
-			//Build Layer panel
-			J.ui['layer'][0] = $.Element.set({tag:'div',attr: {'index':0,'class':'jerboa-layer jerboa-ignore','style':'z-index:2000;'},html: old_content});
-			J.ui['screen'].element.appendChild(J.ui['layer'][0]);
+			
 			
 			//init temp Function
 			J.cache.tempFn7 = $.bind(J.show.menu,J,0,J.ui['menu'][0]);
@@ -816,7 +831,7 @@ Jerboa = function(element)
 			J.ui['menu'][0].appendChild( $.Element.set({tag:'div',html:'Page Size',attr:{'class':'jerboa-ignore'},event: {add:'click',fn: $.bind(J.show.setting_box,J,0,[J.ui['setting_box'],J.ui['setting_box']['page_size'],J.ui['dark_screen']]) }}) );
 			J.ui['menu'][0].appendChild( $.Element.set({tag:'div',html:'Insert',attr: {'class':'jerboa-ignore'},event: {add:'click',fn: $.bind(J.show.menu,J,0,J.ui['menu'][1]) }}) );
 			//J.ui['menu'][0].appendChild( $.Element.set({tag:'div',html:'Layer',event: {add:'click',fn: $.bind(J.showUI,J,0,J.ui['layer_panel'].layout) }}) );
-			J.ui['menu'][0].appendChild( $.Element.set({tag:'div',html:'Finish',attr:{'class':'jerboa-ignore'},event: {add: 'click',fn: $.bind(J.save,J,0)}}) );
+			J.ui['menu'][0].appendChild( $.Element.set({tag:'div',html:'Finish',attr:{'class':'jerboa-ignore'},event: {add: 'click',fn: J.end}}) );
 			J.currentPanel = J.ui['menu'][0];
 			J.ui['main_menu'].appendChild(J.ui['menu'][0]);
 			
@@ -889,6 +904,7 @@ Jerboa = function(element)
 			{
 			   var haveArgCommand = {'forecolor':true,'backcolor':true}
 			   ,  cssCommand = {'justifyleft':true,'justifycenter':true,'justifyright':true,'justifyfull':true}
+			   ,  clearColorCommand = {'clear':true,'transparent':true,'remove':true,'clearcolor':true,'removecolor':true}
 			   ,  args = null
 			   ;
 			   if(cssCommand[command] == true)
@@ -900,7 +916,12 @@ Jerboa = function(element)
 			   if(haveArgCommand[command] == true)
 			   {
 			      args = prompt("Insert RGB color","000000");
-			      args = '#'+args;
+			      if(clearColorCommand[args] == true || args.length != 3 || args.length != 6)
+			      {
+			         args = 'transparent';
+			      }
+			      else if(Jerboa.$.env.firefox || Jerboa.$.env.webkit)
+			         args = '#'+args;
 			   }   
 			   document.execCommand(command,false,args);
 			}
@@ -909,7 +930,7 @@ Jerboa = function(element)
 		{
 				var $ = this.$
 				,propElement = $.CSS.getPosition(this.ui['screen'])
-				,propDoc = $.CSS.getPosition(_document.body)
+				,propDoc = {width: Math.max(document.body.offsetWidth,document.documentElement.offsetWidth),height: Math.max(document.body.offsetHeight,document.documentElement.offsetHeight)}
 				;
 				
 				$.CSS.addStyle(this.ui['light_screen_left'],{top:'0px',left:'0px',width:propElement.x+'px',height:propDoc.height+'px'});
@@ -1143,10 +1164,68 @@ Jerboa = function(element)
 		   default: break;
 		   }
 		}
-		,save: function()
+		,send: function(objSetting)
 		{
-		
-		
+         //Build xhr objectStyle
+         var xmlhttp =null
+         ,method = objSetting.method.toUpperCase() || 'GET'
+         ,url = objSetting.url
+         ,dataKey = ''
+         ,dataToSend=''
+         ;
+         delete objSetting.method;
+         delete objSetting.url;
+         if (window.XMLHttpRequest)
+         {// code for IE7+, Firefox, Chrome, Opera, Safari
+            xmlhttp=new XMLHttpRequest();
+         }
+         else
+         {// code for IE6, IE5
+            xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+         }
+         for(dataKey in objSetting)
+         {
+            dataToSend += dataKey+'='+objSetting[dataKey]+'&';
+         }
+         dataToSend = dataToSend.substr(0,dataToSend.length-1);
+         if(method == 'GET') 
+         {
+            if(/\?/.test(url))
+               url = url+'&'+dataToSend;
+            else
+               url = url+'?'+dataToSend;
+         }
+         xmlhttp.open(method,encodeURI(url),true);
+         xmlhttp.onreadystatechange = function()
+         {
+            if(xmlhttp.readyState == 4)
+            {
+               if(xmlhttp.status == 200)
+                  console.log('Jerboa send complete');
+               else  
+                  console.log('Jerboa send fail');
+            }
+         
+         }
+         if(method == 'POST')
+         {
+            xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+            xmlhttp.setRequestHeader("Content-length",dataToSend.split('&').length);
+            xmlhttp.setRequestHeader("Connection","close");
+            xmlhttp.send(encodeURI(dataToSend));
+         }
+         else xmlhttp.send();
+         
+		}
+		,save: function(){}
+		,end: function()
+		{
+		   Jerboa.save.call(Jerboa);
+
+		   //end of program
+		   document.body.removeChild(Jerboa.ui['main']);
+		   Jerboa.$.Events.remove(document,'click',Jerboa.click);
+		   Jerboa.$.Events.remove(document,'dblclick',Jerboa.dbclick);
 		}
 	};
 	if(DEBUG_MODE)
