@@ -1220,6 +1220,7 @@ Jerboa = function(element,path)
 
 		   //end of program
 		   document.body.removeChild(Jerboa.ui['main']);
+		   Jerboa.restoreNormalState();
 		   Jerboa.$.Events.remove(document,'click',Jerboa.click);
 		   Jerboa.$.Events.remove(document,'dblclick',Jerboa.dbclick);
 		}
