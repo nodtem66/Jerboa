@@ -86,15 +86,16 @@ audio, video {
 .jerboa-layer >*				{position:absolute;text-align:justify;display:block;float:left;overflow:hidden;cursor:default;}
 
 
-.jerboa-group					{background:green;margin:0;line-height:30px;margin:10px auto;font-weight:normal;}
-.jerboa-group >div				{border:1px solid #999;border-left:0;float:left;width:30px;height:30px;background:url(img/button_bg.png) 0 0 repeat-x #eaeaea;}
-.jerboa-group >div:first-child
+.jerboa-group					{margin:0;line-height:30px;margin:10px auto;font-weight:normal;}
+.jerboa-group >button			{border:1px solid #999;border-left:0;float:left;width:35px;height:35px;background:url(img/button_bg.png) 0 0 repeat-x #eaeaea;cursor:pointer;}
+.jerboa-group >button>span      {padding:5px;}
+.jerboa-group >button:first-child
 {
 	border-left:1px solid #999;
 	-moz-border-radius-topleft:5px;
 	-moz-border-radius-bottomleft:5px;
 }
-.jerboa-group >div:last-child
+.jerboa-group >button:last-child
 {
 	
 	-moz-border-radius-topright:5px;
