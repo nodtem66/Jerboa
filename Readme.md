@@ -1,7 +1,5 @@
 
 # Jerboa 
 
-WYSIWYG Editor on fly
-
-## License 
+WYSIWYG editor on fly
 
