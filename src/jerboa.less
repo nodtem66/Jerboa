@@ -22,12 +22,21 @@ Jerboa
 @menu_panel_padding: 30px;
 @menu_padding: 10px;
 @menu_width: 100px;
-
+@menu_text_icon_size: 30px;
 /* Definition */
-.shadow_box (@s_size: 10px,@s_color: #000000) {
-	box-shadow:0 0 @s_size @s_color;
-	-moz-box-shadow:0 0 @s_size @s_color;
-	-webkit-box-shadow:0 0 @s_size @s_color;
+.opacity (@percent: 50) {
+	opacity: 0.01*@percent;
+	filter: "Alpha(Opacity:",@percent,")";
+}
+.shadow_box (@x: 0px,@y: 0px,@s_size: 10px,@s_color: #000000) {
+	box-shadow: @x @y @s_size @s_color;
+	-moz-box-shadow: @x @y @s_size @s_color;
+	-webkit-box-shadow: @x @y @s_size @s_color;
+}
+.transition(@type: all){
+	 transition: @type 0.25s ease-in-out;
+    -webkit-transition: @type 0.25s ease-in-out;
+    -moz-transition: @type 0.25s ease-in-out;
 }
 .rounded_right_corners (@radius: 5px) {
     border-top-right-radius:@radius;
@@ -56,21 +65,12 @@ Jerboa
 	background: @from;
 	background: -webkit-gradient(linear, left top, left bottom, from(@from), to(@to));
 	background: -moz-linear-gradient(top, @from,  @to);
+	filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='",@from,"', endColorstr='",@to,"')";
 }
-#jerboa	{
-	position:absolute;top:0px;left:0px;
-	ul {list-style:none;}
-}
-#jerboa-wrapper,.jerboa-button,.jerboa-box,.jerboa-window {
-	.mac_text_shadow;
-	font-family: @font_family;
-	font-weight: normal;
-	font-size: @font_size;
-	color: @color_dark;
-}
-#jerboa-wrapper {position:fixed;width:100%;top:0;left:0;text-align:center;z-index:3000;}
-#jerboa-menu {
+.jerboa-hide{display:none;}
+.jerboa-panel {
 	.gradient(@color_dark10,@color_dark20);
+	.shadow_box(0,1px,5px,rgba(0,0,0,0.8));
 	width:100%;
 	height: @menu_panel_height;
 	>div {
@@ -90,44 +90,103 @@ Jerboa
 	>div:first-child {
 		margin-left: @menu_panel_padding;
 	}
+}
+.jerboa-button {
+ 	.mac_text_shadow;
+	.rounded_corners(10px);
+	.gradient(1.5*@color_soft10,@color_soft10);
+	.shadow_box(1px,1px,1px,rgba(0,0,0,0.6));
+	@font-size: 0.9*@font_size;
+	color: @color_dark70 !important;
+	padding: 0.5*@menu_padding;
+	@height: 1.4*@font-size;
+	float: left;cursor:pointer;
+	font-weight: bold !important;
+	font-variant: small-caps !important;
+	:hover {
+		.gradient(@color_soft10,0.9*@color_soft10);
+		color: @color_dark !important;
+	}
+	:active {
+		background: @color_soft10;
+		color: @color_dark70 !important;
+	}
+}
+#jerboa	{
+	position:absolute;top:0px;left:0px;
+	b {color: @color_dark70}
+	ul {list-style:none;}
+	input,select {
+		.transition;
+		border:1px solid @color_dark50;
+		height:1.25*@font_size;
+		outline:none;
+		:focus {
+			.shadow_box(0,0,5px,@color_soft10);
+			border:1px solid @color_soft10;
+		}
+	}	
+}
+#jerboa-wrapper,.jerboa-button,.jerboa-box,.jerboa-window {
+	.mac_text_shadow;
+	font-family: @font_family;
+	font-weight: normal;
+	font-size: @font_size;
+	color: @color_dark;
+}
+#jerboa-wrapper{position:fixed;width:100%;top:0;left:0;text-align:center;z-index:3000;}
+#jerboa-menu {
+	.jerboa-panel;
 	>div:last-child {
 		margin-right: @menu_panel_padding;
 		float: right;
 		padding:0;
 		height:@menu_panel_height;
-		div {
-			.mac_text_shadow;
-			.rounded_corners(10px);
-			.gradient(1.5*@color_soft10,@color_soft10);
-			@font-size: 0.9*@font_size;
+		div {	
+			.jerboa-button;
+			margin-top:0.5*(@menu_panel_height - .jerboa-button[@height] - @menu_padding);
 			margin-left: 5px;
-			color: @color_dark50;
-			padding: 0.5*@menu_padding;
-			@height: 1.4*@font-size;
-			margin-top:0.5*(@menu_panel_height - @height - @menu_padding);
-			float: left;
-			:hover {
-				.gradient(@color_soft10,0.9*@color_soft10);
-				color: @color_dark70;
-			}
 		}
 		:hover {
 			background: transparent;
 		}
 	}
 }
+
 /*
 #jerboa-resize					{position:absolute;z-index:2999;}
 #jerboa-resize >div				{border:1px dashed #000;position:absolute;width:100%;height:100%;top:2px;left:2px;}
 #jerboa-resize span				{position:absolute;width:6px;height:6px;background:#000;display:block;}
-
-#jerboa-text >div				{line-height:50px;}
-#jerboa-text >div:last-child	{float:right;color:red;text-decoration:underline;}
-.jerboa-panel					{background:url(img/the_gradient.gif) repeat-x;width:100%;height:56px;float:left;}
-.jerboa-panel >div				{float:left;margin:auto 10px;cursor:pointer;height:100%;}
-.jerboa-panel >div span			{width:30px;height:30px;display:block;}
+*/
+#jerboa-text {
+	z-index: 3001;
+	>div {
+		padding:0;
+		margin-top:0.0625*@menu_panel_height;
+		>button{
+			.gradient(@color_dark00,@color_dark30);
+			border:1px solid #999;border-left:0;float:left;
+			width:0.875*@menu_panel_height;
+			height:0.875*@menu_panel_height;
+			cursor:pointer;padding:0;
+			:active {.gradient(@color_dark20,@color_dark10);}
+		}
+		>button>span{
+			display:inline-block;
+			margin:0.5*(0.875*@menu_panel_height - @menu_text_icon_size);
+			width:@menu_text_icon_size;
+			height:@menu_text_icon_size;
+		}
+		>button:first-child {border-left:1px solid #999;.rounded_left_corners;}
+		>button:last-child {.rounded_right_corners;}
+		>button:hover {background-position:0 -33px;}
+	}
+	>div:hover {background: transparent;}
+}
+.jerboa-lightbox{.opacity(50);background:#000;position:absolute;z-index:1999;}
 .jerboa-box						{position:fixed;height:auto;top:0;left:30%;background:#eaeaea;z-index:3002;padding:10px;}
-
+.jerboa-touch {border: 1px dashed #000;}
+/*
 .jerboa-window					{position:fixed;z-index:3000;padding:5px;background:#eaeaea;}
 .jerboa-window p				{display:block;float:left;}
 .jerboa-window p+p				{float:right;width:16px;height:16px;background:url(img/icon_sprite.png) 0 -16px no-repeat}
@@ -146,46 +205,12 @@ Jerboa
 .jerboa-window .jerboa-lhide span{background:url(img/ui-icons.png) 0px -128px #AFAFAF;}
 .jerboa-window div+p:hover		{cursor:se-resize;}
 
-.jerboa-backbutton				{height:56px;width:20px;float:left;line-height:56px;cursor:pointer;}
-.jerboa-lightbox				{background:#000;opacity: 0.3;filter:Alpha(Opacity:30);position:absolute;z-index:1999;}
-
-.jerboa-button					{background:url(img/button_bg.png) 0 0 repeat-x #eaeaea;height:33px;line-height:33px;border:1px solid #999;float:left;cursor:pointer;}
-.jerboa-button span				{margin:auto 10px;}
-.jerboa-button:active			{background-position:0 -66px;}
-.jerboa-combobox				{float:left;background:#ddd;border:1px solid #9d9d9d;text-align:center;}
-.jerboa-combobox p				{margin:5px auto;font-weight:normal;text-shadow:none;float:left;}
-.jerboa-combobox span			{background:url(img/icon_sprite.png) 0 -32px no-repeat;width:16px;height:16px;cursor:pointer;float:left;margin-top:5px;}
-.jerboa-combobox span + p + span{background-position:-16px -32px;}
 
 .jerboa-layer					{position:absolute;top:0;left:0;width:100%;height:100%;}
 .jerboa-layer >*				{position:absolute;text-align:justify;display:block;float:left;overflow:hidden;cursor:default;}
 
 
-.jerboa-group					{margin:0;line-height:30px;margin:10px auto;font-weight:normal;}
-.jerboa-group >button			{border:1px solid #999;border-left:0;float:left;width:35px;height:35px;background:url(img/button_bg.png) 0 0 repeat-x #eaeaea;cursor:pointer;padding:0;}
-.jerboa-group >button>span      {padding-top:5px;padding-left:5px;}
-.jerboa-group >button:first-child
-{
-    border-left:1px solid #999;
-	border-top-left-radius:5px;
-	border-bottom-left-radius:5px;
-	-moz-border-radius-topleft:5px;
-	-moz-border-radius-bottomleft:5px;
-	-webkit-border-top-left-radius:5px;
-	-webkit-border-bottom-left-radius:5px;
-}
-.jerboa-group >button:last-child
-{
-    border-top-right-radius:5px;
-    border-bottom-right-radius:5px;
-	-moz-border-radius-topright:5px;
-	-moz-border-radius-bottomright:5px;
-	-webkit-border-top-right-radius:5px;
-	-webkit-border-bottom-right-radius:5px;
-}
-.jerboa-group >div:hover 		{background-position:0 -33px;}
-.jerboa-hide{display:none;}
-.jerboa-touch {border: 1px dashed #000;}
+
 #jerboa-errorbox ,#jerboa-infobox,.jerboa-box
 {
 	
@@ -204,10 +229,5 @@ Jerboa
 	border-radius:5px;
 	-moz-border-radius:5px;
 	-webkit-border-radius:5px;
-}
-#jerboa input
-{
-	height:20px;background:url(img/inputshadow.gif) 0 0 no-repeat;
-	border: 1px solid #9d9d9d;
 }
 */
