@@ -4,14 +4,14 @@
 * @version 1.00
 */
 (function(){
-/*
-* Javascript Library (Additional Edition)
+/* 
+* Javascript Library (Additional Edition) {{{
 * @original author Den Odell
 * @from Pro JavaScript RIA Techniques Best Practices, Performance, and Presentation
 */
 DEBUG_MODE = 1;
 var $ = {};
-//var $ = {};
+
 $.env = {
 			ie: /MSIE/i.test(navigator.userAgent),
 			ie6: /MSIE 6/i.test(navigator.userAgent),
@@ -497,7 +497,7 @@ $.getByClass = function(root,nameClass)
 	else
 		_element = root.getElementsByClassName(nameClass);
 	return _element;
-};
+};/*}}}*/
 
 Jerboa = function(_config)
 {
@@ -506,7 +506,7 @@ Jerboa = function(_config)
 	,_document = document
 	,lib = $
 	;
-	
+	// Jerboa properties {{{	
 	Jerboa = {
 		verstion: "0.001"
 		,$: lib
@@ -520,23 +520,23 @@ Jerboa = function(_config)
 		,ui: {}
 		,cache: {
 			indexLayer: 0
-		}
-		,init: function() {
-			//Start Jerboa
+		} /// }}}
+		,init: function() { /// {{{
+			//Start Jerboa {{{1
 			var _fragment = document.createDocumentFragment() //build a root of DOM tree
 			,J = Jerboa	,i,len,cssLoaded=false,$ = J.$
 			,addDocumentEvent = $.bind($.Events.add,null,0,document)
 			,old_content = "",temp
-			;
-			// find path 
+			;//}}}
+			// find path {{{1 
 			for(i=0,len=document.scripts.length;i<len;i++){
 				if(/jerboa\.js/.test(document.scripts[i].src)) {
 					J.currentPath = document.scripts[i].src.replace("jerboa.js","");
 					break;
 				}
 			}
-			if(DEBUG_MODE) console.log("find path");
-			//init CSS
+			// }}}
+			//init CSS {{{1
 			for(i=0,len=document.styleSheets.length;i<len;i++) {
 				if(/jerboa\.css/i.test(document.styleSheets[i].href)) {
 				   cssLoaded=true;
@@ -551,14 +551,14 @@ Jerboa = function(_config)
 				);
 			
 			}
-         
-			//init UI
+         	// }}}
+			//init UI {{{1
 			J.ui["screen"] = document.getElementById(J.editElement);
 			if(!J.ui["screen"]) {alert("Jerboa: NOT FOUND #"+J.editElement);return false;}
 
 			$.CSS.addStyle(J.ui["screen"],{"padding":"0"});
-
-			//Detect Save file
+			// }}}
+			//Detect Save file {{{1
 			if(J.ui["screen"].children[0] && J.ui["screen"].children[0].className == "jerboa-ignore")
 			{
 				J.ui["screen"].element = J.ui["screen"].children[0];
@@ -568,9 +568,13 @@ Jerboa = function(_config)
 				old_content = J.ui["screen"].innerHTML;
 				J.ui["screen"].innerHTML = "";
 				J.ui["screen"].appendChild(J.ui["screen"].element);
-			}
-			
-			//Build Layer panel
+			}// }}}
+			//Normalization Dom Tree {{{1
+			if(DEBUG_MODE)
+			{console.log("Normalization DOM Tree");}
+			J.normalizeTree(J.ui.layer[0]);
+			//}}}
+			//Build Layer panel {{{1
 			J.ui["layer"] = [];
 			if(J.ui["screen"].element.children[0] && $.CSS.hasClass(J.ui["screen"].element.children[0],"jerboa-layer"))
 			{
@@ -583,15 +587,14 @@ Jerboa = function(_config)
 			J.ui["main"] = $.Element.set({tag: "div",attr: {id: "jerboa"}});
 			J.ui["main_menu"] = $.Element.set({tag: "div",attr: {id: "jerboa-wrapper"}});
 			J.ui["main"].appendChild(J.ui["main_menu"]);
-			
-			//Build menu bar
+			// }}}
+			//Build menu bar {{{1
 			//TODO: add function for add plugin menu
 			J.ui["menu"] = {}; J.cache.menu_number = 0;
 			J.ui["menu"].main = $.Element.set({tag:"div",attr: {id:"jerboa-menu","class":"jerboa-panel jerboa-ignore"}});
 			J.ui["main_menu"].appendChild(J.ui["menu"]["main"]);
-			
-			
-			//init temp Function
+			// }}}
+			//init temp Function {{{1
 			//J.cache.tempFn8 = $.bind(J.text.save,J,0);
 			//J.cache.tempFn9 = $.bind(J.text.edit,J,0);
 			//J.cache.tempFn10 = $.bind(J.text.move,J,0);
@@ -776,8 +779,8 @@ Jerboa = function(_config)
 			J.ui["layer_panel"].layout.appendChild($.Element.set({tag: "p",event: {add:"mousedown",fn: $.bind(J.event.resize,J,0,"init","layer_panel","se") }}));	
 			J.ui["main"].appendChild(J.ui["layer_panel"].layout);
 			J.ui["layer_panel"].addLayer();
-			*/
-			//light screen
+			}}} */
+			//light screen {{{1
 			J.ui["light_screen_top"] = $.Element.set({tag:"div",attr: {"class":"jerboa-lightbox jerboa-ignore",style: ""}});
 			J.ui["light_screen_left"] = $.Element.set({tag:"div",attr: {"class":"jerboa-lightbox jerboa-ignore",style: ""}});
 			J.ui["light_screen_right"] = $.Element.set({tag:"div",attr: {"class":"jerboa-lightbox jerboa-ignore",style: ""}});
@@ -786,15 +789,8 @@ Jerboa = function(_config)
 			J.ui["main"].appendChild(J.ui["light_screen_left"]);
 			J.ui["main"].appendChild(J.ui["light_screen_right"]);
 			J.ui["main"].appendChild(J.ui["light_screen_bottom"]);
-			
-				
-				//Build Paragraph Setting
-
-			//Init infobox
-			//$.CSS.addStyle(J.ui["infobox"].setText("First,Setting Page size"),{top:"36px",left:"90px"});
-			//$.CSS.removeClass(J.ui["infobox"].layout,"jerboa-hide");
-			
-			//Build main menu bar
+			// }}}
+			//Build main menu bar {{{1
 			J.addMenu("page");
 			J.addMenu("insert");
 			J.addPanel("text");
@@ -805,15 +801,12 @@ Jerboa = function(_config)
 			temp.appendChild($.Element.set({tag:"div",html:"cancle",attr:{"class":"jerboa-ignore"},event: {add: "click",fn: J.end}}));
 			J.ui["menu"]["main"].appendChild(temp);
 			delete temp;
-			
-			
-			
-			
-			//Build insert menu
+			//}}}
+			//Build insert menu {{{1
 			J.ui["menu"]["insert"].appendChild( $.Element.set({tag:"div",html: "Text",attr: {"class":"jerboa-ignore"},event: {add:"click",fn: $.bind(J.insert.text,J,0)}}) );
 			J.ui["menu"]["insert"].appendChild( $.Element.set({tag:"div",html: "Image",attr:{"class":"jerboa-ignore"}}) );
-			
-			//Build text menu
+			// }}}
+			//Build text menu {{{1
 			var _temp_element = $.Element.set({tag:"div"});
 			_temp_element.appendChild($.Element.set({tag:"button",html:"<span></span>",event:{add:"click",fn:$.bind(J.text.format,null,0,"outdent")}}));
 			_temp_element.appendChild($.Element.set({tag:"button",html:"<span></span>",event:{add:"click",fn:$.bind(J.text.format,null,0,"indent")}}));
@@ -833,32 +826,35 @@ Jerboa = function(_config)
 			J.ui["menu"]["text"].appendChild(_temp_element);
 			delete _temp_element;
 			delete J.cache.menu_number;
-
+			// }}}
 			_fragment.appendChild(J.ui["main"]); //insert all ui to root of DOM tree
 			document.body.appendChild(_fragment); //insert a root of DOM tree to document.body
 
-			//Add Global event
+			//Add Global event {{{1
 			addDocumentEvent("click",J.click);
-			addDocumentEvent("dblclick",J.dbclick);
-
+			addDocumentEvent("dblclick",J.dbclick);//}}}
+			//Detect Page Height {{{1
+			temp = J.ui["screen"].offsetHeight;
+			if(DEBUG_MODE) console.log("Detect Height: ",temp);			
+			J.setPageHeight((temp>0)? temp : 100);
+			// }}}			
 			J.refreshScreen.call(J);
-
-		}
-		,addPanel: function(_name_panel) {
+		} /// }}}
+		,addPanel: function(_name_panel) {/*{{{*/
 			_name_panel = _name_panel.toLowerCase();
 			this.ui.menu[_name_panel] = this.$.Element.set({tag:"div",attr: {id:"jerboa-"+_name_panel,"class":"jerboa-panel jerboa-ignore jerboa-hide"}});
 			this.ui.menu[_name_panel].mid = this.cache.menu_number++;
 			this.ui["main_menu"].appendChild(this.ui.menu[_name_panel]);
 			return this.ui.menu[_name_panel];
-		}		
-		,addMenu: function(_name_panel) {
+		}		/*}}}*/
+		,addMenu: function(_name_panel) {/*{{{*/
 			_name_panel = _name_panel.toLowerCase();
 			this.addPanel(_name_panel);
 			var Capitalize = _name_panel.substr(0,1).toUpperCase().concat(_name_panel.substr(1));
 			this.ui["menu"]["main"].appendChild( this.$.Element.set({tag:"div",html: Capitalize,attr: {"class":"jerboa-ignore"},event: {add:"click",fn: this.$.bind(this.show.menu,this,0,_name_panel) }}) );
 			return this.ui.menu[_name_panel];
-		}
-		,insert: {
+		}/*}}}*/
+		,insert: {/*{{{*/
 			text: function()
 			{
 				var $ = this.$
@@ -867,8 +863,8 @@ Jerboa = function(_config)
 				;
 				this.show.menu.call(this,this.ui["menu"][0]);
 			}
-		}
-		,text: {
+		}/*}}}*/
+		,text: {/*{{{*/
 		   format: function(command)
 			{
 			   
@@ -896,8 +892,8 @@ Jerboa = function(_config)
 			   document.execCommand(command,false,args);
             
 			}
-		}
-		,refreshScreen: function()
+		}/*}}}*/
+		,refreshScreen: function()/*{{{*/
 		{
 				var $ = this.$
 				,propElement = $.CSS.getPosition(this.ui["screen"])
@@ -908,19 +904,15 @@ Jerboa = function(_config)
 				$.CSS.addStyle(this.ui["light_screen_top"],{top:"0px",left:propElement.x+"px",width:propElement.width+"px",height:propElement.y+"px"});
 				$.CSS.addStyle(this.ui["light_screen_right"],{top:"0px",left:parseInt(propElement.x+propElement.width)+"px",width:parseInt(propDoc.width - propElement.x - propElement.width)+"px",height:propDoc.height+"px"});
 				$.CSS.addStyle(this.ui["light_screen_bottom"],{top:parseInt(propElement.y+propElement.height)+"px",left:propElement.x+"px",width:propElement.width+"px",height:parseInt(propDoc.height - propElement.y - propElement.height)+"px"});
-		}
-		,setPageHeight: function()
+		}/*}}}*/
+		,setPageHeight: function(_height)/*{{{*/
 		{
 			var $=this.$
-			,_height = this.ui["setting_box"]["page_size"].children[1].children[0].value
 			;
 			$.CSS.addStyle(this.ui["screen"].element,{"height":_height+"px"});
-			$.CSS.addClass(this.ui["setting_box"],"jerboa-hide");
-			$.CSS.addClass(this.ui["setting_box"]["page_size"],"jerboa-hide");
-			$.CSS.addClass(this.ui["dark_screen"],"jerboa-hide");
 			this.refreshScreen.call(this);
-		}
-		,setParagraph: function()
+		}/*}}}*/
+		,setParagraph: function()/*{{{*/
 		{
 		   var $ = this.$
 		   ,_root = this.ui["setting_box"]["paragraph"].children[0].children[0]
@@ -934,8 +926,8 @@ Jerboa = function(_config)
 			$.CSS.addClass(this.ui["dark_screen"],"jerboa-hide");
 			
 
-  		}
-		,show: {
+  		}/*}}}*/
+		,show: {/*{{{*/
 		   menu: function(_panel)
 		   {
 			   if(DEBUG_MODE) console.log("show.menu: args=",arguments);
@@ -964,8 +956,8 @@ Jerboa = function(_config)
 				   this.$.CSS.removeClass(element,"jerboa-hide");
 		      
 		   }
-		}
-		,hide: function(element) {
+		}/*}}}*/
+		,hide: function(element) {/*{{{*/
 				if(element.length)
 			   {
 				   for(var i=0,len=element.length;i<len;i++)
@@ -975,8 +967,8 @@ Jerboa = function(_config)
 			   }
 			   else 
 				   this.$.CSS.addClass(element,"jerboa-hide");
-		}
-		,touch: function(e) {
+		}/*}}}*/
+		,touch: function(e) {/*{{{*/
    	   //Controller of resize and drag element
 	      var $ = Jerboa.$
 	      ,data = Jerboa.cache
@@ -1021,39 +1013,38 @@ Jerboa = function(_config)
 	         $.Events.remove(document,"mouseup",Jerboa.touch);
 	     }
 		   
-		}
-		,click: function(e) {
-		   var $ = Jerboa.$
-	      ,event = $.Events.standardize(e)
-	      ,data = Jerboa.cache
-	      ;
+		}/*}}}*/
+		,click: function(e) {/*{{{*/
+			var $ = Jerboa.$
+				,event = $.Events.standardize(e)
+				,data = Jerboa.cache
+				;
+			if(Jerboa.currentState == "textedit"){
+				if($.CSS.hasClass(event.target,"jerboa-ignore"))
+					Jerboa.restoreNormalState();
+				return false;
+			}
+			event.preventDefault();
+			if(!$.CSS.hasClass(event.target,"jerboa-ignore"))
+			{
+				//TODO: Detect another kind of media
+				switch(Jerboa.detectMedia(event.target))
+				{
+					case "text":
+						var _root = event.target;
+					while(!$.CSS.hasClass(_root.parentNode,"jerboa-ignore"))
+					{
+						_root = _root.parentNode;
+					}
+					if(Jerboa.currentEditElement == _root && Jerboa.currentState == "textmove") return false;
+					if(Jerboa.currentEditElement != null) Jerboa.restoreNormalState();
+					//console.log(_root);
+					Jerboa.currentEditElement = _root;
+					$.CSS.addClass(_root,"jerboa-touch");
+					$.Events.add(_root,"mousedown",Jerboa.touch);
+					Jerboa.currentState = "textmove";
 
-         if(Jerboa.currentState == "textedit"){
-            if($.CSS.hasClass(event.target,"jerboa-ignore"))
-               Jerboa.restoreNormalState();
-            return false;
-         }
-         event.preventDefault();
-         if(!$.CSS.hasClass(event.target,"jerboa-ignore"))
-         {
-            //TODO: Detect another kind of media
-            switch(Jerboa.detectMedia(event.target))
-            {
-            case "text":
-               var _root = event.target;
-               while(!$.CSS.hasClass(_root.parentNode,"jerboa-ignore"))
-               {
-                  _root = _root.parentNode;
-               }
-               if(Jerboa.currentEditElement == _root && Jerboa.currentState == "textmove") return false;
-               if(Jerboa.currentEditElement != null) Jerboa.restoreNormalState();
-               //console.log(_root);
-               Jerboa.currentEditElement = _root;
-               $.CSS.addClass(_root,"jerboa-touch");
-               $.Events.add(_root,"mousedown",Jerboa.touch);
-               Jerboa.currentState = "textmove";
-               
-               data.screen_top = Jerboa.ui["screen"].offsetTop;
+					data.screen_top = Jerboa.ui["screen"].offsetTop;
 					data.screen_left = Jerboa.ui["screen"].offsetLeft;
 					data.screen_w = Jerboa.ui["screen"].offsetWidth ;
 					data.screen_h = Jerboa.ui["screen"].offsetHeight ;
@@ -1061,16 +1052,16 @@ Jerboa = function(_config)
 					data.root_left = _root.offsetLeft;
 					data.root_w = _root.offsetWidth;
 					data.root_h = _root.offsetHeight;
-               return false;
-               break;
-            case "image":
-               break;
-            default: break;
-            }
-         }
-         Jerboa.restoreNormalState();
-		}
-		,dbclick: function(e) {
+					return false;
+					break;
+					case "image":
+						break;
+					default: break;
+				}
+			}
+			Jerboa.restoreNormalState();
+		}/*}}}*/
+		,dbclick: function(e) {/*{{{*/
 		   var $ = Jerboa.$
 	      ,event = $.Events.standardize(e)
 	      ,data = Jerboa.cache;
@@ -1109,8 +1100,8 @@ Jerboa = function(_config)
          }
          
 		
-		}
-		,detectMedia: function(element)
+		}/*}}}*/
+		,detectMedia: function(element)/*{{{*/
 		{
 		   //TODO: Detect another kind of media
 		   if(element.tagName.toLowerCase() == "img")
@@ -1121,8 +1112,8 @@ Jerboa = function(_config)
 		      return "text";
 		   
 		   }
-		}
-		,restoreNormalState: function(e)
+		}/*}}}*/
+		,restoreNormalState: function(e)/*{{{*/
 		{
 		   switch(Jerboa.currentState)
 		   {
@@ -1143,8 +1134,8 @@ Jerboa = function(_config)
             break;
 		   default: break;
 		   }
-		}
-		,send: function(objSetting)
+		}/*}}}*/
+		,send: function(objSetting)/*{{{*/
 		{
          //Build xhr objectStyle
          var xmlhttp =null
@@ -1196,9 +1187,9 @@ Jerboa = function(_config)
 		 }
 		 else xmlhttp.send();
 
-		}
+		}/*}}}*/
 		,save: function(){}
-		,end: function(){
+		,end: function(){/*{{{*/
 			Jerboa.save.call(Jerboa);
 
 		   //end of program
@@ -1213,15 +1204,21 @@ Jerboa = function(_config)
 		   Jerboa.restoreNormalState();
 		   Jerboa.$.Events.remove(document,"click",Jerboa.click);
 		   Jerboa.$.Events.remove(document,"dblclick",Jerboa.dbclick);
-		}
-		,setId: function(id) {
+		}/*}}}*/
+		,setId: function(id) {//{{{1
 			if(id) this.editElement = id;
-		}
+		}//}}}
+		,normalizeTree: function(_root){ // {{{1
+			
+		}//}}}
 	};
 	if(document.body)
 		Jerboa.init();
 	else
-		Jerboa.$.onDomReady(Jerboa.init);
+	{
+		if(DEBUG_MODE) console.log("Loaded with $.onDomReady");
+		lib.onDomReady(Jerboa.init);
+	}
 	return Jerboa;
 };
 

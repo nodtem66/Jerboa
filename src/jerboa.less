@@ -60,7 +60,7 @@ Jerboa
 	-moz-border-radius:@radius;
 	-webkit-border-radius:@radius;	
 }
-.text_shadow {text-shadow: 0 1px 1px rgba(0,0,0,0.3);}
+.mac_text_hl {text-shadow: 0 -1px 0 rgba(0,0,0,0.6);}
 .mac_text_shadow{text-shadow:0 1px 0 rgba(255,255,255,0.8);}
 .gradient(@from: #ffffff,@to: #000000){
 	background: @from;
@@ -69,7 +69,7 @@ Jerboa
 	filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='",@from,"', endColorstr='",@to,"')";
 }
 .jerboa-hide{display:none;}
-.jerboa-panel-active {.text_shadow;background:1.5*@color_soft10;color:@color_dark50;}
+.jerboa-panel-active {background:1.5*@color_soft10;}
 .jerboa-panel {
 	//.gradient(@color_dark10,@color_dark20);
 	.gradient(1.5*@color_soft10,@color_soft10);
@@ -85,8 +85,8 @@ Jerboa
 		height: @menu_panel_height - 2*@menu_padding;
 	}
 	>div:hover {
-		.text_shadow;
-		color: @color_dark50;
+		.mac_text_hl;
+		color: @color_dark00;
 	}	
 	>div:first-child {
 		margin-left: @menu_panel_padding;
@@ -94,12 +94,12 @@ Jerboa
 }
 .jerboa-button {
  	.mac_text_shadow;
-	.rounded_corners(10px);
+	.rounded_corners(15px);
 	.gradient(1.5*@color_soft10,@color_soft10);
 	.shadow_box(1px,1px,1px,rgba(0,0,0,0.6));
 	@font-size: 0.9*@font_size;
 	color: @color_dark70 !important;
-	padding: 0.5*@menu_padding;
+	padding: (0.5*@menu_padding) (1.5*@menu_padding);
 	@height: 1.4*@font-size;
 	float: left;cursor:pointer;
 	font-weight: bold !important;
