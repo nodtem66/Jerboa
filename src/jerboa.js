@@ -569,11 +569,6 @@ Jerboa = function(_config)
 				J.ui["screen"].innerHTML = "";
 				J.ui["screen"].appendChild(J.ui["screen"].element);
 			}// }}}
-			//Normalization Dom Tree {{{1
-			if(DEBUG_MODE)
-			{console.log("Normalization DOM Tree");}
-			J.normalizeTree(J.ui.layer[0]);
-			//}}}
 			//Build Layer panel {{{1
 			J.ui["layer"] = [];
 			if(J.ui["screen"].element.children[0] && $.CSS.hasClass(J.ui["screen"].element.children[0],"jerboa-layer"))
@@ -583,6 +578,11 @@ Jerboa = function(_config)
 				J.ui["layer"][0] = $.Element.set({tag:"div",attr: {"index":0,"class":"jerboa-layer jerboa-ignore","style":"z-index:2000;"},html: old_content});
 				J.ui["screen"].element.appendChild(J.ui["layer"][0]);
 			}
+			//Normalization Dom Tree {{{1
+			if(DEBUG_MODE)
+			{console.log("Normalization DOM Tree");}
+			J.normalizeTree(J.ui.layer[0]);
+			//}}}
 			
 			J.ui["main"] = $.Element.set({tag: "div",attr: {id: "jerboa"}});
 			J.ui["main_menu"] = $.Element.set({tag: "div",attr: {id: "jerboa-wrapper"}});
