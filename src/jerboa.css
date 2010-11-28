@@ -1,5 +1,5 @@
-.mac_text_hl { text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.6); }
-.mac_text_shadow { text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8); }
+.mac_text_hl { text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.6); }
+.mac_text_shadow { text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.8); }
 .jerboa-hide { display: none; }
 .jerboa-panel-active { background: #ffff0d; }
 .jerboa-panel {
@@ -22,12 +22,12 @@
   height: 20px;
 }
 .jerboa-panel > div:hover {
-  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.6);
+  text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.6);
   color: #f0f0f0;
 }
 .jerboa-panel > div:first-child { margin-left: 30px; }
 .jerboa-button {
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.8);
   border-radius: 15px;
   -moz-border-radius: 15px;
   -webkit-border-radius: 15px;
@@ -91,7 +91,7 @@
   border: 1px solid #f7dd09;
 }
 #jerboa-wrapper, .jerboa-button, .jerboa-box, .jerboa-window {
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.8);
   font-family: Helvetica, Arial, sans-serif;
   font-weight: normal;
   font-size: 16px;
@@ -119,7 +119,7 @@
   height: 40px;
 }
 #jerboa-menu > div:last-child div {
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.8);
   border-radius: 15px;
   -moz-border-radius: 15px;
   -webkit-border-radius: 15px;
@@ -215,6 +215,22 @@
 #jerboa-text div + div button + button + button + button + button + button + button + button > span { background: url(img/color4.png) no-repeat; }
 #jerboa-text div + div button + button + button + button + button + button + button + button + button > span { background: url(img/color5.png) no-repeat; }
 #jerboa-text > div:hover { background: transparent; }
+.jerboa-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+.jerboa-layer > * {
+  padding: 0;
+  margin: 0;
+  position: absolute;
+  display: inline-block;
+  float: left;
+  overflow: hidden;
+  cursor: default;
+}
 .jerboa-lightbox {
   opacity: 0.5;
   filter: "Alpha(Opacity:", 50, ")";
@@ -235,5 +251,4 @@
   box-shadow: 0 0 1px #000000;
   -moz-box-shadow: 0 0 1px #000000;
   -webkit-box-shadow: 0 0 1px #000000;
-  cursor: default;
 }

@@ -60,8 +60,8 @@ Jerboa
 	-moz-border-radius:@radius;
 	-webkit-border-radius:@radius;	
 }
-.mac_text_hl {text-shadow: 0 -1px 0 rgba(0,0,0,0.6);}
-.mac_text_shadow{text-shadow:0 1px 0 rgba(255,255,255,0.8);}
+.mac_text_hl {text-shadow: -1px -1px 0 rgba(0,0,0,0.6);}
+.mac_text_shadow{text-shadow:1px 1px 0 rgba(255,255,255,0.8);}
 .gradient(@from: #ffffff,@to: #000000){
 	background: @from;
 	background: -webkit-gradient(linear, left top, left bottom, from(@from), to(@to));
@@ -193,9 +193,14 @@ Jerboa
 	}
 	>div:hover {background: transparent;}
 }
+.jerboa-layer {
+	position:absolute;top:0;left:0;width:100%;height:100%;
+	>*{padding:0;margin:0;position:absolute;display:inline-block;float:left;overflow:hidden;cursor:default;
+	}
+}
 .jerboa-lightbox{.opacity(50);background:#000;position:absolute;z-index:1999;}
 .jerboa-box	{position:fixed;height:auto;top:0;left:30%;background:#eaeaea;z-index:3002;padding:10px;}
-.jerboa-touch {.shadow_box(0,0,1px,#000);cursor:default;}
+.jerboa-touch {.shadow_box(0,0,1px,#000);}
 /*
 .jerboa-window					{position:fixed;z-index:3000;padding:5px;background:#eaeaea;}
 .jerboa-window p				{display:block;float:left;}
@@ -216,6 +221,4 @@ Jerboa
 .jerboa-window div+p:hover		{cursor:se-resize;}
 
 
-.jerboa-layer					{position:absolute;top:0;left:0;width:100%;height:100%;}
-.jerboa-layer >*				{position:absolute;text-align:justify;display:block;float:left;overflow:hidden;cursor:default;}
 */

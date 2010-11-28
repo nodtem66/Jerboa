@@ -579,8 +579,10 @@ Jerboa = function(_config)
 				J.ui["screen"].element.appendChild(J.ui["layer"][0]);
 			}
 			//Normalization Dom Tree {{{1
-			if(DEBUG_MODE)
-			{console.log("Normalization DOM Tree");}
+			if(DEBUG_MODE){
+				console.log("Normalization DOM Tree");
+				//J.ui["layer"][0].innerHTML = "";
+			}
 			J.normalizeTree(J.ui.layer[0]);
 			//}}}
 			
@@ -1104,13 +1106,13 @@ Jerboa = function(_config)
 		,detectMedia: function(element)/*{{{*/
 		{
 		   //TODO: Detect another kind of media
+		   var listTextTag = {"p":1,"span":1,"div":1};
 		   if(element.tagName.toLowerCase() == "img")
 		   {
 		      return "image";
-		   } else
+		   } else if(listTextTag[element.tagName.toLowerCase()])
 		   {
 		      return "text";
-		   
 		   }
 		}/*}}}*/
 		,restoreNormalState: function(e)/*{{{*/
@@ -1209,7 +1211,54 @@ Jerboa = function(_config)
 			if(id) this.editElement = id;
 		}//}}}
 		,normalizeTree: function(_root){ // {{{1
-			
+			if(!_root) return '';
+			var queue=[]
+				,i
+				,len
+				,currentNode
+				,flagFloor1=true
+				,tempNode
+				,newTree = _root.cloneNode(true);
+			queue.push(newTree);
+			while(queue.length>0){
+				currentNode = queue.shift();
+				if(!currentNode.children) continue;
+				for(i=0,len=currentNode.children.length;i<len;i++){
+					switch(this.detectMedia(currentNode.children[i])){
+						case 'image':
+							if(!flagFloor1 && currentNode.innerHTML.trim().substr(1,3)=="img" && currentNode.innerHTML.split("img").length == 2) continue;
+							else {
+								//move this element to root Element
+								tempNode = currentNode.children[i].cloneNode(true);
+								tempNode = $.Element.set({tag:"div"}).appendChild(tempNode).parentNode;
+								newTree.appendChild(tempNode);
+								currentNode.removeChild(currentNode.children[i]);
+								delete tempNode;
+							}
+							break;
+						case 'text':
+							if(currentNode.children[i].innerHTML=="" && currentNode.children[i].tagName.toLowerCase() != "div"){
+								currentNode.removeChild(currentNode.children[i]);
+								i--;len--;
+								continue;
+							}
+							if(flagFloor1 && currentNode.children[i].tagName.toLowerCase() != "div"){
+								tempNode = currentNode.children[i].cloneNode(true);
+								tempNode = $.Element.set({tag:"div"}).appendChild(tempNode).parentNode;
+								if(newTree.children.length == 1)newTree.appendChild(tempNode);
+								else newTree.insertBefore(tempNode,newTree.children[i]);
+								newTree.removeChild(newTree.children[i+1]);
+								delete tempNode;
+							}
+							queue.push(currentNode.children[i]);
+						default:
+							break;
+					}
+				}
+				if(flagFloor1) flagFloor1=false;
+			}
+			_root.innerHTML = newTree.innerHTML;
+			return true;
 		}//}}}
 	};
 	if(document.body)
