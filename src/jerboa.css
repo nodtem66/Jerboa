@@ -225,7 +225,6 @@
 .jerboa-layer > * {
   padding: 0;
   margin: 0;
-  position: absolute;
   display: inline-block;
   float: left;
   overflow: hidden;
