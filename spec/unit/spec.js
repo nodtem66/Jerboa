@@ -1,6 +1,38 @@
 JSpec.describe('Jerboa',function(){
 	that=Jerboa()
 	,$=that.$;
+	describe('$.CSS.hasClass()',function(){
+		it('test null',function(){
+			var tree = $.Element.set({tag: "div",attr:{"class":"test"}});
+			expect($.CSS.hasClass(tree,"")).to(be,false);	
+		});
+		it('test single classes',function(){
+			var tree = $.Element.set({tag: "div",attr:{"class":"test"}});
+			expect($.CSS.hasClass(tree,"test")).to(be,true);	
+		});
+		it('test single classes',function(){
+			var tree = $.Element.set({tag: "div",attr:{"class":"test"}});
+			expect($.CSS.hasClass(tree,"test2")).to(be,false);	
+		});		
+		it('test multiple classes',function(){
+			var tree = $.Element.set({tag: "div",attr:{"class":"test1 test2"}});
+			expect($.CSS.hasClass(tree,"test3")).to(be,false);	
+		});
+		it('test multiple classes',function(){
+			var tree = $.Element.set({tag: "div",attr:{"class":"test1 test2 test3"}});
+			expect($.CSS.hasClass(tree,"test2")).to(be,true);	
+		});
+		it('test multiple classes',function(){
+			var tree = $.Element.set({tag: "div",attr:{"class":"test1 test2 test3"}});
+			expect($.CSS.hasClass(tree,"test1")).to(be,true);
+		});
+		it('test hyphen-type classes',function(){
+			var tree = $.Element.set({tag: "div",attr:{"class":"test"}});
+			expect($.CSS.hasClass(tree,"test")).to(be,true);	
+		});
+		
+
+	});
 	describe('.normalizeTree()',function(){
 		it('input null should be \'\'',function() {
 			expect(normalizeTree(null)).to(equal,'');	

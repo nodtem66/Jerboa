@@ -22,10 +22,21 @@
   height: 20px;
 }
 .jerboa-panel > div:hover {
-  text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.6);
   color: #f0f0f0;
+  text-shadow: none;
 }
 .jerboa-panel > div:first-child { margin-left: 30px; }
+.jerboa-menubox {
+  box-shadow: 0 3px 4px rgba(0, 0, 0, 0.5);
+  -moz-box-shadow: 0 3px 4px rgba(0, 0, 0, 0.5);
+  -webkit-box-shadow: 0 3px 4px rgba(0, 0, 0, 0.5);
+  opacity: 0.95;
+  filter: "Alpha(Opacity:", 95, ")";
+  background: #ffffff;
+  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
 .jerboa-button {
   text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.8);
   border-radius: 15px;
@@ -38,7 +49,7 @@
   box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.6);
   -moz-box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.6);
   -webkit-box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.6);
-  color: #4d4d4d !important;
+  color: #303048 !important;
   padding: 5px 15px;
   float: left;
   cursor: pointer;
@@ -54,7 +65,7 @@
 }
 .jerboa-button:active {
   background: #f7dd09;
-  color: #4d4d4d !important;
+  color: #303048 !important;
 }
 #jerboa {
   position: absolute;
@@ -111,7 +122,7 @@
   background: -moz-linear-gradient(top, #e0e0e0, #cccccc);
   filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='", #e0e0e0, "', endColorstr='", #cccccc, "')";
 }
-#jerboa-menu > div:hover { background: #ffff0d; }
+#jerboa-menu > div:hover { background-color: #303048; }
 #jerboa-menu > div:last-child {
   margin-right: 30px;
   float: right;
@@ -130,7 +141,7 @@
   box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.6);
   -moz-box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.6);
   -webkit-box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.6);
-  color: #4d4d4d !important;
+  color: #303048 !important;
   padding: 5px 15px;
   float: left;
   cursor: pointer;
@@ -148,7 +159,7 @@
 }
 #jerboa-menu > div:last-child div:active {
   background: #f7dd09;
-  color: #4d4d4d !important;
+  color: #303048 !important;
 }
 #jerboa-menu > div:last-child:hover { background: transparent; }
 #jerboa-text {
@@ -246,8 +257,12 @@
   z-index: 3002;
   padding: 10px;
 }
-.jerboa-touch {
-  box-shadow: 0 0 1px #000000;
-  -moz-box-shadow: 0 0 1px #000000;
-  -webkit-box-shadow: 0 0 1px #000000;
+.jerboa-touch { border: 1px dashed #000000; }
+.jerboa-media-touch {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  opacity: 0;
+  filter: "Alpha(Opacity:", 0, ")";
 }

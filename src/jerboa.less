@@ -1,6 +1,3 @@
-/*
-Jerboa
-*/
 /* Font */
 @font_size: 16px;
 @font_family: Helvetica,Arial,sans-serif;
@@ -14,7 +11,7 @@ Jerboa
 @color_dark20 : #cccccc;
 @color_dark30 : #b3b3b3;
 @color_dark50 : #808080;
-@color_dark70 : #4d4d4d;
+@color_dark70 : #303048; //#4D4D4D;
 @color_dark : #000000;
 
 /* Size */
@@ -85,12 +82,20 @@ Jerboa
 		height: @menu_panel_height - 2*@menu_padding;
 	}
 	>div:hover {
-		.mac_text_hl;
 		color: @color_dark00;
+		text-shadow: none;
 	}	
 	>div:first-child {
 		margin-left: @menu_panel_padding;
 	}
+}
+.jerboa-menubox {
+	.shadow_box(0,3px,4px,rgba(0,0,0,0.5));
+	.opacity(95);
+	background:#ffffff;
+	position:relative;
+	overflow-y: auto;
+	overflow-x: hidden;
 }
 .jerboa-button {
  	.mac_text_shadow;
@@ -138,7 +143,7 @@ Jerboa
 #jerboa-menu {
 	.gradient(@color_dark10,@color_dark20);
 	>div:hover {
-		background: 1.5*@color_soft10;
+		background-color:@color_dark70;
 	}	
 	>div:last-child {
 		margin-right: @menu_panel_padding;
@@ -200,7 +205,8 @@ Jerboa
 }
 .jerboa-lightbox{.opacity(50);background:#000;position:absolute;z-index:1999;}
 .jerboa-box	{position:fixed;height:auto;top:0;left:30%;background:#eaeaea;z-index:3002;padding:10px;}
-.jerboa-touch {.shadow_box(0,0,1px,#000);}
+.jerboa-touch {border: 1px dashed #000}
+.jerboa-media-touch {position:absolute;width:100%;height:100%;background-color:white;.opacity(0);}
 /*
 .jerboa-window					{position:fixed;z-index:3000;padding:5px;background:#eaeaea;}
 .jerboa-window p				{display:block;float:left;}
