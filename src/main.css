@@ -1,6 +1,6 @@
 .mac_text_hl { text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.6); }
 .mac_text_shadow { text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.8); }
-.jerboa-hide { display: none; }
+.hide { display: none; }
 .jerboa-panel-active { background: #ffff0d; }
 .jerboa-panel {
   background: #ffff0d;
