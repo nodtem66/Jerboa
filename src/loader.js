@@ -5,7 +5,7 @@
 var Jerboa = (function(my){
 	// find path {{{1 
 	var _scripts = document.getElementsByTagName("script");
-	for(i=0,len=_scripts.length;i<len;i++){
+	for(var i=0,len=_scripts.length;i<len;i++){
 		if(/loader\.js/.test(_scripts[i].src)) {
 			my.path = _scripts[i].src.replace("loader.js","");
 			my.path = my.path.replace(/\/$/i,"");
@@ -36,6 +36,10 @@ var Jerboa = (function(my){
 		}
 		return my;		
 	}//}}}
+	my.tempRegister = [];
+	my.register = function(){
+		my.tempRegister.push(arguments);
+	}
 	return my;
 }(Jerboa || {}));
-Jerboa.loadStyle("main").load("lib").load("core").load("plugin");
+Jerboa.loadStyle("main").load("core").load("fancyinsert").load("textmenu").load("fontfly");

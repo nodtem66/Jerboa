@@ -3,17 +3,16 @@
 @font_family: Helvetica,Arial,sans-serif;
 
 /* Theme color */
-@color_soft10 : #f7dd09;
-@color_soft30 : #d1c87e;
-
-@color_dark00 : #f0f0f0;
-@color_dark10 : #e0e0e0;
-@color_dark20 : #cccccc;
-@color_dark30 : #b3b3b3;
-@color_dark50 : #808080;
-@color_dark70 : #303048; //#4D4D4D;
-@color_dark : #000000;
-
+@color_soft : #ff0051;
+@color_soft_dark: #cd0021;
+@color_main: #e6e6e6;
+@color_main_light: #ffffff;
+@color_hline: #808080;
+@color_button_text: #6d6d6d;
+@color_button_text_hover: #000000;
+@color_button_border: #b3b3b3;
+@color_button_border_hover: #666666;
+@color_dark: #000000;
 /* Size */
 @menu_panel_height: 40px;
 @menu_panel_padding: 30px;
@@ -66,10 +65,32 @@
 	filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='",@from,"', endColorstr='",@to,"')";
 }
 .hide{display:none;}
-.jerboa-panel-active {background:1.5*@color_soft10;}
+.flipswitch {
+	display: inline-block;
+	select {display:none;}
+	label {line-height:30px;width:130px !important;}
+	>div {
+		width:148px;
+		height:30px;
+		float:right;
+		padding:0px;
+		>div {
+			.rounded_corners(15px);
+			.gradient(@color_soft,@color_soft_dark);
+			text-shadow: none;
+			width:60%;
+			text-align:center;
+			padding:5px 0;
+			float:left;
+			color: #ffffff;
+		}
+		>div+div {float:right;}
+	}
+}
+.jerboa-panel-active {.gradient(@color_soft,@color_soft_dark);color:#ffffff;text-shadow:none;}
 .jerboa-panel {
-	//.gradient(@color_dark10,@color_dark20);
-	.gradient(1.5*@color_soft10,@color_soft10);
+	.gradient(@color_main_light,@color_main);
+	//background:@color_main;
 	.shadow_box(0,1px,5px,rgba(0,0,0,0.8));
 	width:100%;
 	height: @menu_panel_height;
@@ -81,56 +102,83 @@
 		text-weight : bold;
 		height: @menu_panel_height - 2*@menu_padding;
 	}
-	>div:hover {
-		color: @color_dark00;
-		text-shadow: none;
-	}	
 	>div:first-child {
 		margin-left: @menu_panel_padding;
 	}
 }
-.jerboa-menubox {
-	.shadow_box(0,3px,4px,rgba(0,0,0,0.5));
-	.opacity(95);
-	background:#ffffff;
+#jerboa-menubox {
+	text-align:left;
 	position:relative;
-	overflow-y: auto;
-	overflow-x: hidden;
+	label {
+		color:@color_soft;
+		width:100%;
+		float:left;
+		span {
+			font-size: 0.7*@font_size;
+			text-shadow:none;
+			margin-left:10px;
+			color: @color_hline;
+		}
+	}
+	input,textarea {
+		border:1px solid @color_dark;
+		outline:none;
+		width: 100%;
+		background:#ffffff url(img/bginput.png) repeat-x;
+		:focus {
+			.shadow_box(0,0,5px,@color_soft);
+			border:1px solid @color_soft;
+		}
+	}
+	b {color:@color_dark;font-weight:normal;}
+	textarea {
+		min-height:80px;
+		width:280px !important;
+		height:80px;
+		font-family: @font_family;
+		font-size: 0.8*@font_size;
+	}
+	.balloon {width:20px;height:10px;background:url(img/balloon.png) no-repeat;}
+	.last {
+		margin-bottom: 20px !important;
+	}
+	.left {
+		clear:both;
+		float:left;
+	}
+	.right {
+		clear:both;
+		float:right;
+	}
+	.hline {
+		clear:both;
+		border-top:1px solid @color_button_border;
+		width:100%;
+	}
 }
 .jerboa-button {
  	.mac_text_shadow;
 	.rounded_corners(15px);
-	.gradient(1.5*@color_soft10,@color_soft10);
-	.shadow_box(1px,1px,1px,rgba(0,0,0,0.6));
+	.gradient(@color_main_light,@color_main);
 	@font-size: 0.9*@font_size;
-	color: @color_dark70 !important;
+	color: @color_button_text !important;
 	padding: (0.5*@menu_padding) (1.5*@menu_padding);
 	@height: 1.4*@font-size;
 	float: left;cursor:pointer;
+	border: 1px solid @color_button_border;
 	font-weight: bold !important;
 	font-variant: small-caps !important;
 	:hover {
-		.gradient(@color_soft10,0.9*@color_soft10);
-		color: @color_dark !important;
+		color: @color_button_text_hover !important;
+		border-color: @color_button_border_hover;
 	}
 	:active {
-		background: @color_soft10;
-		color: @color_dark70 !important;
+		.gradient(@color_main,@color_main_light);
 	}
 }
 #jerboa	{
 	position:absolute;top:0px;left:0px;
 	ul {list-style:none;}
-	input,select {
-		.transition;
-		border:1px solid @color_dark50;
-		height:1.25*@font_size;
-		outline:none;
-		:focus {
-			.shadow_box(0,0,5px,@color_soft10);
-			border:1px solid @color_soft10;
-		}
-	}	
 }
 #jerboa-wrapper,.jerboa-button,.jerboa-box,.jerboa-window {
 	.mac_text_shadow;
@@ -141,10 +189,7 @@
 }
 #jerboa-wrapper{position:fixed;width:100%;top:0;left:0;text-align:center;z-index:3000;}
 #jerboa-menu {
-	.gradient(@color_dark10,@color_dark20);
-	>div:hover {
-		background-color:@color_dark70;
-	}	
+	background: @color_main;
 	>div:last-child {
 		margin-right: @menu_panel_padding;
 		float: right;
@@ -155,25 +200,40 @@
 			margin-top:0.5*(@menu_panel_height - .jerboa-button[@height] - @menu_padding);
 			margin-left: 5px;
 		}
-		:hover {
-			background: transparent;
-		}
 	}
 }
-
-#jerboa-text {
-	.gradient(@color_dark10,@color_dark20);
+#jerboa-option {
+	.shadow_box(0px,1px,5px,rgba(0,0,0,0.5));
+	.rounded_corners();
+	margin-left:10px;
+	margin-bottom:10px;
+	min-width:280px;
+	width:280px;
+	min-height:350px;
+	height:350px;
+	background: @color_main;
+	padding:15px;
+	height: auto;
+	input,label,textarea,div.jerboa-button {margin-bottom:10px;}
+	.bigger {
+		@height:1.86*@font_size;
+		font-size: @height;
+		padding: 5px 0;
+	}
+}
+#jerboa-textmenu {
+	
 	z-index: 3001;
 	div {
 		padding:0;
 		margin-top:0.0625*@menu_panel_height;
 		button{
-			.gradient(@color_dark00,@color_dark30);
+			.gradient(@color_main_light,@color_main);
 			border:1px solid #999;border-left:0;float:left;
 			width:0.875*@menu_panel_height;
 			height:0.875*@menu_panel_height;
 			cursor:pointer;padding:0;
-			:active {.gradient(@color_dark20,@color_dark10);}
+			:active {.gradient(@color_main,@color_main_light);}
 		}
 		button>span{
 			display:inline-block;
@@ -200,11 +260,10 @@
 }
 .jerboa-layer {
 	position:absolute;top:0;left:0;width:100%;height:100%;
-	>*{padding:0;margin:0;display:inline-block;float:left;overflow:hidden;cursor:default;
+	>div{padding:0;margin:0;display:inline-block;float:left;overflow:hidden;cursor:default;
 	}
 }
 .jerboa-lightbox{.opacity(50);background:#000;position:absolute;z-index:1999;}
-.jerboa-box	{position:fixed;height:auto;top:0;left:30%;background:#eaeaea;z-index:3002;padding:10px;}
 .jerboa-touch {border: 1px dashed #000}
 .jerboa-media-touch {position:absolute;width:100%;height:100%;background-color:white;.opacity(0);}
 /*

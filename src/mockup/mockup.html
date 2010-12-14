@@ -4,24 +4,45 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<link type="text/css" rel="stylesheet" href="../main.css" />
         <title>My First Theme</title>
-    </head>
+				<script>
+					<!--
+					var MyClass = (function(a){
+						var z = "private";
+						a.a = z;
+						a.b = "public";
+						return a;
+					}(MyClass || {}));
+					-->
+				</script>	
+		</head>
     <body>
 	<div id="jerboa">
 		<div id="jerboa-wrapper">
 			<div id="jerboa-menu" class="jerboa-panel hidea">
-				<div>Page</div>
+				<div class="jerboa-panel-active">Option</div>
 				<div>Insert</div>
 				<div>Mode</div>
 				<div>
+					<span class="hide" style="float:left;line-height:40px;padding:0 30px;"><img src="../img/loader.gif" /></span>
 					<div>save</div>
 					<div>save&quit</div>
 					<div>cancel</div>
 				</div>	
 			</div>
-			<div id="jerboa-insert" class="jerboa-menubox hideae" style="width:300px;height:300px;left:30px;">
-				<div>Text</div>
-				<div>Text</div>
-				<div>Text</div>
+			<div id="jerboa-menubox" style="left:25px;top:0;">
+				<div class="balloon" style="margin-left:30px;"></div>
+				<div id="jerboa-option">
+					<label>Page Height <span>enter Height that you want</span></label><input class="bigger last" type="text" value="aaaa" />
+					<label>Custom <b>CSS</b></label><textarea></textarea><div class="jerboa-button right"> ok </div>
+					<div class="hline last"></div>
+					<div class="flipswitch">
+					<label>Test</label>
+					<div class="jerboa-button">
+						<div class="hidea">on</div>
+						<div class="hide">off</div>
+					</div>
+					</div>
+				</div>
 			</div>
 			<div id="jerboa-text" class="jerboa-panel hide">
 				
@@ -46,7 +67,7 @@
 			</div>
 			
 		</div>
-		
+		<div style="display:none"></div>
 		<div id="jerboa-darkbox" class="hide"></div>
 		<div class="jerboa-box hide" >
 			<!--
