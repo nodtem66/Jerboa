@@ -1,0 +1,16 @@
+source_directory: src
+build_directory: build
+layout: apart
+builds:
+  src:
+    packer: false
+  min:
+    shrink_vars:  true
+    private:      true
+    suffix:       false
+packages:
+  loader: loader
+  core: core
+  plugin/fancyinsert: plugin/fancyinsert
+  plugin/textmenu: plugin/textmenu
+  plugin/fontfly:  plugin/fontfly

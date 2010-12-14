@@ -1,0 +1,326 @@
+.mac_text_hl { text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.6); }
+.mac_text_shadow { text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.8); }
+.hide { display: none; }
+.flipswitch { display: inline-block; }
+.flipswitch select { display: none; }
+.flipswitch label {
+  line-height: 30px;
+  width: 130px !important;
+}
+.flipswitch > div {
+  width: 148px;
+  height: 30px;
+  float: right;
+  padding: 0px;
+}
+.flipswitch > div > div {
+  border-radius: 15px;
+  -moz-border-radius: 15px;
+  -webkit-border-radius: 15px;
+  background: #ff0051;
+  background: -webkit-gradient(linear, left top, left bottom, from(#ff0051), to(#cd0021));
+  background: -moz-linear-gradient(top, #ff0051, #cd0021);
+  filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='", #ff0051, "', endColorstr='", #cd0021, "')";
+  text-shadow: none;
+  width: 60%;
+  text-align: center;
+  padding: 5px 0;
+  float: left;
+  color: #ffffff;
+}
+.flipswitch > div > div + div { float: right; }
+.jerboa-panel-active {
+  background: #ff0051;
+  background: -webkit-gradient(linear, left top, left bottom, from(#ff0051), to(#cd0021));
+  background: -moz-linear-gradient(top, #ff0051, #cd0021);
+  filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='", #ff0051, "', endColorstr='", #cd0021, "')";
+  color: #ffffff;
+  text-shadow: none;
+}
+.jerboa-panel {
+  background: #ffffff;
+  background: -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#e6e6e6));
+  background: -moz-linear-gradient(top, #ffffff, #e6e6e6);
+  filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='", #ffffff, "', endColorstr='", #e6e6e6, "')";
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.8);
+  -moz-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.8);
+  -webkit-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.8);
+  width: 100%;
+  height: 40px;
+}
+.jerboa-panel > div {
+  float: left;
+  padding: 10px;
+  cursor: pointer;
+  line-height: 20px;
+  text-weight: bold;
+  height: 20px;
+}
+.jerboa-panel > div:first-child { margin-left: 30px; }
+#jerboa-menubox {
+  text-align: left;
+  position: relative;
+}
+#jerboa-menubox label {
+  color: #ff0051;
+  width: 100%;
+  float: left;
+}
+#jerboa-menubox label span {
+  font-size: 11.2px;
+  text-shadow: none;
+  margin-left: 10px;
+  color: #808080;
+}
+#jerboa-menubox input {
+  border: 1px solid #000000;
+  outline: none;
+  width: 100%;
+}
+#jerboa-menubox input:focus {
+  box-shadow: 0 0 5px #ff0051;
+  -moz-box-shadow: 0 0 5px #ff0051;
+  -webkit-box-shadow: 0 0 5px #ff0051;
+  border: 1px solid #ff0051;
+}
+#jerboa-menubox textarea {
+  border: 1px solid #000000;
+  outline: none;
+  width: 100%;
+}
+#jerboa-menubox textarea:focus {
+  box-shadow: 0 0 5px #ff0051;
+  -moz-box-shadow: 0 0 5px #ff0051;
+  -webkit-box-shadow: 0 0 5px #ff0051;
+  border: 1px solid #ff0051;
+}
+#jerboa-menubox b {
+  color: #000000;
+  font-weight: normal;
+}
+#jerboa-menubox textarea {
+  min-height: 80px;
+  width: 280px !important;
+  height: 80px;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 12.8px;
+}
+#jerboa-menubox .balloon {
+  width: 20px;
+  height: 10px;
+  background: url(img/balloon.png?embed=true&jcb=1292129096) no-repeat;
+}
+#jerboa-menubox .last { margin-bottom: 20px !important; }
+#jerboa-menubox .left {
+  clear: both;
+  float: left;
+}
+#jerboa-menubox .right {
+  clear: both;
+  float: right;
+}
+#jerboa-menubox .hline {
+  clear: both;
+  border-top: 1px solid #b3b3b3;
+  width: 100%;
+}
+#jerboa-menubox input,#jerboa-menubox textarea { background: #ffffff url(img/bginput.png?embed=true&jcb=1292154554) repeat-x; }
+.jerboa-button {
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.8);
+  border-radius: 15px;
+  -moz-border-radius: 15px;
+  -webkit-border-radius: 15px;
+  background: #ffffff;
+  background: -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#e6e6e6));
+  background: -moz-linear-gradient(top, #ffffff, #e6e6e6);
+  filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='", #ffffff, "', endColorstr='", #e6e6e6, "')";
+  color: #6d6d6d !important;
+  padding: 5px 15px;
+  float: left;
+  cursor: pointer;
+  border: 1px solid #b3b3b3;
+  font-weight: bold !important;
+  font-variant: small-caps !important;
+}
+.jerboa-button:hover {
+  color: #000000 !important;
+  border-color: #666666;
+}
+.jerboa-button:active {
+  background: #e6e6e6;
+  background: -webkit-gradient(linear, left top, left bottom, from(#e6e6e6), to(#ffffff));
+  background: -moz-linear-gradient(top, #e6e6e6, #ffffff);
+  filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='", #e6e6e6, "', endColorstr='", #ffffff, "')";
+}
+#jerboa {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+}
+#jerboa ul { list-style: none; }
+#jerboa-wrapper, .jerboa-button, .jerboa-box, .jerboa-window {
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.8);
+  font-family: Helvetica, Arial, sans-serif;
+  font-weight: normal;
+  font-size: 16px;
+  color: #000000;
+}
+#jerboa-wrapper {
+  position: fixed;
+  width: 100%;
+  top: 0;
+  left: 0;
+  text-align: center;
+  z-index: 3000;
+}
+#jerboa-menu { background: #e6e6e6; }
+#jerboa-menu > div:last-child {
+  margin-right: 30px;
+  float: right;
+  padding: 0;
+  height: 40px;
+}
+#jerboa-menu > div:last-child div {
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.8);
+  border-radius: 15px;
+  -moz-border-radius: 15px;
+  -webkit-border-radius: 15px;
+  background: #ffffff;
+  background: -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#e6e6e6));
+  background: -moz-linear-gradient(top, #ffffff, #e6e6e6);
+  filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='", #ffffff, "', endColorstr='", #e6e6e6, "')";
+  color: #6d6d6d !important;
+  padding: 5px 15px;
+  float: left;
+  cursor: pointer;
+  border: 1px solid #b3b3b3;
+  font-weight: bold !important;
+  font-variant: small-caps !important;
+  margin-top: 4.92px;
+  margin-left: 5px;
+}
+#jerboa-menu > div:last-child div:hover {
+  color: #000000 !important;
+  border-color: #666666;
+}
+#jerboa-menu > div:last-child div:active {
+  background: #e6e6e6;
+  background: -webkit-gradient(linear, left top, left bottom, from(#e6e6e6), to(#ffffff));
+  background: -moz-linear-gradient(top, #e6e6e6, #ffffff);
+  filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='", #e6e6e6, "', endColorstr='", #ffffff, "')";
+}
+#jerboa-option {
+  box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.5);
+  -moz-box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.5);
+  -webkit-box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.5);
+  border-radius: 5px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  margin-left: 10px;
+  margin-bottom: 10px;
+  min-width: 280px;
+  width: 280px;
+  min-height: 350px;
+  height: 350px;
+  background: #e6e6e6;
+  padding: 15px;
+  height: auto;
+}
+#jerboa-option input { margin-bottom: 10px; }
+#jerboa-option label { margin-bottom: 10px; }
+#jerboa-option textarea { margin-bottom: 10px; }
+#jerboa-option div.jerboa-button { margin-bottom: 10px; }
+#jerboa-option .bigger {
+  font-size: 29.76px;
+  padding: 5px 0;
+}
+#jerboa-textmenu { z-index: 3001; }
+#jerboa-textmenu div {
+  padding: 0;
+  margin-top: 2.5px;
+}
+#jerboa-textmenu div button {
+  background: #ffffff;
+  background: -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#e6e6e6));
+  background: -moz-linear-gradient(top, #ffffff, #e6e6e6);
+  filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='", #ffffff, "', endColorstr='", #e6e6e6, "')";
+  border: 1px solid #999999;
+  border-left: 0;
+  float: left;
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
+  padding: 0;
+}
+#jerboa-textmenu div button:active {
+  background: #e6e6e6;
+  background: -webkit-gradient(linear, left top, left bottom, from(#e6e6e6), to(#ffffff));
+  background: -moz-linear-gradient(top, #e6e6e6, #ffffff);
+  filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='", #e6e6e6, "', endColorstr='", #ffffff, "')";
+}
+#jerboa-textmenu div button > span {
+  display: inline-block;
+  margin: 2.5px;
+  width: 30px;
+  height: 30px;
+  background: url(img/color7.png?embed=true&jcb=1290250114) no-repeat;
+}
+#jerboa-textmenu div button + button > span { background: url(img/color6.png?embed=true&jcb=1290250114) no-repeat; }
+#jerboa-textmenu div button + button + button > span { background: url(img/color8.png?embed=true&jcb=1290250114) no-repeat; }
+#jerboa-textmenu div button + button + button + button > span { background: url(img/color9.png?embed=true&jcb=1290250114) no-repeat; }
+#jerboa-textmenu div > button:first-child {
+  border-left: 1px solid #999999;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+  -moz-border-radius-topleft: 5px;
+  -moz-border-radius-bottomleft: 5px;
+  -webkit-border-top-left-radius: 5px;
+  -webkit-border-bottom-left-radius: 5px;
+}
+#jerboa-textmenu div > button:last-child {
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  -moz-border-radius-topright: 5px;
+  -moz-border-radius-bottomright: 5px;
+  -webkit-border-top-right-radius: 5px;
+  -webkit-border-bottom-right-radius: 5px;
+}
+#jerboa-textmenu div + div button > span { background: url(img/color.png?embed=true&jcb=1290250114) no-repeat; }
+#jerboa-textmenu div + div button + button > span { background: url(img/color1.png?embed=true&jcb=1290250114) no-repeat; }
+#jerboa-textmenu div + div button + button + button + button + button + button > span { background: url(img/color2.png?embed=true&jcb=1290250114) no-repeat; }
+#jerboa-textmenu div + div button + button + button + button + button + button + button > span { background: url(img/color3.png?embed=true&jcb=1290250114) no-repeat; }
+#jerboa-textmenu div + div button + button + button + button + button + button + button + button > span { background: url(img/color4.png?embed=true&jcb=1290250114) no-repeat; }
+#jerboa-textmenu div + div button + button + button + button + button + button + button + button + button > span { background: url(img/color5.png?embed=true&jcb=1290250114) no-repeat; }
+#jerboa-textmenu > div:hover { background: transparent; }
+.jerboa-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+.jerboa-layer > div {
+  padding: 0;
+  margin: 0;
+  display: inline-block;
+  float: left;
+  overflow: hidden;
+  cursor: default;
+}
+.jerboa-lightbox {
+  opacity: 0.5;
+  filter: "Alpha(Opacity:", 50, ")";
+  background: #000000;
+  position: absolute;
+  z-index: 1999;
+}
+.jerboa-touch { border: 1px dashed #000000; }
+.jerboa-media-touch {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  opacity: 0;
+  filter: "Alpha(Opacity:", 0, ")";
+}
+

@@ -1,4 +1,4 @@
- /* 
+/* 
 	* Javascript library (Additional Edition) {{{
 	* @original author Den Odell
 	* @from Pro JavaScript RIA Techniques Best Practices, Performance, and Presentation
@@ -1173,4 +1173,3 @@ var Jerboa = (function(my){
 	return my;
 }(Jerboa || {}));
 if(document.body) Jerboa.apply("test_edit");
-

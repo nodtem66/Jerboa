@@ -76,7 +76,6 @@
   border: 1px solid #000000;
   outline: none;
   width: 100%;
-  background: #ffffff url(img/bginput.png) repeat-x;
 }
 #jerboa-menubox input:focus {
   box-shadow: 0 0 5px #ff0051;
@@ -88,7 +87,6 @@
   border: 1px solid #000000;
   outline: none;
   width: 100%;
-  background: #ffffff url(img/bginput.png) repeat-x;
 }
 #jerboa-menubox textarea:focus {
   box-shadow: 0 0 5px #ff0051;
@@ -110,7 +108,7 @@
 #jerboa-menubox .balloon {
   width: 20px;
   height: 10px;
-  background: url(img/balloon.png) no-repeat;
+  background: url(img/balloon.png?embed=true) no-repeat;
 }
 #jerboa-menubox .last { margin-bottom: 20px !important; }
 #jerboa-menubox .left {
@@ -126,6 +124,7 @@
   border-top: 1px solid #b3b3b3;
   width: 100%;
 }
+#jerboa-menubox input,#jerboa-menubox textarea { background: #ffffff url(img/bginput.png?embed=true) repeat-x; }
 .jerboa-button {
   text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.8);
   border-radius: 15px;
@@ -264,11 +263,11 @@
   margin: 2.5px;
   width: 30px;
   height: 30px;
-  background: url(img/color7.png) no-repeat;
+  background: url(img/color7.png?embed=true) no-repeat;
 }
-#jerboa-textmenu div button + button > span { background: url(img/color6.png) no-repeat; }
-#jerboa-textmenu div button + button + button > span { background: url(img/color8.png) no-repeat; }
-#jerboa-textmenu div button + button + button + button > span { background: url(img/color9.png) no-repeat; }
+#jerboa-textmenu div button + button > span { background: url(img/color6.png?embed=true) no-repeat; }
+#jerboa-textmenu div button + button + button > span { background: url(img/color8.png?embed=true) no-repeat; }
+#jerboa-textmenu div button + button + button + button > span { background: url(img/color9.png?embed=true) no-repeat; }
 #jerboa-textmenu div > button:first-child {
   border-left: 1px solid #999999;
   border-top-left-radius: 5px;
@@ -286,12 +285,12 @@
   -webkit-border-top-right-radius: 5px;
   -webkit-border-bottom-right-radius: 5px;
 }
-#jerboa-textmenu div + div button > span { background: url(img/color.png) no-repeat; }
-#jerboa-textmenu div + div button + button > span { background: url(img/color1.png) no-repeat; }
-#jerboa-textmenu div + div button + button + button + button + button + button > span { background: url(img/color2.png) no-repeat; }
-#jerboa-textmenu div + div button + button + button + button + button + button + button > span { background: url(img/color3.png) no-repeat; }
-#jerboa-textmenu div + div button + button + button + button + button + button + button + button > span { background: url(img/color4.png) no-repeat; }
-#jerboa-textmenu div + div button + button + button + button + button + button + button + button + button > span { background: url(img/color5.png) no-repeat; }
+#jerboa-textmenu div + div button > span { background: url(img/color.png?embed=true) no-repeat; }
+#jerboa-textmenu div + div button + button > span { background: url(img/color1.png?embed=true) no-repeat; }
+#jerboa-textmenu div + div button + button + button + button + button + button > span { background: url(img/color2.png?embed=true) no-repeat; }
+#jerboa-textmenu div + div button + button + button + button + button + button + button > span { background: url(img/color3.png?embed=true) no-repeat; }
+#jerboa-textmenu div + div button + button + button + button + button + button + button + button > span { background: url(img/color4.png?embed=true) no-repeat; }
+#jerboa-textmenu div + div button + button + button + button + button + button + button + button + button > span { background: url(img/color5.png?embed=true) no-repeat; }
 #jerboa-textmenu > div:hover { background: transparent; }
 .jerboa-layer {
   position: absolute;

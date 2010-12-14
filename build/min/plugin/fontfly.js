@@ -1,0 +1,1 @@
+Jerboa.register("FontFly",function(a){this.enable=true;this.init=function(){}this.destroy=function(){}});

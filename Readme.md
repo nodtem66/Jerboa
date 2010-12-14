@@ -1,7 +1,7 @@
 # Jerboa 
 WYSIWYG editor on fly
 
-# Current
+## Current
 
 - New Structure code; 
 - New UI desgin
@@ -9,12 +9,13 @@ WYSIWYG editor on fly
 - Add DELETE CTRL-V shortcut
 - FancyInsert Plugin
 - Add Text Plugin
-
-# Todolist
-
 - Add save event
+
+## Todolist
+
 - Add FontFly
 - Add example on exteen blog
+- Add tutorial
 - Add BBcode
 - Add FancyInsert Upload file
 
