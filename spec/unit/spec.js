@@ -1,4 +1,16 @@
-JSpec.describe('Jerboa',function(){
+JSpec.describe("MyPRoject",function(){
+	describe('.add()',function(){
+		it('should be 3',function(){
+			expect(2+1).to(be,3);	
+		});
+	});
+	describe('.mul()',function(){
+		it('should be 2',function(){
+			expect(2*1).to(be,2);
+		});
+	});
+});
+/*JSpec.describe('Jerboa',function(){
 	that=Jerboa()
 	,$=that.$;
 	describe('$.CSS.hasClass()',function(){
@@ -74,4 +86,5 @@ JSpec.describe('Jerboa',function(){
 		});
 		
 	});
-});
+});*/
+
