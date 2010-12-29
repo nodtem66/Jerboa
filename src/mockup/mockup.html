@@ -2,20 +2,55 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-		<link type="text/css" rel="stylesheet" href="../main.css" />
+		<link type="text/css" rel="stylesheet" href="../css/jerboa.css" />
         <title>My First Theme</title>
-				<script>
-					<!--
-					var MyClass = (function(a){
-						var z = "private";
-						a.a = z;
-						a.b = "public";
-						return a;
-					}(MyClass || {}));
-					-->
-				</script>	
 		</head>
-    <body>
+		<body>
+			<textarea id="jerboa">aasdsadsdasdasdasdasdasd</textarea>
+			<div id="jb-a" style="width:500px;">
+				<div id="jb-b">
+					<div id="jb-textmenu" class="jb-panel hidea">
+						
+							<div>
+							<button><span></span></button>
+							<button><span></span></button>
+							<button><span></span></button>
+							<button><span></span></button>
+							</div>
+						
+							<div>
+							<button><span></span></button>
+							<button><span></span></button>
+							<button><b>B</b></button>
+							<button><i>I</i></button>
+							<button><u>U</u></button>
+							<button><span></span></button>
+							<button><span></span></button>
+							<button><span></span></button>
+							<button><span></span></button>
+							</div>
+					</div>
+
+					<div class="jb-panel hide">panel 2</div>
+					<div class="jb-panel hide">panel 3</div>
+				</div>
+				<div id="jb-stage">
+				<div>a</div>
+				</div>
+				<div class="jb-hline"></div>
+			</div>
+			<div id="jb-box">
+					<label>Page Height <span>enter Height that you want</span></label><input class="bigger last" type="text" value="aaaa" />
+					<label>Custom <b>CSS</b></label><textarea></textarea><div class="jb-button right"> ok </div>
+					<div class="hline last"></div>
+					<div class="jb-flipswitch">
+					<label>Test</label>
+					<div class="jb-button">
+						<div class="hidea">on</div>
+						<div class="hide">off</div>
+					</div></div>
+			</div>
+	<!--
 	<div id="jerboa">
 		<div id="jerboa-wrapper">
 			<div id="jerboa-menu" class="jerboa-panel hidea">
@@ -70,13 +105,12 @@
 		<div style="display:none"></div>
 		<div id="jerboa-darkbox" class="hide"></div>
 		<div class="jerboa-box hide" >
-			<!--
+			
 			<p>Test</p><p>
 			<input type="text" value="asssss" />
 			</p><p><div class="jerboa-combobox" ><span></span><p style="width:200px">Test</p><span></span></div></p>
 			<div class="jerboa-button"><span>Button</span></div>
-			-->
-			<!---->
+			
 			<table>
 			<tr colspan="6">Font</tr>
 			<tr style="font-variant:small-caps">
@@ -89,7 +123,7 @@
 			<tr height="10"><td colspan="6"></td></tr>
 			<tr><td colspan="3"></td><td colspan="3"><div class="jerboa-button">test</div></td></tr>
 			</table>
-			<!--
+			
 			<table>
 			<tr colspan="6">Paragraph</tr>
 			<tr style="font-variant:small-caps">
@@ -106,7 +140,7 @@
 			<tr height="10"><td colspan="6"></td></tr>
 			<tr><td colspan="3"></td><td colspan="3"><div class="jerboa-button"><span>Test</span></div></td></tr>
 			</table>
-			-->
+
 			
 		</div>
 		
@@ -153,12 +187,12 @@
 		<div style="position:absolute;width:800px;height:500px;top:200px;left:10px;">
 			<div class="jerboa-layer">
 				
-				<!--<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" width="400" height="300"	id="haxe" align="middle"> 
+				<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" width="400" height="300"	id="haxe" align="middle"> 
 					<param name="movie" value="./haxe/clipboard.swf"/>
 					<param name="allowScriptAccess" value="always" />
 					<param name="quality" value="high" />
 					<embed src="./haxe/clipboard.swf" width="400" height="300" name="haxe" quality="high" allowScriptAccess="always"></embed>
-				</object>-->
+				</object>
 				<iframe src="about:blank" style="top:50px;left:10px;width:300px;">
 			 
 			 </iframe>
@@ -166,12 +200,6 @@
 			</div>
 			
 		</div>
-	</div>
+	</div> -->
 	</body>
-	<script>
-	console.log(window.frames[0].document.body.innerHTML = 'aaaaaa');
-	window.frames[0].document.designMode = 'on';
-	window.frames[0].focus();
-	
-	</script>
 </html>
