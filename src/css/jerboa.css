@@ -7,7 +7,8 @@
   display: none;
 }
 #jb-a {
-  width: 400px;
+  width: 600px;
+  position: relative;
   border: 1px solid #bebebe;
 }
 #jb-b {
@@ -21,11 +22,10 @@
   cursor: default;
 }
 #jb-b, #jb-box {
-  font-family: verdana, sans-serif;
+  font-family: vernada, sans-serif;
   text-shadow: 0 1px 1px #ffffff;
 }
 #jb-stage { backgrond: white; }
-#jb-stage > div { cursor: pointer; }
 #jb-box {
   width: 400px;
   height: 400px;
@@ -56,12 +56,16 @@
 #jb-box input {
   border: 1px solid #000000;
   outline: none;
-  width: 100%;
+  width: 380px;
+  padding: 10px;
+  font-family: vernada, sans-serif;
 }
 #jb-box textarea {
   border: 1px solid #000000;
   outline: none;
-  width: 100%;
+  width: 380px;
+  padding: 10px;
+  font-family: vernada, sans-serif;
 }
 #jb-box input:focus {
   box-shadow: 0 0 5px #ff0051;
@@ -81,7 +85,6 @@
 }
 #jb-box textarea {
   min-height: 80px;
-  width: 280px !important;
   height: 80px;
 }
 #jb-textmenu { z-index: 3001; }
@@ -170,7 +173,7 @@
   border-color: #666666;
 }
 .jb-hline {
-  height: 6px;
+  height: 10px;
   width: 100%;
   background: #dedede;
   cursor: s-resize;
@@ -223,9 +226,12 @@
   display: inline-block;
   float: left;
   overflow: hidden;
-  cursor: default;
+  cursor: pointer;
 }
-.jb-touch { border: 1px dashed #000000; }
+.jb-touch {
+  border: 1px dashed #000000 !important;
+  cursor: default !important;
+}
 .jb-media-touch {
   position: absolute;
   width: 100%;

@@ -104,14 +104,8 @@ var Jerboa = (function(my) {
 		element.className = resultingClassNames.join(" ");
 	}; //}}}
 	my.lib.hasClass = function(element, className) { //{{{1
-		var isClassNamePresent = false;
-		var classNames = this.getArrayOfClassNames(element);
-		for (var index = 0; index < classNames.length; index++) {
-			if (className == classNames[index]) {
-				isClassNamePresent = true;
-			}
-		}
-		return isClassNamePresent;
+		var tester = new RegExp(className);
+		return element.className && tester.test(element.className);
 	}; //}}}
 	my.lib.getObjectOfStyle = function(element) { //{{{1
 			var listStyle = element.getAttribute("style") || ""
@@ -256,9 +250,9 @@ var Jerboa = (function(my) {
 		if(xmlhttp.readyState == 4)
 		{
 			if(xmlhttp.status == 200)
-				console.log("Jerboa send complete");
+				if(DEBUG) console.log("Jerboa send complete");
 			else  
-				console.log("Jerboa send fail");
+				if(DEBUG) console.log("Jerboa send fail");
 		}
 
 	};
@@ -280,10 +274,10 @@ var Jerboa = (function(my) {
 		;
 		if(typeof element === "object")
 		{
-			if(element.tagName.toLowerCase() == "img")
+			if(element.nodeName.toLowerCase() == "img")
 			{
 				return "image";
-			} else if(listMediaTag[element.tagName.toLowerCase()] || element.getAttribute("class") == "jerboa-media-touch"){
+			} else if(listMediaTag[element.nodeName.toLowerCase()] || element.getAttribute("class") == "jb-media-touch"){
 				return "media";
 			} else {
 				return "text";
@@ -398,7 +392,7 @@ var Jerboa = (function(my){
 		if(usedModule[panelName]){
 			throw new Error("Module "+panelName+" have been used");
 		}
-		node = lib.setNode({attr:{id: "jerboa-"+panelName.toLowerCase(),"class":"jerboa-panel jerboa-ignore hide"}});
+		node = lib.setNode({attr:{id: "jb-"+panelName.toLowerCase(),"class":"jb-panel jb-ignore hide"}});
 		usedModule[panelName.toLowerCase()] = true;
 		this.getElement = function(){
 			return node;
@@ -424,64 +418,38 @@ var Jerboa = (function(my){
 				lib.addClass(node,"hide");
 		}
 	};//}}}
-	var MenuBar = function(){//{{{2
-		Panel.call(this,"menu");
-		lib.setNode(this.getElement(),{attr:{"class":"jerboa-panel jerboa-ignore"}});
-	};
-	extend(MenuBar,Panel);
-	//}}}
-	var Menu = function(nameMenu){//{{{2 
-		var capitalizedName = nameMenu.substr(0,1).toUpperCase().concat(nameMenu.substr(1))
-		,node = lib.setNode({attr:{"class":"jerboa-ignore"},html: capitalizedName});
-
-		this.onClick = function(e){
-			var event = lib.getEvent(e);
-			event.preventDefault();
-			this.toggleMenu();
-			sandbox.notify("click-menu-"+this.name,e);
-		}
-		this.toggleMenu = function(){
-			if(lib.hasClass(node,"jerboa-panel-active")) lib.removeClass(node,"jerboa-panel-active");
-			else lib.addClass(node,"jerboa-panel-active");
-		}
-		this.name = nameMenu.toLowerCase();
-		this.getElement = function(){return node;}
-		this.show = function() {if(lib.hasClass(node,"hide")) lib.removeClass(node,"hide");}
-		this.hide = function() {if(!lib.hasClass(node,"hide")) lib.addClass(node,"hide");}
-		lib.addEvent(node,"click",lib.curry(this.onClick,this));
-	}//}}}
-	var Stage = function(elementStage,ui){ //{{{2
-		var stage = elementStage,layer=[],node,screen={},old_content;
-		lib.addStyle(stage,{"padding":"0"});
+	var Stage = function(eleTextArea){ //{{{2
+		var textHTML = eleTextArea.innerHTML.replace(/&lt;/ig,"<").replace(/&gt;/ig,">")
+		,stage = lib.setNode({attr: {id: "jb-stage"},html: textHTML}),layer=[],node,screen={},old_content;
 		// Detect Save file
-		if(stage.children[0] && stage.children[0].className == "jerboa-ignore")
+		if(stage.children[0] && stage.children[0].className == "jb-ignore")
 		{
 			node = stage.children[0];
 			old_content = node.innerHTML;
 		} else {
-			node = lib.setNode({tag: "div",attr: {"class":"jerboa-ignore","style":"position:relative;top:0;left:0;width:100%;height:auto;overflow:hidden;"}});
+			node = lib.setNode({tag: "div",attr: {"class":"jb-ignore","style":"position:relative;top:0;left:0;width:100%;height:auto;overflow:hidden;"}});
 			old_content = stage.innerHTML;
 			stage.innerHTML = "";
 			stage.appendChild(node);
 		}
 
 		//construct Layer
-		if(node.children[0] && lib.hasClass(node.children[0],"jerboa-layer"))
+		if(node.children[0] && lib.hasClass(node.children[0],"jb-layer"))
 		{
 			layer.push(node.children[0]);
 		} else {
-			layer.push(lib.setNode({attr: {"index":0,"class":"jerboa-layer jerboa-ignore","style":"z-index:2000;"},html: old_content}));
+			layer.push(lib.setNode({attr: {"index":0,"class":"jb-layer jb-ignore","style":"z-index:2000;"},html: old_content}));
 			node.appendChild(layer[0]);
 		}
 		//construct Lightscreen
-		screen.top = lib.setNode({attr: {"class":"jerboa-lightbox jerboa-ignore",style: ""}});
+		/*screen.top = lib.setNode({attr: {"class":"jerboa-lightbox jerboa-ignore",style: ""}});
 		screen.left = lib.setNode({attr: {"class":"jerboa-lightbox jerboa-ignore",style: ""}});
 		screen.right = lib.setNode({attr: {"class":"jerboa-lightbox jerboa-ignore",style: ""}});
 		screen.bottom = lib.setNode({attr: {"class":"jerboa-lightbox jerboa-ignore",style: ""}});
 		ui.core.appendChild(screen.top);
 		ui.core.appendChild(screen.right);
 		ui.core.appendChild(screen.left);
-		ui.core.appendChild(screen.bottom);
+		ui.core.appendChild(screen.bottom);*/
 		
 		//Public method
 		this.currentEditingNode = "";
@@ -490,7 +458,7 @@ var Jerboa = (function(my){
 		this.getLayer = function(){
 			return layer[0];
 		}
-		this.refreshStage = function(){
+		/*this.refreshStage = function(){
 			var propElement = {x:stage.offsetLeft,y:stage.offsetTop,width:stage.offsetWidth,height:stage.offsetHeight}
 				,propDoc = {width: Math.max(document.body.offsetWidth,document.documentElement.offsetWidth),height: Math.max(document.body.offsetHeight,document.documentElement.offsetHeight)}
 			;
@@ -498,17 +466,17 @@ var Jerboa = (function(my){
 			lib.addStyle(screen.left,{top:"0px",left:propElement.x+"px",width:propElement.width+"px",height:propElement.y+"px"});
 			lib.addStyle(screen.right,{top:"0px",left:parseInt(propElement.x+propElement.width)+"px",width:parseInt(propDoc.width - propElement.x - propElement.width)+"px",height:propDoc.height+"px"});
 			lib.addStyle(screen.bottom,{top:parseInt(propElement.y+propElement.height)+"px",left:propElement.x+"px",width:propElement.width+"px",height:parseInt(propDoc.height - propElement.y - propElement.height)+"px"});
-		}
+		}*/
 		this.setHeight = function(height){
 			lib.addStyle(node,{"height":height+"px"});
-			this.refreshStage();
+			//this.refreshStage();
 		}
 		this.autoHeight = function(){
 			var height = 0,i;
 			for(i=0,len=layer[0].children.length;i<len;i++){
 				height += layer[0].children[i].offsetHeight;
 			}
-			console.log("Page height: "+height);
+			if(DEBUG) console.log("Page height: "+height);
 			this.setHeight((height>300)? height : 300);
 		}
 		this.normalizeTree = function(_root){ // {{{3
@@ -531,7 +499,7 @@ var Jerboa = (function(my){
 						case "image":
 							if(!flagFloor1 && currentNode.children.length == 1) {
 								tempNode = currentNode;
-								while(tempNode.children.length == 1 && !lib.hasClass(tempNode.parentNode,"jerboa-ignore")){
+								while(tempNode.children.length == 1 && !lib.hasClass(tempNode.parentNode,"jb-ignore")){
 									tempNode = tempNode.parentNode;
 								}
 								tempNode.setAttribute("role","image");
@@ -551,14 +519,14 @@ var Jerboa = (function(my){
 						case "media":
 							if(!flagFloor1 && currentNode.children.length == 1) {
 								tempNode = currentNode;
-								while(tempNode.children.length == 1 && !lib.hasClass(tempNode.parentNode,"jerboa-ignore")){
+								while(tempNode.children.length == 1 && !lib.hasClass(tempNode.parentNode,"jb-ignore")){
 									tempNode = tempNode.parentNode;
 								}
 								tempNode.setAttribute("role","media");
-								tempNode.appendChild(lib.setNode({tag:"div",attr:{"class":"jerboa-media-touch"},html:"\&\#160\;"}));
+								tempNode.appendChild(lib.setNode({tag:"div",attr:{"class":"jb-media-touch"},html:"\&\#160\;"}));
 								tempNode.appendChild(currentNode.children[i].cloneNode(true));
 								tempNode.removeChild(tempNode.firstChild);
-								if(tempNode.children[1].tagName.toLowerCase() == "object"){
+								if(tempNode.children[1].nodeName.toLowerCase() == "object"){
 									tempNode.children[1].insertBefore(lib.setNode({tag:"param",attr:{"name":"wmode","value":"opaque"}}),tempNode.children[1].children[0]);
 									tempNode.children[1].lastChild.setAttribute("wmode","opaque");
 								}
@@ -567,8 +535,8 @@ var Jerboa = (function(my){
 							else {
 								//move this element to root Element
 								tempNode = currentNode.children[i].cloneNode(true);
-								tempNode = lib.setNode({tag:"div",attr:{"role":"media","style":"position:absolute;"},html: "<div class=\"jerboa-media-touch\">\&\#160\;</div>"}).appendChild(tempNode).parentNode;
-								if(tempNode.children[1].tagName.toLowerCase() == "object"){
+								tempNode = lib.setNode({tag:"div",attr:{"role":"media","style":"position:absolute;"},html: "<div class=\"jb-media-touch\">\&\#160\;</div>"}).appendChild(tempNode).parentNode;
+								if(tempNode.children[1].nodeName.toLowerCase() == "object"){
 									tempNode.children[1].insertBefore(lib.setNode({tag:"param",attr:{"name":"wmode","value":"opaque"}}),tempNode.children[1].children[0]);
 									tempNode.children[1].lastChild.setAttribute("wmode","opaque");
 								}
@@ -579,12 +547,12 @@ var Jerboa = (function(my){
 							break;
 
 						case "text":
-							if(currentNode.children[i].innerHTML=="" && currentNode.children[i].tagName.toLowerCase() != "div"){
+							if(currentNode.children[i].innerHTML=="" && currentNode.children[i].nodeName.toLowerCase() != "div"){
 								currentNode.removeChild(currentNode.children[i]);
 								i--;len--;
 								continue;
 							}
-							if(flagFloor1 && currentNode.children[i].tagName.toLowerCase() != "div"){
+							if(flagFloor1 && currentNode.children[i].nodeName.toLowerCase() != "div"){
 								tempNode = currentNode.children[i].cloneNode(true);
 								tempNode = lib.setNode({tag:"div",attr:{"role":"text","style":"position:absolute;top:"+currentNode2.children[i].offsetTop+"px;left:"+currentNode2.children[i].offsetLeft+"px;"}}).appendChild(tempNode).parentNode;
 								if(newTree.children.length == 1)newTree.appendChild(tempNode);
@@ -603,9 +571,57 @@ var Jerboa = (function(my){
 			_root.innerHTML = newTree.innerHTML;
 			return true;
 		}//}}}
-		this.autoHeight();
-		this.normalizeTree(layer[0]);
+		var self = this;
+		setTimeout(function(){self.autoHeight();self.normalizeTree(layer[0]);history.save(layer[0].innerHTML);},100);
+		//this.normalizeTree(layer[0]);
 	} //}}}
+	var History = function(size,callback){ //{{{2
+		var circularList= [],self = this
+		,index=-1,flen=0,blen=0,enable=true;
+		size = size || 10;
+		this.save = function(data){
+			if(!enable) return false;
+			if(blen!=size)
+				blen++;
+			index = (index+1) % size;
+			flen = 1;
+			circularList[index] = data;
+			if(DEBUG) console.log("history: save");
+			//if(DEBUG) console.log(circularList,blen,index,flen);
+		}
+		this.undo = function(){
+			if(!enable) return false;
+			if(blen -1 > 0){
+				index = (index-1 >= 0)? index-1 : size-1;
+				blen--;flen++;
+				callback(circularList[index]);
+				if(DEBUG) console.log("history: undo");
+				//if(DEBUG) console.log("("+circularList[index]+")",blen,index,flen);
+			}
+		}
+		this.redo = function(){
+			if(!enable) return false;
+			if(flen -1 > 0) {
+				index = (index+1) % size;
+				blen++;flen--;
+				callback(circularList[index]);
+				if(DEBUG) console.log("history: redo");
+				//if(DEBUG) console.log("("+circularList[index]+")",blen,index,flen);
+			}
+		}
+		this.clear = function(){
+			circularList = [];
+			flen = 0;
+			blen = 0;
+			index = -1;
+		}
+		this.freeze = function(msec) {
+			enable = false;
+		}
+		this.unfreeze = function(){
+			enable = true;
+		}
+	}; //}}}
 	var Button = function(label,name,className) {//{{{2
 		var node = lib.setNode({attr: {"class":"jerboa-button jerboa-ignore "+((className)?className:"")},html: label,event: {add: "click",fn: function(e){sandbox.notify("click-button-"+name,e)}}});
 		this.name = name;
@@ -708,142 +724,54 @@ var Jerboa = (function(my){
 		}
 		
 	}//}}}
-	var MenuItem = function(nameMenuItem){//{{{2
-		var node,nameMenuItem = nameMenuItem.toLowerCase(),childs={},values=[];
-		if(usedModule[nameMenuItem]){
-			throw new Error("Module "+nameMenuItem+" have been used.");
-		}
-		node = lib.setNode({attr:{id:"jerboa-"+nameMenuItem,"class":"hide"}});
-		this.name = nameMenuItem;
-		this.add = function(objField){
-			if(objField.name){
-				childs[objField.name] = objField;
-				if(objField.getValue) values.push(objField.name);
-			node.appendChild(objField.getElement());
-			return objField;
-			}
-		}
-		this.remove = function(nameObjField){
-			if(childs[nameObjField])
-				node.removeChild(childs[nameObjField].getElement());
-		}
-		this.getElement = function(){
-			return node;
-		}
-		this.getChild = function(nameChild){
-			if(childs[nameChild])
-				return childs[nameChild];
-		}
-		this.getValue = function(){
-			var ret = [];
-			for(var i=0,len=values.length;i<len;i++){
-				ret.push(childs[values[i]].getValue());
-			}
-			return ret;
-		}
-		this.setValue = function(_array){
-			if(_array.length != values.length){
-				throw new Error("MenuItem.setValue --> array size("+_array.length+") is not equal number of fields("+values.length+").");
-			}
-			for(var i=0,len=_array.length;i<len;i++){
-				childs[values[i]].setValue(_array[i]);
-			}
-		}
-	}//}}}
-	var MenuItemManager = function(){//{{{2
-		var node = lib.setNode({attr:{id: "jerboa-menubox","style":"left:0;top:0;","class":"jerboa-ignore hide"}})
-		,childs = {}
-		,balloon = node.appendChild(lib.setNode({attr:{"class":"balloon"}}))
-		,currentMenu = "";
-		;
-		this.setX = function(x){
-			lib.addStyle(node,{"left":x+"px"});
-		}
-		this.setXBalloon = function(left){
-			lib.addStyle(balloon,{"margin-left":left+"px"});
-		}
-		this.add = function(objMenuItem){
-			hasImplements(objMenuItem,MenuItemInterface);
-			childs[objMenuItem.name] = objMenuItem;
-			node.appendChild(objMenuItem.getElement());
-		}
-		this.show = function(nameMenu){
-			if(!childs[nameMenu]){
-				throw new Error("Can not find "+nameMenu+" in MenuItem");
-			}
-			if(lib.hasClass(node,"hide")) lib.removeClass(node,"hide");
-			if(lib.hasClass(childs[nameMenu].getElement(),"hide")) lib.removeClass(childs[nameMenu].getElement(),"hide");
-			currentMenu = nameMenu;
-		}
-		this.hide = function(nameMenu){
-			if(!childs[nameMenu]){
-				throw new Error("Can not find "+nameMenu+" in MenuItem");
-			}
-			if(currentMenu){
-				if(!lib.hasClass(childs[currentMenu].getElement(),"hide")) lib.addClass(childs[currentMenu].getElement(),"hide");
-				if(!lib.hasClass(node,"hide")) lib.addClass(node,"hide");
-				currentMenu = "";
-			}
-		}
-		this.toggle = function(nameMenu,objPosition){
-			if(objPosition){
-				this.setX(objPosition.left-13);
-				this.setXBalloon((objPosition.width/2)+3);
-			}
-			if(currentMenu == nameMenu)
-				this.hide(nameMenu);
-			else 
-				this.show(nameMenu);
-		}
-		this.getChild = function(nameMenuItem){
-			if(childs[nameMenuItem])
-				return childs[nameMEnuItem];
-		}
-		this.getElement = function(){
-			return node;
-		}
-	}//}}}
 	//}}}
 	//{{{ Private members
 	var Library= new Interface("Library",["onDomReady","addEvent","removeEvent","getEvent","addClass","removeClass","hasClass","addStyle","removeStyle","setNode","curry","request"])
-	,Module= new Interface("Module",["init","destroy","enable"])
+	,Module= new Interface("Module",["init","destroy"])
 	,MenuItemInterface = new Interface("MenuItem",["add","remove","getValue","setValue","getElement","name"])
 	,UI = new Interface("UI",["getValue","setValue","name"])
 	; 
 	hasImplements(my.lib,Library);
 	var lib = my.lib;delete my.lib;
 	var path = my.path;delete my.path;
+	var DEBUG = true;
 	var usedModule = {}
-	,ui = {
-		menubar: new MenuBar()
-	}
+	,ui = {}
 	,modules = {}
 	,stage = null
+	,textarea = null
 	,cache = {}
+	,history = new History(10, function(data){stage.getLayer().innerHTML = data;})
 	,sandbox = new (function(){
 		var events={};
 		this.lib = lib;
 		this.Class = function(nameClass){
+			var allowClass = {"Panel":1,"Button":1,"FlipSwitch":1,"Hline":1,"TextField":1,"TextArea":1,"History":1};
+			if(!allowClass[nameClass])
+				throw new Error("sandbox: not found "+nameClass+" in Class");
 			return eval(nameClass);
 		}
-		this.ui = function(nameUI){
+		this.getHistory = function(){
+			return history;
+		}
+		this.getStage = function(){
+			return stage;
+		}
+		this.getUI = function(nameUI){
+			if(!ui[nameUI])
+				throw new Error("sandbox: not found "+nameUI+" in UI");
 			return ui[nameUI];
 		}
 		this.addPanel = function(namePanel){
 			var panelObject = new Panel(namePanel);
-			ui.wrapper.appendChild(panelObject.getElement());
+			ui.panelbar.appendChild(panelObject.getElement());
 			return panelObject;
-		}
-		this.addMenu = function(nameMenu){
-			var menuObject = new Menu(nameMenu);
-			ui.menubar.add(menuObject);
-			return menuObject;
 		}
 		this.notify = function(eventName,eventData){
 			var data = eventName.split("-"),i,len;
 			data = {
 				"event": data[0] || "",
-				"ui": data[1] || "",
+				"subevent": data[1] || "",
 				"name": data[2] || "",
 				"data": eventData
 			}
@@ -862,7 +790,7 @@ var Jerboa = (function(my){
 					events[data.event][i](data);
 				}				
 			}
-			console.log(eventName);
+			if(DEBUG) console.log(eventName);
 		}
 		this.listen = function(arrayEventName,callback,scope){
 			if(typeof arrayEventName === "string"){
@@ -881,7 +809,7 @@ var Jerboa = (function(my){
 			return false;
 		}
 	});
-
+	
 	//}}}
 	//{{{ Public members
 	my.version = 0.001;
@@ -893,14 +821,11 @@ var Jerboa = (function(my){
 			throw new Error("Duplicate Module: "+moduleName);
 		}
 		modules[moduleName] = 	moduleObject;
-		if(ui.option){
-			var tempNode = new FlipSwitch(moduleName);
-			tempNode.setValue(modules[moduleName].enable);
-			ui.option.add(tempNode);
+		if(ui.core){
 			modules[moduleName].init();
 		}
 	};
-	for(var i in my.tempRegister){
+	for(var i=0,len=my.tempRegister.length;i<len;i++){
 		my.register.apply(null,my.tempRegister[i]);
 	}
 	delete my.tempRegister;
@@ -918,9 +843,9 @@ var Jerboa = (function(my){
 		modules[moduleName].destroy();
 	};//}}}
 	my.apply = function(domId){//{{{
-		var _stage;
-		if(!(_stage = document.getElementById(domId))) return false;
-		stage = _stage;
+		var _;
+		if(!(_ = document.getElementById(domId))) return false;
+		textarea = _;
 		init();
 	};
 	//}}}
@@ -938,11 +863,13 @@ var Jerboa = (function(my){
 				event.preventDefault();
 				data.x = e.pageX;
 				data.y = e.pageY;
+				data.isMove = false;
 				lib.addEvent(document,"mousemove",touch);
 				lib.addEvent(document,"mouseup",touch);
 			}
 		} else if(e.type == "mousemove")
 		{
+			data.isMove = true;
 			if(e.shiftKey)
 			{
 				data.root_w += e.pageX - data.x;
@@ -974,6 +901,7 @@ var Jerboa = (function(my){
 
 		} else if(e.type == "mouseup")
 		{
+			if(data.isMove) history.save(stage.getLayer().innerHTML);
 			lib.removeEvent(document,"mousemove",touch);
 			lib.removeEvent(document,"mouseup",touch);
 		}
@@ -981,8 +909,15 @@ var Jerboa = (function(my){
 	}//}}}
 	var restoreNormalState = function()//{{{
 	{
-		if(!stage.currentState) return false;
-		lib.removeClass(stage.currentEditingNode,"jerboa-touch");
+		if(!stage.currentState) {
+			var childNode = stage.getLayer().children;
+			for(var i=0,len=childNode.length;i<len;i++){
+				if(lib.hasClass(childNode[i],"jb-touch"))
+					lib.removeClass(childNode[i],"jb-touch");
+			}
+			return false;
+		}
+		lib.removeClass(stage.currentEditingNode,"jb-touch");
 		lib.removeEvent(stage.currentEditingNode,"mousedown",touch);
 		switch(stage.currentState)
 		{
@@ -990,6 +925,7 @@ var Jerboa = (function(my){
 				break;
 			case "textedit":            
 				stage.currentEditingNode.setAttribute("contenteditable","false");
+				history.save(stage.getLayer().innerHTML);
 			//Jerboa.toggle.menu.call(Jerboa,"text");
 			break;
 			case "imagemove":
@@ -1008,28 +944,39 @@ var Jerboa = (function(my){
 			,tempStage=null
 			;
 		if(stage.currentState == "textedit"){
-			if(lib.hasClass(event.target,"jerboa-ignore"))
+			if(lib.hasClass(event.target,"jb-ignore"))
 				restoreNormalState();
 			//return false;
 		}
 		event.preventDefault();
-		if(!lib.hasClass(event.target,"jerboa-ignore"))
+		if(!lib.hasClass(event.target,"jb-ignore"))
 		{
 			//TODO: Detect another kind of media
 			mediaType = lib.detectMedia(event.target);
 			var _root = event.target;
-			while(!lib.hasClass(_root.parentNode,"jerboa-ignore")){_root = _root.parentNode;}
+			while(!(_root.parentNode.className && lib.hasClass(_root.parentNode,"jb-ignore"))){
+				if(!_root.parentNode.nodeName || _root.parentNode.nodeName.toLowerCase() == "html" || _root.parentNode.nodeName.toLowerCase() == "body") {
+					restoreNormalState();
+					return false;
+				}
+				_root = _root.parentNode;
+				if(!_root.parentNode) {
+					restoreNormalState();
+					return false;
+				}
+			}
 			if(!_root.parentNode.getAttribute("index")) return false;
 			//if(stage.currentEditingNode == _root && /move$/i.test(stage.currentState)) return false;
 			if(stage.currentEditingNode == _root) return false;
 			if(stage.currentEditingNode != null) restoreNormalState();
-			//console.log(_root);
+			
 			stage.currentEditingNode = _root;
-			lib.addClass(_root,"jerboa-touch");
+			lib.addClass(_root,"jb-touch");
 			lib.addEvent(_root,"mousedown",touch);
 			stage.currentState = mediaType + "move";
 			sandbox.notify(mediaType +"move");
 			tempStage = stage.getElement();
+			cache.isMove = false;
 			cache.screen_top = tempStage.offsetTop;
 			cache.screen_left = tempStage.offsetLeft;
 			cache.screen_w = tempStage.offsetWidth ;
@@ -1045,23 +992,24 @@ var Jerboa = (function(my){
 	var dbclick = function(e) {//{{{
 		var event = lib.getEvent(e)
 		event.preventDefault();
-
-		if(!lib.hasClass(event.target,"jerboa-ignore"))
+		if(!lib.hasClass(event.target,"jb-ignore"))
 		{
 			switch(lib.detectMedia(event.target))
 			{
 				case "text":
 					//Find the Root to start edit mode
 				var _root = event.target;
-				while(!lib.hasClass(_root.parentNode,"jerboa-ignore"))
-				{
+				if(!_root.parentNode) return false;
+				while(!(_root.parentNode.className && lib.hasClass(_root.parentNode,"jb-ignore"))){
+					if(_root.parentNode.nodeName.toLowerCase() == "html" || _root.parentNode.nodeName.toLowerCase() == "body")
+						return false;
 					_root = _root.parentNode;
-				}
+				}			
 				if(!_root.parentNode.getAttribute("index")) return false;
 				if(stage.currentEditingNode == _root && stage.currentState == "textedit") return false;
 				if(stage.currentEditingNode != null) restoreNormalState();
 				stage.currentEditingNode = _root;
-				lib.addClass(_root,"jerboa-touch");
+				lib.addClass(_root,"jb-touch");
 				lib.addEvent(_root,"mousedown",touch);
 				//$.Events.add(_root,"blur",Jerboa.restoreNormalState);
 
@@ -1082,77 +1030,70 @@ var Jerboa = (function(my){
 	}//}}}
 	var keyboard = function(e){//{{{
 		var event = lib.getEvent(e);
-		if(e.ctrlKey && e.keyCode == 86 && !(/edit$/i.test(stage.currentState))){
-			sandbox.notify("keydown-noediting-paste",e);
+		//console.log(event);
+		if(e.ctrlKey)
+		{
+			if(e.keyCode == 90){
+						sandbox.notify("keydown-normal-undo");
+						restoreNormalState();
+			}
+			else if(e.keyCode == 89){
+						sandbox.notify("keydown-normal-redo");		
+						restoreNormalState();
+			}
+			else if(e.keyCode == 86 && !(/edit$/i.test(stage.currentState))){
+				sandbox.notify("keydown-noediting-paste",e);
+				restoreNormalState();
+			}
 		}
-		if((e.keyCode == 8 || e.keyCode == 46) && /move$/i.test(stage.currentState)){
-			stage.getLayer().removeChild(stage.currentEditingNode);
-			
-			restoreNormalState();	
+		if(/move$/i.test(stage.currentState)){
+			if(e.ctrlKey){
+				if(e.keyCode == 67){
+					sandbox.notify("keydown-move-copy");
+					restoreNormalState();
+				}
+				else if(e.keyCode == 88){
+					sandbox.notify("keydown-move-copy");
+					stage.getLayer().removeChild(stage.currentEditingNode);
+					restoreNormalState();
+				}
+			}
+			else if((e.keyCode == 8 || e.keyCode == 46)){
+				stage.getLayer().removeChild(stage.currentEditingNode);
+				history.save(stage.getLayer().innerHTML);
+				restoreNormalState();
+			}
 		}
 	}//}}}
 	var init = function(){//{{{
 		var documentFragment = document.createDocumentFragment(),tempNode;
+
 		//construct UI
-		ui.core = lib.setNode({attr:{id: "jerboa"}});
-		ui.wrapper = lib.setNode({attr: {id: "jerboa-wrapper"}});
-		ui.core.appendChild(ui.wrapper);
-		
+		ui.core = lib.setNode({attr:{id: "jb-a","style":"width:"+textarea.offsetWidth+"px;"}});
+		ui.panelbar = lib.setNode({attr: {id: "jb-b"}});
+		stage = new Stage(textarea);		
+		ui.bottom = lib.setNode({attr: {"class": "jb-hline"}});
+		ui.core.appendChild(ui.panelbar);
+		ui.core.appendChild(stage.getElement());
+		ui.core.appendChild(ui.bottom);
 		//constrcut Stage
-		stage = new Stage(stage,ui);		
-		
-		//construct MenuBar
-		ui.wrapper.appendChild(ui.menubar.getElement());
-		sandbox.addMenu("option");
-		
-		//construct MenuItem
-		ui.menuitem = new MenuItemManager();
-		ui.option = new MenuItem("option");
-		ui.option.add(new TextField("Page Height <span>enter Height which you want</span>",stage.getElement().offsetHeight,"bigger last"));
-		ui.option.add(new TextArea("Custom <b>CSS</b>",""));
-		ui.option.add(new Button("ok","optionok","right"));
-		ui.option.add(new HLine("last"));
-		sandbox.listen(["click-button-optionok"],function(){
-				var height = ui.option.getValue()[0];
-				stage.setHeight(height);
-		},my);
-		ui.menuitem.add(ui.option);
-		ui.wrapper.appendChild(ui.menuitem.getElement());
-		sandbox.listen(["click-menu"],function(_data){
-			var position = lib.getEvent(_data.data);
-			position = {"width":position.target.offsetWidth,"left":position.target.offsetLeft};
-			this.toggle(_data.name,position);
-			restoreNormalState();
-		},ui.menuitem);
-
-
-		//construct save, save&close, close button
-		tempNode = ui.menubar.getElement().appendChild(lib.setNode());
-		ui.loader = lib.setNode({tag:"span",attr:{"class":"hide","style":"float:left;padding:0 30px;line-height:40px;"},html: "<img src=\""+path+"/img/loader.gif\" \/>"});
-		tempNode.appendChild(ui.loader);
-		tempNode.appendChild(new Button("save","endsave").getElement());
-		tempNode.appendChild(new Button("save&close","endsaveclose").getElement());
-		tempNode.appendChild(new Button("close","endclose").getElement());
-		sandbox.listen(["click-button-endsave","click-button-endsaveclose"],function(){
-			my.save(sandbox);		
-		},my);
-		sandbox.listen(["click-button-endsaveclose","click-button-endclose"],function(){
-			destroy();		
-		});
 		lib.addEvent(document,"click",click);
 		lib.addEvent(document,"dblclick",dbclick);
 		lib.addEvent(document,"keydown",keyboard);
-		
 		//Init Modules
 		for(var plugin in modules){
-			var tempNode = new FlipSwitch(plugin);
-			tempNode.setValue(modules[plugin].enable);
-			ui.option.add(tempNode);
+			//var tempNode = new FlipSwitch(plugin);
+			//tempNode.setValue(modules[plugin].enable);
+			//ui.option.add(tempNode);
 			modules[plugin].init();
 		}
-
+		//Save History Events
+		sandbox.listen("keydown-normal-undo",function(){history.undo();});
+		sandbox.listen("keydown-normal-redo",function(){history.redo();});
+		//Disable textarea
+		lib.addClass(textarea,"hide");		
 		documentFragment.appendChild(ui.core);
-		document.body.appendChild(documentFragment);
+		textarea.parentNode.insertBefore(documentFragment,textarea);
 	};//}}}
 	var destroy = function(){//{{{
 		document.body.removeChild(ui.core);
@@ -1172,5 +1113,4 @@ var Jerboa = (function(my){
 
 	return my;
 }(Jerboa || {}));
-if(document.body) Jerboa.apply("test_edit");
 

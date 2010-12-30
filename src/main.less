@@ -1,6 +1,6 @@
 /* Font */
 @font_size: 16px;
-@font_family: Helvetica,Arial,sans-serif;
+@font_family: vernada,sans-serif;
 
 /* Theme color */
 @color_soft : #ff0051;
@@ -68,7 +68,8 @@
 	display: none;
 }
 #jb-a {
-	width: 400px;
+	width: 600px;
+	position: relative;
 	border:1px solid #bebebe;
 }
 #jb-b {
@@ -82,14 +83,11 @@
 	cursor: default;
 }
 #jb-b,#jb-box {
-	font-family: verdana,sans-serif;
+	font-family: @font_family;
 	text-shadow: 0 1px 1px #fff;
 }
 #jb-stage {
 	backgrond: white;
-}
-#jb-stage>div {
-	cursor: pointer;
 }
 #jb-box {
 	width: 400px;
@@ -107,12 +105,11 @@
 #jb-box input,#jb-box label,#jb-box textarea,#jb-box .jb-button {margin-bottom:10px;}
 #jb-box label {width:100%;float:left;}
 #jb-box span {font-size: 0.7*@font_size;text-shadow:none;margin-left:10px;color: @color_hline;}
-#jb-box input,#jb-box textarea {border:1px solid @color_dark;outline:none;width: 100%;}
+#jb-box input,#jb-box textarea {border:1px solid @color_dark;outline:none;width: 380px;padding:10px;font-family:@font_family;}
 #jb-box input:focus, #jb-box textarea:focus {.shadow_box(0,0,5px,@color_soft);border:1px solid @color_soft;}
 #jb-box b {font-weight:normal;color:@color_soft;}
 #jb-box textarea {
 	min-height:80px;
-	width:280px !important;
 	height:80px;
 }
 #jb-textmenu {
@@ -182,7 +179,7 @@
 	border-color: #666;
 }
 .jb-hline {
-	height:6px;
+	height:10px;
 	width: 100%;
 	background: #dedede;
 	cursor: s-resize;
@@ -204,8 +201,8 @@
 .jb-flipswitch>div>div+div {float:right;}
 .jb-layer {
 	position:absolute;top:0;left:0;width:100%;height:100%;
-	>div{padding:0;margin:0;display:inline-block;float:left;overflow:hidden;cursor:default;
+	>div{padding:0;margin:0;display:inline-block;float:left;overflow:hidden;cursor:pointer;
 	}
 }
-.jb-touch {border: 1px dashed #000}
+.jb-touch {border: 1px dashed #000 !important;cursor:default !important;}
 .jb-media-touch {position:absolute;width:100%;height:100%;background-color:white;.opacity(0);}

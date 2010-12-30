@@ -47,4 +47,4 @@ var Jerboa = (function(my){
 	my.save = function(){}
 	return my;
 }(Jerboa || {}));
-Jerboa.loadStyle("css/jerboa-normal").load("core").load("plugin/fancyinsert").load("plugin/textmenu").load("plugin/fontfly");
+Jerboa.loadStyle("css/jerboa").load("core").load("plugin/fancyinsert").load("plugin/textmenu");
