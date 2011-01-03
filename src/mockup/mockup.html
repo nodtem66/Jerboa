@@ -3,13 +3,20 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<link type="text/css" rel="stylesheet" href="../css/jerboa.css" />
+		<link type="text/css" rel="stylesheet" href="../../theme/2/index_files/manage.css" />
+		<link type="text/css" rel="stylesheet" href="../../theme/2/index_files/blogglobal.css" />
         <title>My First Theme</title>
 		</head>
-		<body>
-			<textarea id="jerboa">aasdsadsdasdasdasdasdasd</textarea>
+		<body id="manage">
+			<div><textarea id="jerboa">aasdsadsdasdasdasdasdasd</textarea></div>
 			<div id="jb-a" style="width:500px;">
 				<div id="jb-b">
-					<div id="jb-textmenu" class="jb-panel hidea">
+					<div id="jb-mainmenu">
+							<div>
+								<button><span style="background:url(../img/inserttextbox.png) no-repeat;display:inline-block"> Insert TextBox</span></button>
+							</div>
+					</div>
+					<div id="jb-textmenu" class="jb-panel hide">
 						
 							<div>
 							<button><span></span></button>
@@ -19,7 +26,7 @@
 							</div>
 						
 							<div>
-							<button><span></span></button>
+							<button style="margin-left:2px;"><span></span></button>
 							<button><span></span></button>
 							<button><b>B</b></button>
 							<button><i>I</i></button>
@@ -28,6 +35,10 @@
 							<button><span></span></button>
 							<button><span></span></button>
 							<button><span></span></button>
+							</div>
+
+							<div>
+								<div class="jb-selectbox" style="margin:0;margin-left:2px;"><span>font family</span><div style="margin:0;top:29px;left:-1px;"><span>1</span><span>2</span><span>3</span></div></div>
 							</div>
 					</div>
 
@@ -39,16 +50,22 @@
 				</div>
 				<div class="jb-hline"></div>
 			</div>
-			<div id="jb-box">
-					<label>Page Height <span>enter Height that you want</span></label><input class="bigger last" type="text" value="aaaa" />
-					<label>Custom <b>CSS</b></label><textarea></textarea>
+			<div id="jb-box" class="hidea">
+				<div id="jb-option" class="jb-ignore">
+					<div><label>Page Height <span>enter Height that you want</span></label>
+						<input class="last bigger" type="text">
+					</div>
+					<div><label>Custom <b>CSS</b></label><textarea></textarea></div>
 					<div class="hline last"></div>
 					<div class="jb-flipswitch">
 					<label>Test</label>
 					<div class="jb-button">
 						<div class="hidea">on</div>
 						<div class="hide">off</div>
-					</div></div><div class="jb-button right"> ok </div>
+				</div></div>
+					<div class="hline"></div>
+					<div class="jb-selectbox" style="margin:0;margin-left:2px;"><span>font family</span><div style="margin:0;top:29px;left:-1px;"><span>1</span><span>2</span><span>3</span></div></div>
+					<div class="jb-button right bottom"> ok </div></div>
 			</div>
 	<!--
 	<div id="jerboa">

@@ -11,8 +11,12 @@ Jerboa.register("TextMenu",function(sandbox){
 		var haveArgCommand = {"forecolor":true,"backcolor":true}
 		,  cssCommand = {"justifyleft":true,"justifycenter":true,"justifyright":true,"justifyfull":true}
 		,  clearColorCommand = {"clear":true,"transparent":true,"remove":true,"clearcolor":true,"removecolor":true}
-		,  args = null
+		,  args = arguments[1] || null
 			;
+		if(command == "fontname") {
+			document.execCommand("fontname",false,args);
+			return false;
+		}
 		if(cssCommand[command] == true)
 		{
 			if(!document.execCommand(command,false,args))
@@ -30,39 +34,69 @@ Jerboa.register("TextMenu",function(sandbox){
 				args = "#"+args;
 		}   
 		document.execCommand(command,false,args);
-
 	}
-	this.init = function(){
-		var tempNode = null;
+	this.init = function(config){
+		var tempNode = null,listbutton,i,len,ii,llen,path = sandbox.getPath(),haveSpace = false;
 		instance = sandbox.addPanel("textmenu");
 		node = instance.getElement();
-		
-		tempNode = lib.setNode();
-		tempNode.appendChild(lib.setNode({tag:"button",html:"<span></span>",event:{add:"click",fn:lib.curry(this.execute,this,0,"outdent")}}));
-		tempNode.appendChild(lib.setNode({tag:"button",html:"<span></span>",event:{add:"click",fn:lib.curry(this.execute,this,0,"indent")}}));
-		tempNode.appendChild(lib.setNode({tag:"button",html:"<span></span>",event:{add:"click",fn:lib.curry(this.execute,this,0,"insertunorderedlist")}}));
-		tempNode.appendChild(lib.setNode({tag:"button",html:"<span></span>",event:{add:"click",fn:lib.curry(this.execute,this,0,"insertorderedlist")}}));
-		node.appendChild(tempNode);
+		if(config && config.button){
+			listbutton = config.button.split(";");
+		} else {
+			listbutton = ["indent,outdent,insertunorderedlist,insertorderedlist","forecolor,backcolor,bold,italic,underline,justifyleft,justifycenter,justifyright,justifyfull","fontfamily"];
+		}
+		for(i=0,len=listbutton.length;i<len;i++)
+		{
+			listbutton[i] = listbutton[i].split(",");
+			if(!listbutton[i][0]) continue;
+			tempNode = lib.setNode();
+			for(ii=0,llen=listbutton[i].length;ii<llen;ii++){
+				if(i>0 && ii==0) {haveSpace = true;}
+				if(listbutton[i][ii] == "fontfamily"){
+					haveSpace = true;
+					if(config && config.font){
+					if(ii==llen-1){
+						tempNode.appendChild((new sandbox.Class("Input")({type:"selectbox",label:"fontfamily",value:config.font.split(","),styleMain:"margin:0;margin-left:2px;",styleDropdown:"margin:0;top:29px;left:-1px;"})).getElement());
+					}
+					else if(ii==0){
+						tempNode.appendChild((new sandbox.Class("Input")({type:"selectbox",label:"fontfamily",value:config.font.split(","),styleMain:"margin:0;margin-left:2px;",styleDropdown:"margin:0;top:29px;left:-1px;"})).getElement());
+						node.appendChild(tempNode);
+						tempNode = lib.setNode();
+					}
+					else{
+						node.appendChild(tempNode);
+						tempNode = lib.setNode();
+						tempNode.appendChild((new sandbox.Class("Input")({type:"selectbox",label:"fontfamily",value:config.font.split(","),styleMain:"margin:0;margin-left:2px;",styleDropdown:"margin:0;top:29px;left:-1px;"})).getElement());
+						node.appendChild(tempNode);
+						tempNode = lib.setNode();
+					}}
+				}
+				else if(haveSpace){
+					tempNode.appendChild(lib.setNode({tag:"button",html:"<span style=\"background: url("+path+"/img/"+listbutton[i][ii]+".png) -1px -1px no-repeat\"></span>",event:{add:"click",fn:lib.curry(this.execute,this,0,listbutton[i][ii])},attr:{style:"margin-left:2px"}}));
+					haveSpace = false;
+				} else {
+					if(listbutton[i][ii] == "bold")
+						tempNode.appendChild(lib.setNode({tag:"button",html:"<b>B</b>",event:{add:"click",fn:lib.curry(this.execute,this,0,listbutton[i][ii])}}));
+					else if(listbutton[i][ii] == "italic")
+						tempNode.appendChild(lib.setNode({tag:"button",html:"<i>I</i>",event:{add:"click",fn:lib.curry(this.execute,this,0,listbutton[i][ii])}}));
+					else if(listbutton[i][ii] == "underline")
+						tempNode.appendChild(lib.setNode({tag:"button",html:"<u>U</u>",event:{add:"click",fn:lib.curry(this.execute,this,0,listbutton[i][ii])}}));
+					else
+						tempNode.appendChild(lib.setNode({tag:"button",html:"<span style=\"background: url("+path+"/img/"+listbutton[i][ii]+".png) -1px -1px no-repeat\"></span>",event:{add:"click",fn:lib.curry(this.execute,this,0,listbutton[i][ii])}}));
+				}
+			}
+			node.appendChild(tempNode);
+		}
 
-		tempNode = lib.setNode();
-		tempNode.appendChild(lib.setNode({tag:"button",html:"<span></span>",event:{add:"click",fn:lib.curry(this.execute,this,0,"forecolor")}}));
-		tempNode.appendChild(lib.setNode({tag:"button",html:"<span></span>",event:{add:"click",fn:lib.curry(this.execute,this,0,"backcolor")}}));
-		tempNode.appendChild(lib.setNode({tag:"button",html:"<b>B</b>",event:{add:"click",fn:lib.curry(this.execute,this,0,"bold")}}));
-		tempNode.appendChild(lib.setNode({tag:"button",html:"<i>I</i>",event:{add:"click",fn:lib.curry(this.execute,this,0,"italic")}}));
-		tempNode.appendChild(lib.setNode({tag:"button",html:"<u>U</u>",event:{add:"click",fn:lib.curry(this.execute,this,0,"underline")}}));
-		tempNode.appendChild(lib.setNode({tag:"button",html:"<span></span>",event:{add:"click",fn:lib.curry(this.execute,this,0,"justifyleft")}}));
-		tempNode.appendChild(lib.setNode({tag:"button",html:"<span></span>",event:{add:"click",fn:lib.curry(this.execute,this,0,"justifycenter")}}));
-		tempNode.appendChild(lib.setNode({tag:"button",html:"<span></span>",event:{add:"click",fn:lib.curry(this.execute,this,0,"justifyright")}}));
-		tempNode.appendChild(lib.setNode({tag:"button",html:"<span></span>",event:{add:"click",fn:lib.curry(this.execute,this,0,"justifyfull")}}));
-		node.appendChild(tempNode);
 		sandbox.listen("textedit",function(){
-			if(this.enable) instance.show();
+			instance.show();
+			sandbox.getUI("mainmenu").hide();
 		},this);
 		sandbox.listen("restorestate",function(){
 			instance.hide();
+			sandbox.getUI("mainmenu").show();
 		},this);
-		sandbox.listen("click-flipswitch-TextMenu",function(value){
-			this.enable = value.data;
+		sandbox.listen("change-selectbox-fontfamily",function(e){
+			this.execute("fontname",e.data);		
 		},this);
 	}
 	this.destroy = function(){}

@@ -1,9 +1,9 @@
  /* 
-	* Javascript library (Additional Edition) {{{
+	* Javascript library (Additional Edition)
 	* @original author Den Odell
 	* @from Pro JavaScript RIA Techniques Best Practices, Performance, and Presentation
 	*/	
-var Jerboa = (function(my) {
+var Jerboa = (function(my) { 
 	my.lib = {};
 	my.lib.env = {//{{{1
 	ie: /MSIE/i.test(navigator.userAgent),
@@ -71,7 +71,6 @@ var Jerboa = (function(my) {
 				}
 		};
 	}; //}}}
-			
 	my.lib.getTargetFromEvent = function(event) { //{{{1
 			var target = event.srcElement || event.target;
 			if (target.nodeType == 3) { 
@@ -79,8 +78,6 @@ var Jerboa = (function(my) {
 			}
 			return target;
 		}; //}}}
-	
-
 	my.lib.getArrayOfClassNames = function(element) { //{{{1
 		var classNames = [];
 		if (element.className) {
@@ -274,7 +271,10 @@ var Jerboa = (function(my) {
 		;
 		if(typeof element === "object")
 		{
-			if(element.nodeName.toLowerCase() == "img")
+			if(element.nodeName.toLowerCase() == "div" && element.getAttribute("role")){
+				return element.getAttribute("role");
+			}
+			else if(element.nodeName.toLowerCase() == "img")
 			{
 				return "image";
 			} else if(listMediaTag[element.nodeName.toLowerCase()] || element.getAttribute("class") == "jb-media-touch"){
@@ -284,7 +284,8 @@ var Jerboa = (function(my) {
 			}
 		} else if(typeof element === "string") {
 			if(/^\<img/i.test(element)) return "image";
-			else{
+			else if(/^\<iframe/.test(element)) return "iframe";
+			else {
 				for(var i in listMediaTag){
 					if((new RegExp("^\<"+i)).test(element)) return "media";
 				}
@@ -292,7 +293,6 @@ var Jerboa = (function(my) {
 			return "text";
 		}
 	}//}}}
-	
 	/*Bind function {{{1
 		@author Nodtem66
 		@param 
@@ -419,7 +419,7 @@ var Jerboa = (function(my){
 		}
 	};//}}}
 	var Stage = function(eleTextArea){ //{{{2
-		var textHTML = eleTextArea.innerHTML.replace(/&lt;/ig,"<").replace(/&gt;/ig,">")
+		var textHTML = eleTextArea.value.replace(/&lt;/ig,"<").replace(/&gt;/ig,">")
 		,stage = lib.setNode({attr: {id: "jb-stage"},html: textHTML}),layer=[],node,screen={},old_content;
 		// Detect Save file
 		if(stage.children[0] && stage.children[0].className == "jb-ignore")
@@ -427,7 +427,7 @@ var Jerboa = (function(my){
 			node = stage.children[0];
 			old_content = node.innerHTML;
 		} else {
-			node = lib.setNode({tag: "div",attr: {"class":"jb-ignore","style":"position:relative;top:0;left:0;width:100%;height:auto;overflow:hidden;"}});
+			node = lib.setNode({tag: "div",attr: {"class":"jb-ignore","style":"position:relative;top:0;left:0;padding:0;width:100%;height:auto;overflow:hidden;"}});
 			old_content = stage.innerHTML;
 			stage.innerHTML = "";
 			stage.appendChild(node);
@@ -441,16 +441,6 @@ var Jerboa = (function(my){
 			layer.push(lib.setNode({attr: {"index":0,"class":"jb-layer jb-ignore","style":"z-index:2000;"},html: old_content}));
 			node.appendChild(layer[0]);
 		}
-		//construct Lightscreen
-		/*screen.top = lib.setNode({attr: {"class":"jerboa-lightbox jerboa-ignore",style: ""}});
-		screen.left = lib.setNode({attr: {"class":"jerboa-lightbox jerboa-ignore",style: ""}});
-		screen.right = lib.setNode({attr: {"class":"jerboa-lightbox jerboa-ignore",style: ""}});
-		screen.bottom = lib.setNode({attr: {"class":"jerboa-lightbox jerboa-ignore",style: ""}});
-		ui.core.appendChild(screen.top);
-		ui.core.appendChild(screen.right);
-		ui.core.appendChild(screen.left);
-		ui.core.appendChild(screen.bottom);*/
-		
 		//Public method
 		this.currentEditingNode = "";
 		this.currentState = "";
@@ -458,18 +448,8 @@ var Jerboa = (function(my){
 		this.getLayer = function(){
 			return layer[0];
 		}
-		/*this.refreshStage = function(){
-			var propElement = {x:stage.offsetLeft,y:stage.offsetTop,width:stage.offsetWidth,height:stage.offsetHeight}
-				,propDoc = {width: Math.max(document.body.offsetWidth,document.documentElement.offsetWidth),height: Math.max(document.body.offsetHeight,document.documentElement.offsetHeight)}
-			;
-			lib.addStyle(screen.top,{top:"0px",left:"0px",width:propElement.x+"px",height:propDoc.height+"px"});
-			lib.addStyle(screen.left,{top:"0px",left:propElement.x+"px",width:propElement.width+"px",height:propElement.y+"px"});
-			lib.addStyle(screen.right,{top:"0px",left:parseInt(propElement.x+propElement.width)+"px",width:parseInt(propDoc.width - propElement.x - propElement.width)+"px",height:propDoc.height+"px"});
-			lib.addStyle(screen.bottom,{top:parseInt(propElement.y+propElement.height)+"px",left:propElement.x+"px",width:propElement.width+"px",height:parseInt(propDoc.height - propElement.y - propElement.height)+"px"});
-		}*/
 		this.setHeight = function(height){
 			lib.addStyle(node,{"height":height+"px"});
-			//this.refreshStage();
 		}
 		this.autoHeight = function(){
 			var height = 0,i;
@@ -477,7 +457,9 @@ var Jerboa = (function(my){
 				height += layer[0].children[i].offsetHeight;
 			}
 			if(DEBUG) console.log("Page height: "+height);
-			this.setHeight((height>300)? height : 300);
+			height = (height>300)? height : 300;
+			this.setHeight(height);
+			ui.option.setValue([height,0,0]);
 		}
 		this.normalizeTree = function(_root){ // {{{3
 			if(!_root) return "";
@@ -493,7 +475,7 @@ var Jerboa = (function(my){
 			while(queue.length>0){
 				currentNode = queue.shift();
 				currentNode2 = queue2.shift();
-				if(!currentNode.children) continue;
+				if(currentNode.children.length == 0) {continue;}
 				for(i=0,len=currentNode.children.length;i<len;i++){
 					switch(lib.detectMedia(currentNode.children[i])){
 						case "image":
@@ -552,13 +534,18 @@ var Jerboa = (function(my){
 								i--;len--;
 								continue;
 							}
-							if(flagFloor1 && currentNode.children[i].nodeName.toLowerCase() != "div"){
-								tempNode = currentNode.children[i].cloneNode(true);
-								tempNode = lib.setNode({tag:"div",attr:{"role":"text","style":"position:absolute;top:"+currentNode2.children[i].offsetTop+"px;left:"+currentNode2.children[i].offsetLeft+"px;"}}).appendChild(tempNode).parentNode;
-								if(newTree.children.length == 1)newTree.appendChild(tempNode);
-								else newTree.insertBefore(tempNode,newTree.children[i]);
-								newTree.removeChild(newTree.children[i+1]);
-								delete tempNode;
+							if(flagFloor1){
+								if(currentNode.children[i].nodeName.toLowerCase() != "div"){
+									tempNode = currentNode.children[i].cloneNode(true);
+									tempNode = lib.setNode().appendChild(tempNode).parentNode;
+									tempNode = lib.setNode({tag:"div",attr:{"role":"text","style":"position:absolute;top:"+currentNode2.children[i].offsetTop+"px;left:"+currentNode2.children[i].offsetLeft+"px;"}}).appendChild(tempNode).parentNode;
+									if(newTree.children.length == 0) {newTree.appendChild(tempNode);}
+									else {newTree.insertBefore(tempNode,newTree.children[i]);
+									newTree.removeChild(newTree.children[i+1]);}
+									delete tempNode;
+								} else {
+									lib.setNode(newTree.children[i],{attr:{"role":"text","style":"position:absolute;top:"+currentNode2.children[i].offsetTop+"px;left:"+currentNode2.children[i].offsetLeft+"px;"}});
+								}
 							}
 							queue.push(currentNode.children[i]);
 							queue2.push(currentNode2.children[i]);
@@ -568,12 +555,19 @@ var Jerboa = (function(my){
 				}
 				if(flagFloor1) flagFloor1=false;
 			}
+			for(var i=0,len=newTree.childNodes.length;i<len;i++){
+				if(newTree.childNodes[i].nodeName == "#text"){
+					tempNode = lib.setNode({tag:"div",attr:{"role":"text","style":"position:absolute;"},html:"<div>"+newTree.childNodes[i].nodeValue+"</div>"});
+					newTree.removeChild(newTree.childNodes[i]);
+					newTree.appendChild(tempNode);
+					delete tempNode;
+				}
+			}
 			_root.innerHTML = newTree.innerHTML;
 			return true;
 		}//}}}
 		var self = this;
 		setTimeout(function(){self.autoHeight();self.normalizeTree(layer[0]);history.save(layer[0].innerHTML);},100);
-		//this.normalizeTree(layer[0]);
 	} //}}}
 	var History = function(size,callback){ //{{{2
 		var circularList= [],self = this
@@ -622,8 +616,80 @@ var Jerboa = (function(my){
 			enable = true;
 		}
 	}; //}}}
+	var BoxManager = function(){//{{{2
+	var node = lib.setNode({attr:{id: "jb-box","class":"jb-ignore hide"}}),childrenBox = {},currentBox="";	
+		this.getElement = function(){
+			return node; 
+		}
+		this.add = function(objBox){
+			hasImplements(objBox,BoxInterface);
+			childrenBox[objBox.name] = objBox;
+			node.appendChild(objBox.getElement());
+		}
+		this.remove =  function(nameBox) {
+			if(childrenBox[nameBox]){
+				node.removeChild(childrenBox[nameBox]);
+				delete childrenBox[nameBox];
+			}
+		}
+		this.getBox = function(nameBox) {
+			if(childrenBox[nameBox])
+				return childrenBox[nameBox];
+		}
+		this.show = function(nameBox){
+			currentBox = nameBox;
+			lib.removeClass(node,"hide");
+			lib.removeClass(childrenBox[nameBox].getElement(),"hide");
+			var boxTop = Math.max(document.body.offsetHeight,document.documentElement.clientHeight)
+				,boxLeft= Math.max(document.body.offsetWidth,document.documentElement.clientWidth);
+			boxTop = (boxTop - node.offsetHeight > 0)? (boxTop - node.offsetHeight)/2 : 0;
+			boxLeft = (boxLeft - node.offsetWidth > 0)? (boxLeft - node.offsetWidth)/2 : 0;
+			lib.setNode(node,{attr:{"style":"top:"+boxTop+"px;left:"+boxLeft+"px;"}});
+		}
+		this.hide = function(){
+			lib.addClass(node,"hide");
+			lib.addClass(childrenBox[currentBox].getElement(),"hide");
+		}
+	}//}}}
+	var Box = function(name){ //{{{2
+		if(!name) 
+			throw new Error("name of Box missing");
+		name = name.toLowerCase();
+		var node=lib.setNode({attr:{id:"jb-"+name,"class":"jb-ignore hide"}}),children = [];
+		this.name = name;
+		this.getElement = function(){
+			return node;
+		}
+		this.getValue = function(){
+			var returnValue = [];
+			for(var i=0,len=children.length;i<len;i++){
+				returnValue.push(children[i].getValue());
+			}
+			return returnValue;
+		}
+		this.setValue = function(_array){
+			if(_array.length == children.length){
+				for(var i=0,len=_array.length;i<len;i++){
+					children[i].setValue(_array[i]);
+				}
+			}
+		}
+		this.add = function(objUI) {
+			children.push(objUI);
+			node.appendChild(objUI.getElement());
+			return children[children.length-1];
+		}
+		this.remove = function(indexUI) {
+			if(children[indexUI]){
+				node.removeChild(children[indexUI]);
+				delete children[indexUI];
+			}
+		}
+	}//}}}
 	var Button = function(label,name,className) {//{{{2
-		var node = lib.setNode({attr: {"class":"jerboa-button jerboa-ignore "+((className)?className:"")},html: label,event: {add: "click",fn: function(e){sandbox.notify("click-button-"+name,e)}}});
+		var node = lib.setNode({attr: {"class":"jb-button jb-ignore "+((className)?className:"")},html: label,event: {add: "click",fn: 
+				function(e){sandbox.notify("click-button-"+name,e)}
+				}});
 		this.name = name;
 		this.getValue = function() {return label;};
 		this.setValue = function(name){
@@ -634,11 +700,11 @@ var Jerboa = (function(my){
 		}
 	}//}}}
 	var FlipSwitch = function(label,className){//{{{2
-		var wrapper = lib.setNode({attr:{"class":"flipswitch jerboa-ignore"}})
-		,node = lib.setNode({attr:{"class":"jerboa-button jerboa-ignore"}})
+		var wrapper = lib.setNode({attr:{"class":"jb-flipswitch jb-ignore"}})
+		,node = lib.setNode({attr:{"class":"jb-button jerboa-ignore"}})
 		,switchOn = lib.setNode({attr: {"class":"hide"},html:"on"})
 		,switchOff = lib.setNode({html:"off"})
-		,labelnode = lib.setNode({tag:"label",attr:{"class":"jerboa-ignore"},html:label})
+		,labelnode = lib.setNode({tag:"label",attr:{"class":"jb-ignore"},html:label})
 		,value = false;
 		;
 		wrapper.appendChild(labelnode);
@@ -676,10 +742,12 @@ var Jerboa = (function(my){
 	}//}}}
 	var HLine = function(className){//{{{2
 		var node = lib.setNode({attr:{"class":"hline "+((className)?className:"")}});
-		this.name = "hline"+Date();
+		this.name = "jb-hline"+Date();
 		this.getElement = function(){
 			return node;
 		}
+		this.getValue = function(){return "";}
+		this.setValue = function(){};
 	}//}}}
 	var TextField = function(label,text,className){//{{{2
 		var wrapper = lib.setNode()
@@ -724,33 +792,96 @@ var Jerboa = (function(my){
 		}
 		
 	}//}}}
+	var SelectBox = function(label,arrayData,styleMain,styleDropdown,className){//{{{2
+		label = label || "selectbox";
+		className = className && " "+className || "";
+		var node = lib.setNode({attr:{"class":"jb-selectbox"+className,style:styleMain},html:"<span>"+label+"</span>"})
+		,dropdownNode = lib.setNode({attr:{"class":"hide",style:styleDropdown}})
+		,value ="",self=this
+		;
+		if(arrayData){
+			for(var i=0,len=arrayData.length;i<len;i++){
+				dropdownNode.appendChild(lib.setNode({tag:"span",html:arrayData[i]}));
+			}
+			node.appendChild(dropdownNode);
+		}
+		this.name = label;
+		this.getElement = function(){
+			return node;
+		}
+		this.toggle = function(){
+			if(lib.hasClass(dropdownNode,"hide")){
+				lib.removeClass(dropdownNode,"hide");
+			} else {
+				lib.addClass(dropdownNode,"hide");
+			}
+		}
+		this.getValue = function(){
+			return _value;
+		}
+		this.setValue = function(data){
+			_value = data;
+			sandbox.notify("change-selectbox-"+label,data);
+		}
+		lib.setNode(node,{event:{add:"mousedown",fn:function(e){
+				var event = lib.getEvent(e);
+				event.preventDefault();
+				self.toggle();
+				if(event.target.innerHTML != label){
+					self.setValue(event.target.innerHTML);
+				}
+		}
+		}});
+	}//}}}
+	var Input = function(config){//{{{2
+		if(!config) throw new Error("Using UI({....})");
+		typeUI = config.type.toLowerCase() || "button";
+		var randomNum = (new Date).getTime(),className = config.class || config.align || config.float;
+		switch(typeUI){
+			case "button":
+				return new Button(config.label || "button",config.name || "button"+randomNum,className);
+			case "flipswitch":
+				return new FlipSwitch(config.label || "FlipSwitch",className);
+			case "textfield":
+				return new TextField(config.label || "TextField",config.text||config.value,className);
+			case "textarea":
+				return new TextArea(config.label || "TextArea",config.text||config.value,className);
+			case "hline":
+				return new HLine(className);
+			case "selectbox":
+				return new SelectBox(config.label,config.text || config.value,config.styleMain,config.styleDropdown,className);
+			default: throw new Error("check \"type\" in UI({....})"); break;
+		}
+	}//}}}
 	//}}}
 	//{{{ Private members
-	var Library= new Interface("Library",["onDomReady","addEvent","removeEvent","getEvent","addClass","removeClass","hasClass","addStyle","removeStyle","setNode","curry","request"])
+	var Library= new Interface("Library",["onDomReady","addEvent","removeEvent","getEvent","addClass","removeClass","hasClass","addStyle","removeStyle","setNode","curry","request"])//{{{2
 	,Module= new Interface("Module",["init","destroy"])
-	,MenuItemInterface = new Interface("MenuItem",["add","remove","getValue","setValue","getElement","name"])
+	,BoxInterface = new Interface("Box",["add","remove","getValue","setValue","getElement","name"])
 	,UI = new Interface("UI",["getValue","setValue","name"])
 	; 
-	hasImplements(my.lib,Library);
-	var lib = my.lib;delete my.lib;
+	hasImplements(my.lib,Library);//}}}
+	var lib = my.lib;delete my.lib;//{{{2
 	var path = my.path;delete my.path;
 	var DEBUG = true;
 	var usedModule = {}
-	,ui = {}
+	,ui = {},config = {}
 	,modules = {}
 	,stage = null
 	,textarea = null
 	,cache = {}
-	,history = new History(10, function(data){stage.getLayer().innerHTML = data;})
-	,sandbox = new (function(){
+	,box = new BoxManager()
+	,history = new History(10, function(data){stage.getLayer().innerHTML = data;})//}}}
+	,sandbox = new (function(){//{{{2
 		var events={};
 		this.lib = lib;
 		this.Class = function(nameClass){
-			var allowClass = {"Panel":1,"Button":1,"FlipSwitch":1,"Hline":1,"TextField":1,"TextArea":1,"History":1};
+			var allowClass = {"Panel":1,"Button":1,"FlipSwitch":1,"Hline":1,"TextField":1,"TextArea":1,"History":1,"Input":1};
 			if(!allowClass[nameClass])
 				throw new Error("sandbox: not found "+nameClass+" in Class");
 			return eval(nameClass);
 		}
+		this.getPath = function(){return path;}
 		this.getHistory = function(){
 			return history;
 		}
@@ -808,7 +939,7 @@ var Jerboa = (function(my){
 			if(modules[nameModule]) return true;
 			return false;
 		}
-	});
+	});//}}}
 	
 	//}}}
 	//{{{ Public members
@@ -817,12 +948,13 @@ var Jerboa = (function(my){
 	my.register = function(moduleName,moduleCreator){//{{{
 		var moduleObject = new moduleCreator(sandbox);
 		hasImplements(moduleObject,Module);
+		moduleName = moduleName.toLowerCase();
 		if(modules[moduleName]){
 			throw new Error("Duplicate Module: "+moduleName);
 		}
 		modules[moduleName] = 	moduleObject;
 		if(ui.core){
-			modules[moduleName].init();
+			modules[moduleName].init(config[moduleName]);
 		}
 	};
 	for(var i=0,len=my.tempRegister.length;i<len;i++){
@@ -830,6 +962,19 @@ var Jerboa = (function(my){
 	}
 	delete my.tempRegister;
 	//}}}
+	my.apply = function(domId,_config){//{{{
+		var _;
+		if(!(_ = document.getElementById(domId))) return false;
+		textarea = _;
+		if(_config) config = _config;
+		init();
+	};
+	//}}}
+	my.getContent = function(){ //{{{
+		var returnHTML = "";
+		returnHTML = stage.getElement().innerHTML.replace(/\<div class="jb-media-touch"\>\<\/div\>/ig,"");
+		return returnHTML;
+	};//}}}
 	var startModule = function(moduleName){//{{{
 		if(!modules[moduleName]){
 			throw new Error("Not Found "+moduleName+" Module");
@@ -842,13 +987,6 @@ var Jerboa = (function(my){
 		}
 		modules[moduleName].destroy();
 	};//}}}
-	my.apply = function(domId){//{{{
-		var _;
-		if(!(_ = document.getElementById(domId))) return false;
-		textarea = _;
-		init();
-	};
-	//}}}
 	var touch = function(e) {//{{{
 		//Controller of resize and drag element
 		var data = cache
@@ -893,6 +1031,8 @@ var Jerboa = (function(my){
 				else if(/^media/i.test(stage.currentState) && stage.currentEditingNode.children.length == 2) {
 					lib.addStyle(stage.currentEditingNode.children[1],{width:data.root_w+"px",height: data.root_h+"px"});
 					lib.addStyle(stage.currentEditingNode.children[1].getElementsByTagName("embed")[0],{width:data.root_w+"px",height: data.root_h+"px"});					
+				} else if(/^iframe/i.test(stage.currentState)) {
+					lib.addStyle(stage.currentEditingNode.children[1],{width:data.root_w+"px",height: data.root_h+"px"});
 				}
 			}else if(/move$/i.test(stage.currentState))
 				lib.addStyle(stage.currentEditingNode,{top:data.root_top+"px",left: data.root_left+"px"});
@@ -924,7 +1064,10 @@ var Jerboa = (function(my){
 			case "textmove":
 				break;
 			case "textedit":            
-				stage.currentEditingNode.setAttribute("contenteditable","false");
+				var textNode =stage.currentEditingNode.children[0]
+				textNode.setAttribute("contenteditable","false");
+				textNode.blur();
+				window.getSelection().removeAllRanges();
 				history.save(stage.getLayer().innerHTML);
 			//Jerboa.toggle.menu.call(Jerboa,"text");
 			break;
@@ -941,35 +1084,42 @@ var Jerboa = (function(my){
 	var click = function(e) {//{{{
 		var event = lib.getEvent(e)
 			,mediaType=""
-			,tempStage=null
+			,tempStageStage=null
+			,exit = false
 			;
 		if(stage.currentState == "textedit"){
 			if(lib.hasClass(event.target,"jb-ignore"))
 				restoreNormalState();
 			//return false;
 		}
-		event.preventDefault();
 		if(!lib.hasClass(event.target,"jb-ignore"))
 		{
 			//TODO: Detect another kind of media
-			mediaType = lib.detectMedia(event.target);
 			var _root = event.target;
-			while(!(_root.parentNode.className && lib.hasClass(_root.parentNode,"jb-ignore"))){
+			if(!_root.parentNode) exit = true;
+			else {
+			while(!(_root.parentNode.getAttribute("class") && lib.hasClass(_root.parentNode,"jb-ignore"))){
+				if(_root.parentNode.nodeName && _root.parentNode.getAttribute("id") == "jb-a"){
+					restoreNormalState();
+					event.preventDefault();
+					return false;
+				}
 				if(!_root.parentNode.nodeName || _root.parentNode.nodeName.toLowerCase() == "html" || _root.parentNode.nodeName.toLowerCase() == "body") {
 					restoreNormalState();
-					return false;
+					exit = true;break;
 				}
 				_root = _root.parentNode;
 				if(!_root.parentNode) {
 					restoreNormalState();
-					return false;
+					exit = true;break;
 				}
-			}
-			if(!_root.parentNode.getAttribute("index")) return false;
-			//if(stage.currentEditingNode == _root && /move$/i.test(stage.currentState)) return false;
-			if(stage.currentEditingNode == _root) return false;
+			}}
+			if(!exit) event.preventDefault();
+			if(!_root.parentNode.getAttribute("index")) {return false;}
+			if(stage.currentEditingNode == _root) {return false;}
+			if(!exit){
 			if(stage.currentEditingNode != null) restoreNormalState();
-			
+			mediaType = lib.detectMedia(_root);
 			stage.currentEditingNode = _root;
 			lib.addClass(_root,"jb-touch");
 			lib.addEvent(_root,"mousedown",touch);
@@ -986,26 +1136,40 @@ var Jerboa = (function(my){
 			cache.root_w = _root.offsetWidth;
 			cache.root_h = _root.offsetHeight;
 			return false;
+			}
 		}
 		restoreNormalState();
 	}//}}}
 	var dbclick = function(e) {//{{{
-		var event = lib.getEvent(e)
-		event.preventDefault();
+		var event = lib.getEvent(e),exit = false;
 		if(!lib.hasClass(event.target,"jb-ignore"))
 		{
-			switch(lib.detectMedia(event.target))
+			var _root = event.target;
+			if(!_root.parentNode) exit = true;
+			else {
+			while(!(_root.parentNode.getAttribute("class") && lib.hasClass(_root.parentNode,"jb-ignore"))){
+				if(_root.parentNode.nodeName && _root.parentNode.getAttribute("id") == "jb-a"){
+					restoreNormalState();
+					event.preventDefault();
+					return false;
+				}
+				if(!_root.parentNode.nodeName || _root.parentNode.nodeName.toLowerCase() == "html" || _root.parentNode.nodeName.toLowerCase() == "body") {
+					restoreNormalState();
+					exit = true;break;
+				}
+				_root = _root.parentNode;
+				if(!_root.parentNode) {
+					restoreNormalState();
+					exit = true;break;
+				}
+			}}
+			if(!exit) event.preventDefault();
+			if(!_root.parentNode.getAttribute("index")) {return false;}
+			if(!exit) {
+			switch(lib.detectMedia(_root))
 			{
 				case "text":
 					//Find the Root to start edit mode
-				var _root = event.target;
-				if(!_root.parentNode) return false;
-				while(!(_root.parentNode.className && lib.hasClass(_root.parentNode,"jb-ignore"))){
-					if(_root.parentNode.nodeName.toLowerCase() == "html" || _root.parentNode.nodeName.toLowerCase() == "body")
-						return false;
-					_root = _root.parentNode;
-				}			
-				if(!_root.parentNode.getAttribute("index")) return false;
 				if(stage.currentEditingNode == _root && stage.currentState == "textedit") return false;
 				if(stage.currentEditingNode != null) restoreNormalState();
 				stage.currentEditingNode = _root;
@@ -1014,8 +1178,9 @@ var Jerboa = (function(my){
 				//$.Events.add(_root,"blur",Jerboa.restoreNormalState);
 
 				//Jerboa.toggle.menu.call(Jerboa,"text");
-				_root.setAttribute("contenteditable","true");
-				_root.focus();
+				if(_root.children.length != 1) _root.innerHTML = "<div>"+_root.innerHTML+"</div>";
+				_root.children[0].setAttribute("contenteditable","true");
+				_root.children[0].focus();
 				stage.currentState = "textedit";
 				sandbox.notify("textedit");
 
@@ -1026,12 +1191,14 @@ var Jerboa = (function(my){
 
 				default: break;
 			}
+			return false;
+			}
 		}
 	}//}}}
 	var keyboard = function(e){//{{{
 		var event = lib.getEvent(e);
-		//console.log(event);
-		if(e.ctrlKey)
+		if(event.target.nodeName.toLowerCase() == "input") return false;
+		if(e.metaKey || e.ctrlKey)
 		{
 			if(e.keyCode == 90){
 						sandbox.notify("keydown-normal-undo");
@@ -1047,7 +1214,7 @@ var Jerboa = (function(my){
 			}
 		}
 		if(/move$/i.test(stage.currentState)){
-			if(e.ctrlKey){
+			if(e.metaKey || e.ctrlKey){
 				if(e.keyCode == 67){
 					sandbox.notify("keydown-move-copy");
 					restoreNormalState();
@@ -1067,33 +1234,53 @@ var Jerboa = (function(my){
 	}//}}}
 	var init = function(){//{{{
 		var documentFragment = document.createDocumentFragment(),tempNode;
-
+		
 		//construct UI
-		ui.core = lib.setNode({attr:{id: "jb-a","style":"width:"+textarea.offsetWidth+"px;"}});
+		ui.core = lib.setNode({attr:{id: "jb-a","style":"width:"+textarea.offsetWidth+"px;"},event: {add: "mousedown",fn: function(e){
+			//Prevent SelectText in Stage or UI panel
+			lib.getEvent(e).preventDefault();return false;
+		}
+		}});
 		ui.panelbar = lib.setNode({attr: {id: "jb-b"}});
 		stage = new Stage(textarea);		
-		ui.bottom = lib.setNode({attr: {"class": "jb-hline"}});
+
+		ui.bottom = lib.setNode({attr: {"class": "jb-hline"},event:{add:"click",fn:function(){box.show("option");}
+				}});
 		ui.core.appendChild(ui.panelbar);
 		ui.core.appendChild(stage.getElement());
 		ui.core.appendChild(ui.bottom);
-		//constrcut Stage
+		ui.option = new Box("option");
+		ui.option.add(new Input({type:"TextField",label:"Height <span>input the height which you want</span>",align:"last bigger"}));
+		ui.option.add(new Input({type:"hline"}));
+		ui.option.add(new Input({type:"button",label:"Set Height",name: "option",align:"right bottom"}));
+		box.add(ui.option);
+
+		ui.mainmenu = sandbox.addPanel("mainmenu");
+		tempNode = ui.mainmenu.getElement();
+		tempNode.appendChild(lib.setNode().appendChild(lib.setNode({tag:"button",html:"<span style=\"background: url("+path+"/img/inserttextbox.png) no-repeat\">Insert TextBox</span>",event:{add:"click",fn:function(){
+			restoreNormalState();
+			stage.getLayer().appendChild(lib.setNode({attr:{role:"text","style":"position:absolute;top:0;left:0;"},html:"<div>Insert Text Here</div>"}));
+			history.save(stage.getLayer().innerHTML);
+			}
+		}})).parentNode);
+		ui.mainmenu.show();
+		//Init Modules
+		for(var plugin in modules){
+			modules[plugin].init(config[plugin]);
+		}
+		//Register Events
+		sandbox.listen("keydown-normal-undo",function(){history.undo();});
+		sandbox.listen("keydown-normal-redo",function(){history.redo();});
+		sandbox.listen("click-button-option",function(){var _height = ui.option.getValue()[0];if(!isNaN(_height)) stage.setHeight(_height);box.hide();});
 		lib.addEvent(document,"click",click);
 		lib.addEvent(document,"dblclick",dbclick);
 		lib.addEvent(document,"keydown",keyboard);
-		//Init Modules
-		for(var plugin in modules){
-			//var tempNode = new FlipSwitch(plugin);
-			//tempNode.setValue(modules[plugin].enable);
-			//ui.option.add(tempNode);
-			modules[plugin].init();
-		}
-		//Save History Events
-		sandbox.listen("keydown-normal-undo",function(){history.undo();});
-		sandbox.listen("keydown-normal-redo",function(){history.redo();});
+		lib.addEvent(document,"submit",function(){textarea.value = my.getContent();});
 		//Disable textarea
 		lib.addClass(textarea,"hide");		
 		documentFragment.appendChild(ui.core);
 		textarea.parentNode.insertBefore(documentFragment,textarea);
+		document.body.appendChild(box.getElement());
 	};//}}}
 	var destroy = function(){//{{{
 		document.body.removeChild(ui.core);
@@ -1108,9 +1295,8 @@ var Jerboa = (function(my){
 		lib.removeEvent(document,"dblclick",dbclick);
 		lib.removeEvent(document,"keydown",keyboard);
 	};//}}}
-	if(my.tempApply) my.apply(my.tempApply);
+	if(my.tempApply) my.apply(my.tempApply[0],my.tempApply[1]);
 	delete my.tempApply;	
-
 	return my;
 }(Jerboa || {}));
 

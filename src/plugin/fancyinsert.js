@@ -42,6 +42,7 @@ Jerboa.register("FancyInsert",function(sandbox){
 	this.sendDecorateNode = function(text){
 		var cropText="",typeMedia
 		,listImg = {"png":1,"jpg":1,"gif":1}
+		,listGView = {"pdf":1,"ppt":1,"pptx":1,"tiff":1}
 		;
 		if(text){
 			//crop Text
@@ -51,11 +52,12 @@ Jerboa.register("FancyInsert",function(sandbox){
 			//check URI pattern
 			if(/^\<a href="([^\>]+)"\>\1\<\/a\>$/i.test(cropText)){
 				cropText = cropText.replace(/^\<a href="([^\>]+)"\>/i,"").replace(/\<\/a\>$/i,"");
-				if(/^http/i.test(cropText)){
-					var tail = cropText.split(".");
-					tail = tail[tail.length-1];
-					if(listImg[tail]) cropText = "<img src=\""+cropText+"\" />";
-				}
+			}
+			if(/^http/i.test(cropText)){
+				var tail = cropText.split(".");
+				tail = tail[tail.length-1];
+				if(listImg[tail]) cropText = "<img src=\""+cropText+"\" />";
+				if(listGView[tail]) cropText = "<iframe src=\"http://docs.google.com/viewer?url="+cropText+"&embedded=true\" frameborder=\"0\" width=\"400\" height=\"100\"></iframe>";
 			}
 
 			//check flash object
@@ -63,6 +65,13 @@ Jerboa.register("FancyInsert",function(sandbox){
 				cropText = cropText.replace(/&lt;/ig,"<").replace(/&gt;/ig,">");
 				cropText = cropText.replace(/\>\<param/i,"><param wmode=\"opaque\"><param");
 				cropText = cropText.replace(/\<embed/i,"<embed wmode=\"opaque\"");
+			}
+
+			if(/^\&lt;iframe[\D\S]*src=["']https:\/\/spreadsheets.google.com\//i.test(cropText)){
+				cropText = cropText.replace(/&lt;/ig,"<").replace(/&gt;/ig,">");
+			}
+			else if(/^\&lt;iframe[\D\S]*src=["']http:\/\/docs.google.com\/gview\?/i.test(cropText)){
+				cropText = cropText.replace(/&lt;/ig,"<").replace(/&gt;/ig,">");
 			}
 		}else{
 			cropText = "Insert Text here";
@@ -72,7 +81,7 @@ Jerboa.register("FancyInsert",function(sandbox){
 			returnNode = lib.setNode({html:cropText}).children[0];
 		} else {
 			typeMedia = lib.detectMedia(cropText);
-			if(typeMedia == "media") cropText = "<div class=\"jb-media-touch\"> </div>"+cropText;
+			if(typeMedia == "media" || typeMedia == "iframe") cropText = "<div class=\"jb-media-touch\"> </div>"+cropText;
 			returnNode = lib.setNode({html:cropText,attr:{"role":typeMedia,"style":"position:absolute;top:0px;left:0px;"}});
 		}
 		sandbox.getStage().getLayer().appendChild(returnNode);

@@ -41,8 +41,8 @@ var Jerboa = (function(my){
 	my.register = function(){
 		my.tempRegister.push(arguments);
 	}
-	my.apply = function(nameId){
-		my.tempApply = nameId;
+	my.apply = function(nameId,config){
+		my.tempApply = [nameId,config];
 	}
 	my.save = function(){}
 	return my;
