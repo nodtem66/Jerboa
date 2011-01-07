@@ -21,6 +21,7 @@ $h = <<<HTMLBLOCK
 		<title>Jerboa Stupid</title>
 		<link rel="stylesheet" type="tex/css" href="main.css" />
 <script src="../src/loader.js"></script>
+<script language="javascript" type="text/javascript" src="js/tinymce/jscripts/tiny_mce/tiny_mce.js"></script>
 	</head>
 	<body>
 HTMLBLOCK;

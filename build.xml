@@ -1,0 +1,109 @@
+<?xml version="1.0"?>
+<project name="Jerboa: WYSIWYG editor" default="build" basedir=".">
+	<property name="dir.src" value="${basedir}/src" />
+	<property name="dir.build" value="${basedir}/build" />
+	<property name="dir.lib" value="${basedir}/lib" />
+	<path id="yui.classpath">
+		<fileset dir="${dir.lib}/">
+			<include name="**/yui*compressor*.jar" />
+		</fileset>
+	</path>
+	<path id="jslint.classpath">
+		<fileset dir="${dir.lib}">
+			<include name="**/jslint4java*.jar" />
+		</fileset>
+	</path>
+	<property name="jslint.path" refid="jslint.classpath" />
+	<property name="yui.path" refid="yui.classpath" />
+	<taskdef name="jslint" classname="com.googlecode.jslint4java.ant.JSLintTask" classpath="${jslint.path}" />
+
+	<target name="check">
+		<echo message="JsLint" />
+		<echo message="Checking ${dir.src}" />
+		<apply executable="java" parallel="false">
+			<fileset dir="${dir.src}">
+				<include name="*.js" />
+				<include name="plugins/*.js" />
+			</fileset>
+			<arg line="-jar" />
+			<arg path="${jslint.path}" />
+			<arg line="--evil" />
+			<srcfile/>
+		</apply>
+	</target>
+
+	<target name="js-prebuild">
+		<echo message="JsLint" />
+		<echo message="Checking ${dir.src}" />
+		<jslint options="evil">
+			<fileset dir="${dir.src}/">
+				<include name="*.js" />
+				<include name="plugins/*.js" />
+			</fileset>
+		</jslint>
+		<mkdir dir="${dir.build}/plugins" />
+	</target>
+
+	<target name="img-build">
+		<echo message="Build image" />
+		<copy todir="${dir.build}/">
+			<fileset dir="${dir.src}/">
+				<include name="img/*" />
+			</fileset>
+		</copy>		
+	</target>
+
+	<target name="js-build" depends="js-prebuild">
+		<echo message="Minify Javascript" />
+		<apply executable="java" parallel="false">
+			<fileset dir="${dir.src}">
+				<include name="*.js" />
+				<include name="plugins/*.js" />
+			</fileset>
+			<arg line="-jar" />
+			<arg path="${yui.path}" />
+			<srcfile/>
+			<arg line="-o" />
+			<mapper type="glob" from="*.js" to="${dir.build}/*.js" />
+			<targetfile/>
+		</apply>
+	</target>
+	<target name="css-prebuild">
+		<echo message="Build CSS" />
+		<mkdir dir="${dir.build}/css" />
+		<echo message="Compile SASS" />
+		<apply executable="sass" parallel="false">
+			<fileset dir="${dir.src}/css">
+				<include name="*.sass" />
+				<include name="*.scss" />
+			</fileset>
+			<srcfile/>
+			<mapper type="glob" from="*.scss" to="${dir.build}/css/*-src.css" />
+			<targetfile/>
+		</apply>
+	</target>
+
+	<target name="css-build" depends="css-prebuild">
+		<echo message="Minify CSS" />
+		<apply executable="java" parallel="false">
+			<fileset dir="${dir.build}/css">
+				<include name="*.css" />
+			</fileset>
+			<arg line="-jar" />
+			<arg path="${yui.path}" />
+			<srcfile/>
+			<arg line="-o" />
+			<mapper type="glob" from="*-src.css" to="${dir.build}/css/*.css" />
+			<targetfile/>
+		</apply>
+		<delete>
+			<fileset dir="${dir.build}/css">
+				<include name="*-src.css" />
+			</fileset>
+		</delete>
+	</target>
+	
+	<target name="build" depends="img-build,css-build,js-build">
+	</target>
+
+</project>

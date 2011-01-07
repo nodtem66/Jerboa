@@ -16,8 +16,7 @@ var Jerboa = (function(my) {
 	camino: /Camino/i.test(navigator.userAgent)
 	};//}}}
 
- 	my.lib.onDomReady = function(callback)//{{{1
-	{
+	my.lib.onDomReady = function(callback){//{{{1
 		if(document.addEventListener)
 		{
 			//If Browser supports the DOMContentLoaded event
@@ -29,9 +28,8 @@ var Jerboa = (function(my) {
 				callback();
 			} else {
 				//IE Hack
-				var nameFunction = arguments.callee;
 				setTimeout(function(){
-						nameFunction(callback);
+						my.lib.onDomReady(callback);
 						},50);
 			}
 
@@ -105,12 +103,11 @@ var Jerboa = (function(my) {
 		return element.className && tester.test(element.className);
 	}; //}}}
 	my.lib.getObjectOfStyle = function(element) { //{{{1
-			var listStyle = element.getAttribute("style") || ""
-				,i=0
-				,len=0
-				,objectStyle={}
-			,cssValue=""
-				;
+			var listStyle = element.getAttribute("style") || "",
+					i=0,
+					len=0,
+					objectStyle={},
+					cssValue="";
 			if(listStyle)
 			{
 				listStyle = listStyle.split(";");
@@ -137,12 +134,13 @@ var Jerboa = (function(my) {
 			return objectStyle;
 		}; //}}}
 	my.lib.setObjectOfStyle = function(element,objectStyle) { //{{{1
-		var listStyle=""
-			,item
-			;
+		var listStyle="",
+				item;
 		for(item in objectStyle)
 		{
-			listStyle = listStyle.concat(item+":"+objectStyle[item]+";");
+			if(item.substr(0,1) != "_"){
+				listStyle = listStyle.concat(item+":"+objectStyle[item]+";");
+			}
 		}
 		element.setAttribute("style",listStyle);
 	}; //}}}
@@ -150,7 +148,9 @@ var Jerboa = (function(my) {
 		var objStyle = this.getObjectOfStyle(element),item;
 		for(item in List)
 			{
-				objStyle[item] = List[item];
+				if(item.substr(0,1) != "_"){
+					objStyle[item] = List[item];
+				}
 			}
 		this.setObjectOfStyle(element,objStyle);
 	}; //}}}
@@ -166,7 +166,7 @@ var Jerboa = (function(my) {
 			this.setObjectOfStyle(element,objStyle);
 	}; //}}}
 	my.lib.setNode = function(element,List){ //{{{1
-		if(arguments.length == 0)
+		if(arguments.length === 0)
 		{
 			return document.createElement("div");
 		}
@@ -175,9 +175,8 @@ var Jerboa = (function(my) {
 			List = arguments[0];
 			element = document.createElement(List.tag || List.Tag || "div");
 		}
-		var listAttr = List.Attr || List.attr || {}  
-		, listEvent = List.event || List.Event || {} 
-		;
+		var listAttr = List.Attr || List.attr || {},  
+		listEvent = List.event || List.Event || {};
 		//example attr: {id: xxx,class: yyy}
 		//example event: {add: click,fn: function1}
 
@@ -193,10 +192,12 @@ var Jerboa = (function(my) {
 		//Add attribute <tag attr1="value"></tag>
 		for(var key in listAttr)
 		{
-			element.setAttribute(key,listAttr[key]);
+			if(key.substr(0,1) != "_"){
+				element.setAttribute(key,listAttr[key]);
+			}
 		}
 		//Add innerHTML <tag>innerHTML</tag>
-		if(List.html) element.innerHTML = List.html;
+		if(List.html) {element.innerHTML = List.html;}
 
 		return element;
 	}; //}}}
@@ -213,12 +214,11 @@ var Jerboa = (function(my) {
 	 */
 					
 	//Build xhr objectStyle
-	var xmlhttp =null
-		,method = (objSetting.method)? objSetting.method.toUpperCase() : "GET"
-		,url = objSetting.url
-		,dataKey = ""
-		,dataToSend=""
-		;
+	var xmlhttp =null,
+			method = (objSetting.method)? objSetting.method.toUpperCase() : "GET",
+			url = objSetting.url,
+			dataKey = "",
+			dataToSend="";
 	delete objSetting.method;
 	delete objSetting.url;
 	if (window.XMLHttpRequest)
@@ -231,25 +231,31 @@ var Jerboa = (function(my) {
 	}
 	for(dataKey in objSetting)
 	{
-		dataToSend += dataKey+"="+objSetting[dataKey]+"&";
+		if(dataKey.substr(0.1) != "_"){
+			dataToSend += dataKey+"="+objSetting[dataKey]+"&";
+		}
 	}
 	dataToSend = dataToSend.substr(0,dataToSend.length-1);
 	if(method == "GET") 
 	{
-		if(/\?/.test(url))
+		if(/\?/.test(url)){
 			url = url+"&"+dataToSend;
-		else
+		}
+		else{
 			url = url+"?"+dataToSend;
+		}
 	}
 	xmlhttp.open(method,encodeURI(url),true);
 	xmlhttp.onreadystatechange = function()
 	{
 		if(xmlhttp.readyState == 4)
 		{
-			if(xmlhttp.status == 200)
-				if(DEBUG) console.log("Jerboa send complete");
-			else  
-				if(DEBUG) console.log("Jerboa send fail");
+			if(xmlhttp.status == 200){
+				if(DEBUG) {console.log("Jerboa send complete");}
+			}
+			else{
+				if(DEBUG) {console.log("Jerboa send fail");}
+			}
 		}
 
 	};
@@ -260,15 +266,14 @@ var Jerboa = (function(my) {
 		xmlhttp.setRequestHeader("Connection","close");
 		xmlhttp.send(encodeURI(dataToSend));
 	}
-	else xmlhttp.send();
+	else {xmlhttp.send();}
 
 };//}}}
 	my.lib.detectMedia = function(element)//{{{1
 	{
 		//TODO: Detect another kind of media
-		var listTextTag = {"p":1,"span":1,"div":1}
-		, listMediaTag = {"object":1,"embed":1,"video":1}
-		;
+		var listTextTag = {"p":1,"span":1,"div":1},
+				listMediaTag = {"object":1,"embed":1,"video":1};
 		if(typeof element === "object")
 		{
 			if(element.nodeName.toLowerCase() == "div" && element.getAttribute("role")){
@@ -283,21 +288,21 @@ var Jerboa = (function(my) {
 				return "text";
 			}
 		} else if(typeof element === "string") {
-			if(/^\<img/i.test(element)) return "image";
-			else if(/^\<iframe/.test(element)) return "iframe";
+			if(/^<img/i.test(element)) {return "image";}
+			else if(/^<iframe/.test(element)) {return "iframe";}
 			else {
 				for(var i in listMediaTag){
-					if((new RegExp("^\<"+i)).test(element)) return "media";
+					if((new RegExp("^<"+i)).test(element)) {return "media";}
 				}
 			}
 			return "text";
 		}
-	}//}}}
+	};//}}}
 	/*Bind function {{{1
 		@author Nodtem66
 		@param 
-		callback 	- [Function] function to call
-		scope	 	- [Object] value of "_my.lib" variable when call function
+		callback- [Function] function to call
+		scope	- [Object] value of "_my.lib" variable when call function
 		useThrottle - [Number] delay to run function
 		@return
 		Anomymous function 
@@ -316,9 +321,9 @@ var Jerboa = (function(my) {
 	_my.lib.curry(function,null,false)
 	2. function foo(a,b,c) { alert(a+b-c); }
 	2.1 bar = _my.lib.curry(foo,null,false,5)
-	bar(6,1) => 10 (from 5+6-1)
+	bar(6,1)=> 10 (from 5+6-1)
 	2.2 bar = _my.lib.curry(foo,null,false,5,8)
-	bar(9) 	 =>	4  (from 5+8-9)
+	bar(9)	=>	4  (from 5+8-9)
 	3.1 Limit in 100 msec can run function in 1 time.
 	_my.lib.curry(function,null,100)
 	3.2 Limit in 1000 msec can run function in 1 time.
@@ -327,23 +332,23 @@ var Jerboa = (function(my) {
 	_my.lib.curry(function,null,0) OR _my.lib.curry(function,null,false)
 	*/
 	my.lib.curry = function(callback,scope,useThrottle) {
-		var scope = scope || window
-			,argsStatic = Array.prototype.slice.call(arguments,3)
-			;
+		var _scope = scope || window,
+				argsStatic = Array.prototype.slice.call(arguments,3);
 		if(useThrottle)
 		{
 			return function() {
 				var argsDynamic = arguments;
 				clearTimeout(callback.tId);
 				callback.tId = setTimeout(function(){
-						callback.apply(scope,argsStatic.concat(Array.prototype.slice.call(argsDynamic,0)));
+						callback.apply(_scope,argsStatic.concat(Array.prototype.slice.call(argsDynamic,0)));
 						},useThrottle);
 			};
 		}
-		else	
+		else{
 			return function () {
 				callback.apply(scope,argsStatic.concat(Array.prototype.slice.call(arguments,0)));
 			};
+		}
 	};//}}}
 
 	return my;
@@ -367,8 +372,9 @@ var Jerboa = (function(my){
 	};
 	function hasImplements(_object) {
 		//var _interface,i,j,arglen;
-		if(arguments.length < 2)
+		if(arguments.length < 2){
 			throw new Error("hasImplement Error: Please use hasImplement(Object, Interface1 [, Interface2, ...])");
+		}
 		for(var i=1,arglen=arguments.length,j,intflen;i<arglen;i++){
 			 var _interface = arguments[i];
 			for(j=0,intflen=_interface.methods.length;j<intflen;j++){
@@ -387,8 +393,8 @@ var Jerboa = (function(my){
 	}
 	//}}}
 	//{{{ Define Class
-	var Panel = function(panelName){//{{{2
-		var node,childs = {},panelName = panelName.toLowerCase();
+	var Panel = function(rawPanelName){//{{{2
+		var node,childs = {},panelName = rawPanelName.toLowerCase();
 		if(usedModule[panelName]){
 			throw new Error("Module "+panelName+" have been used");
 		}
@@ -396,31 +402,34 @@ var Jerboa = (function(my){
 		usedModule[panelName.toLowerCase()] = true;
 		this.getElement = function(){
 			return node;
-		}
+		};
 		this.add = function(menuObject){
 			node.appendChild(menuObject.getElement());
 			childs[menuObject.name] = menuObject;
 			return node.children.length-1;
-		}
+		};
 		this.remove = function(childId){
 			node.removeChild(this.getChild(childId));
-		}
+		};
 		this.getChild = function(childName){
-			if(childName)
+			if(childName){
 				return childs[childName];
-		}
+			}
+		};
 		this.show = function(){
-			if(lib.hasClass(node,"hide"))
+			if(lib.hasClass(node,"hide")){
 				lib.removeClass(node,"hide");
-		}
+			}
+		};
 		this.hide = function(){
-			if(!lib.hasClass(node,"hide"))
+			if(!lib.hasClass(node,"hide")){
 				lib.addClass(node,"hide");
-		}
+			}
+		};
 	};//}}}
 	var Stage = function(eleTextArea){ //{{{2
-		var textHTML = eleTextArea.value.replace(/&lt;/ig,"<").replace(/&gt;/ig,">")
-		,stage = lib.setNode({attr: {id: "jb-stage"},html: textHTML}),layer=[],node,screen={},old_content;
+		var textHTML = eleTextArea.value.replace(/&lt;/ig,"<").replace(/&gt;/ig,">"),
+				stage = lib.setNode({attr: {id: "jb-stage"},html: textHTML}),layer=[],node,screen={},old_content;
 		// Detect Save file
 		if(stage.children[0] && stage.children[0].className == "jb-ignore")
 		{
@@ -444,39 +453,35 @@ var Jerboa = (function(my){
 		//Public method
 		this.currentEditingNode = "";
 		this.currentState = "";
-		this.getElement = function(){return stage;}
+		this.getElement = function(){return stage;};
 		this.getLayer = function(){
 			return layer[0];
-		}
+		};
 		this.setHeight = function(height){
 			lib.addStyle(node,{"height":height+"px"});
-		}
+		};
 		this.autoHeight = function(){
 			var height = 0,i;
 			for(i=0,len=layer[0].children.length;i<len;i++){
 				height += layer[0].children[i].offsetHeight;
 			}
-			if(DEBUG) console.log("Page height: "+height);
+			if(DEBUG) {console.log("Page height: "+height);}
 			height = (height>300)? height : 300;
 			this.setHeight(height);
 			ui.option.setValue([height,0,0]);
-		}
+		};
 		this.normalizeTree = function(_root){ // {{{3
-			if(!_root) return "";
-			var queue=[],queue2=[]
-				,i
-				,len
-				,currentNode
-				,flagFloor1=true
-				,tempNode
-				,newTree = _root.cloneNode(true);
+			if(!_root) {return "";}
+			var queue=[],queue2=[],i,len,currentNode,flagFloor1=true,tempNode,newTree = _root.cloneNode(true);
 			queue.push(newTree);
 			queue2.push(_root);
 			while(queue.length>0){
 				currentNode = queue.shift();
 				currentNode2 = queue2.shift();
-				if(currentNode.children.length == 0) {continue;}
+				if(currentNode.children.length === 0) {continue;}
 				for(i=0,len=currentNode.children.length;i<len;i++){
+					queue.push(currentNode.children[i]);
+					queue2.push(currentNode2.children[i]);
 					switch(lib.detectMedia(currentNode.children[i])){
 						case "image":
 							if(!flagFloor1 && currentNode.children.length == 1) {
@@ -495,7 +500,6 @@ var Jerboa = (function(my){
 								tempNode = lib.setNode({tag:"div",attr:{"role":"image","style":"position:absolute;"}}).appendChild(tempNode).parentNode;
 								newTree.appendChild(tempNode);
 								currentNode.removeChild(currentNode.children[i]);
-								delete tempNode;
 							}
 							break;
 						case "media":
@@ -505,7 +509,7 @@ var Jerboa = (function(my){
 									tempNode = tempNode.parentNode;
 								}
 								tempNode.setAttribute("role","media");
-								tempNode.appendChild(lib.setNode({tag:"div",attr:{"class":"jb-media-touch"},html:"\&\#160\;"}));
+								tempNode.appendChild(lib.setNode({tag:"div",attr:{"class":"jb-media-touch"},html:"&#160;"}));
 								tempNode.appendChild(currentNode.children[i].cloneNode(true));
 								tempNode.removeChild(tempNode.firstChild);
 								if(tempNode.children[1].nodeName.toLowerCase() == "object"){
@@ -517,19 +521,18 @@ var Jerboa = (function(my){
 							else {
 								//move this element to root Element
 								tempNode = currentNode.children[i].cloneNode(true);
-								tempNode = lib.setNode({tag:"div",attr:{"role":"media","style":"position:absolute;"},html: "<div class=\"jb-media-touch\">\&\#160\;</div>"}).appendChild(tempNode).parentNode;
+								tempNode = lib.setNode({tag:"div",attr:{"role":"media","style":"position:absolute;"},html: "<div class=\"jb-media-touch\">&#160;</div>"}).appendChild(tempNode).parentNode;
 								if(tempNode.children[1].nodeName.toLowerCase() == "object"){
 									tempNode.children[1].insertBefore(lib.setNode({tag:"param",attr:{"name":"wmode","value":"opaque"}}),tempNode.children[1].children[0]);
 									tempNode.children[1].lastChild.setAttribute("wmode","opaque");
 								}
 								newTree.appendChild(tempNode);
 								currentNode.removeChild(currentNode.children[i]);
-								delete tempNode;
 							}
 							break;
 
 						case "text":
-							if(currentNode.children[i].innerHTML=="" && currentNode.children[i].nodeName.toLowerCase() != "div"){
+							if(currentNode.children[i].innerHTML==="" && currentNode.children[i].nodeName.toLowerCase() != "div"){
 								currentNode.removeChild(currentNode.children[i]);
 								i--;len--;
 								continue;
@@ -539,156 +542,152 @@ var Jerboa = (function(my){
 									tempNode = currentNode.children[i].cloneNode(true);
 									tempNode = lib.setNode().appendChild(tempNode).parentNode;
 									tempNode = lib.setNode({tag:"div",attr:{"role":"text","style":"position:absolute;top:"+currentNode2.children[i].offsetTop+"px;left:"+currentNode2.children[i].offsetLeft+"px;"}}).appendChild(tempNode).parentNode;
-									if(newTree.children.length == 0) {newTree.appendChild(tempNode);}
+									if(newTree.children.length === 0) {newTree.appendChild(tempNode);}
 									else {newTree.insertBefore(tempNode,newTree.children[i]);
 									newTree.removeChild(newTree.children[i+1]);}
-									delete tempNode;
 								} else {
 									lib.setNode(newTree.children[i],{attr:{"role":"text","style":"position:absolute;top:"+currentNode2.children[i].offsetTop+"px;left:"+currentNode2.children[i].offsetLeft+"px;"}});
 								}
 							}
-							queue.push(currentNode.children[i]);
-							queue2.push(currentNode2.children[i]);
-						default:
 							break;
+						default:	break;
 					}
 				}
-				if(flagFloor1) flagFloor1=false;
+				if(flagFloor1) {flagFloor1=false;}
 			}
-			for(var i=0,len=newTree.childNodes.length;i<len;i++){
+			for(i=0,len=newTree.childNodes.length;i<len;i++){
 				if(newTree.childNodes[i].nodeName == "#text"){
 					tempNode = lib.setNode({tag:"div",attr:{"role":"text","style":"position:absolute;"},html:"<div>"+newTree.childNodes[i].nodeValue+"</div>"});
 					newTree.removeChild(newTree.childNodes[i]);
 					newTree.appendChild(tempNode);
-					delete tempNode;
 				}
 			}
 			_root.innerHTML = newTree.innerHTML;
 			return true;
-		}//}}}
+		};//}}}
 		var self = this;
 		setTimeout(function(){self.autoHeight();self.normalizeTree(layer[0]);history.save(layer[0].innerHTML);},100);
-	} //}}}
-	var History = function(size,callback){ //{{{2
-		var circularList= [],self = this
-		,index=-1,flen=0,blen=0,enable=true;
-		size = size || 10;
+	}; //}}}
+	var History = function(rawSize,callback){ //{{{2
+		var circularList= [],self = this,index=-1,flen=0,blen=0,enable=true;
+		size = rawSize || 10;
 		this.save = function(data){
-			if(!enable) return false;
-			if(blen!=size)
+			if(!enable) {return false;}
+			if(blen!=size){
 				blen++;
+			}
 			index = (index+1) % size;
 			flen = 1;
 			circularList[index] = data;
-			if(DEBUG) console.log("history: save");
-			//if(DEBUG) console.log(circularList,blen,index,flen);
-		}
+			if(DEBUG) {console.log("history: save");}
+
+		};
 		this.undo = function(){
-			if(!enable) return false;
+			if(!enable) {return false;}
 			if(blen -1 > 0){
 				index = (index-1 >= 0)? index-1 : size-1;
 				blen--;flen++;
 				callback(circularList[index]);
-				if(DEBUG) console.log("history: undo");
+				if(DEBUG) {console.log("history: undo");}
 				//if(DEBUG) console.log("("+circularList[index]+")",blen,index,flen);
 			}
-		}
+		};
 		this.redo = function(){
-			if(!enable) return false;
+			if(!enable) {return false;}
 			if(flen -1 > 0) {
 				index = (index+1) % size;
 				blen++;flen--;
 				callback(circularList[index]);
-				if(DEBUG) console.log("history: redo");
+				if(DEBUG) {console.log("history: redo");}
 				//if(DEBUG) console.log("("+circularList[index]+")",blen,index,flen);
 			}
-		}
+		};
 		this.clear = function(){
 			circularList = [];
 			flen = 0;
 			blen = 0;
 			index = -1;
-		}
+		};
 		this.freeze = function(msec) {
 			enable = false;
-		}
+		};
 		this.unfreeze = function(){
 			enable = true;
-		}
+		};
 	}; //}}}
 	var BoxManager = function(){//{{{2
 	var node = lib.setNode({attr:{id: "jb-box","class":"jb-ignore hide"}}),childrenBox = {},currentBox="";	
 		this.getElement = function(){
 			return node; 
-		}
+		};
 		this.add = function(objBox){
 			hasImplements(objBox,BoxInterface);
 			childrenBox[objBox.name] = objBox;
 			node.appendChild(objBox.getElement());
-		}
+		};
 		this.remove =  function(nameBox) {
 			if(childrenBox[nameBox]){
 				node.removeChild(childrenBox[nameBox]);
 				delete childrenBox[nameBox];
 			}
-		}
+		};
 		this.getBox = function(nameBox) {
-			if(childrenBox[nameBox])
+			if(childrenBox[nameBox]){
 				return childrenBox[nameBox];
-		}
+			}
+		};
 		this.show = function(nameBox){
 			currentBox = nameBox;
 			lib.removeClass(node,"hide");
 			lib.removeClass(childrenBox[nameBox].getElement(),"hide");
-			var boxTop = Math.max(document.body.offsetHeight,document.documentElement.clientHeight)
-				,boxLeft= Math.max(document.body.offsetWidth,document.documentElement.clientWidth);
+			var boxTop = Math.max(document.body.offsetHeight,document.documentElement.clientHeight),
+					boxLeft= Math.max(document.body.offsetWidth,document.documentElement.clientWidth);
 			boxTop = (boxTop - node.offsetHeight > 0)? (boxTop - node.offsetHeight)/2 : 0;
 			boxLeft = (boxLeft - node.offsetWidth > 0)? (boxLeft - node.offsetWidth)/2 : 0;
 			lib.setNode(node,{attr:{"style":"top:"+boxTop+"px;left:"+boxLeft+"px;"}});
-		}
+		};
 		this.hide = function(){
 			lib.addClass(node,"hide");
 			lib.addClass(childrenBox[currentBox].getElement(),"hide");
-		}
-	}//}}}
+		};
+	};//}}}
 	var Box = function(name){ //{{{2
-		if(!name) 
-			throw new Error("name of Box missing");
+		if(!name) {throw new Error("name of Box missing");}
 		name = name.toLowerCase();
 		var node=lib.setNode({attr:{id:"jb-"+name,"class":"jb-ignore hide"}}),children = [];
 		this.name = name;
 		this.getElement = function(){
 			return node;
-		}
+		};
 		this.getValue = function(){
 			var returnValue = [];
 			for(var i=0,len=children.length;i<len;i++){
 				returnValue.push(children[i].getValue());
 			}
 			return returnValue;
-		}
+		};
 		this.setValue = function(_array){
 			if(_array.length == children.length){
 				for(var i=0,len=_array.length;i<len;i++){
 					children[i].setValue(_array[i]);
 				}
 			}
-		}
+		};
 		this.add = function(objUI) {
 			children.push(objUI);
 			node.appendChild(objUI.getElement());
 			return children[children.length-1];
-		}
+		};
 		this.remove = function(indexUI) {
 			if(children[indexUI]){
 				node.removeChild(children[indexUI]);
 				delete children[indexUI];
 			}
-		}
-	}//}}}
+		};
+	};//}}}
 	var Button = function(label,name,className) {//{{{2
 		var node = lib.setNode({attr: {"class":"jb-button jb-ignore "+((className)?className:"")},html: label,event: {add: "click",fn: 
-				function(e){sandbox.notify("click-button-"+name,e)}
+				function(e){sandbox.notify("click-button-"+name,e);}
 				}});
 		this.name = name;
 		this.getValue = function() {return label;};
@@ -697,16 +696,15 @@ var Jerboa = (function(my){
 		};
 		this.getElement = function(){
 			return node;
-		}
-	}//}}}
+		};
+	};//}}}
 	var FlipSwitch = function(label,className){//{{{2
-		var wrapper = lib.setNode({attr:{"class":"jb-flipswitch jb-ignore"}})
-		,node = lib.setNode({attr:{"class":"jb-button jerboa-ignore"}})
-		,switchOn = lib.setNode({attr: {"class":"hide"},html:"on"})
-		,switchOff = lib.setNode({html:"off"})
-		,labelnode = lib.setNode({tag:"label",attr:{"class":"jb-ignore"},html:label})
-		,value = false;
-		;
+		var wrapper = lib.setNode({attr:{"class":"jb-flipswitch jb-ignore"}}),
+				node = lib.setNode({attr:{"class":"jb-button jerboa-ignore"}}),
+				switchOn = lib.setNode({attr: {"class":"hide"},html:"on"}),
+				switchOff = lib.setNode({html:"off"}),
+				labelnode = lib.setNode({tag:"label",attr:{"class":"jb-ignore"},html:label}),
+				value = false;
 		wrapper.appendChild(labelnode);
 		wrapper.appendChild(node);
 		node.appendChild(switchOn);
@@ -726,78 +724,77 @@ var Jerboa = (function(my){
 				lib.addClass(switchOff,"hide");
 			}
 			sandbox.notify("click-flipswitch-"+label,value);
-		}
+		};
 		this.getElement = function(){
 			return wrapper;
-		}
+		};
 		this.getValue = function(){
 			return value;
-		}
+		};
 		this.setValue = function(_value){
 			if(value != _value){
 				this.toggle();
 			}
-		}
+		};
 		lib.setNode(node,{event:{add:"mousedown",fn: lib.curry(this.toggle,this)}});
-	}//}}}
+	};//}}}
 	var HLine = function(className){//{{{2
 		var node = lib.setNode({attr:{"class":"hline "+((className)?className:"")}});
 		this.name = "jb-hline"+Date();
 		this.getElement = function(){
 			return node;
-		}
-		this.getValue = function(){return "";}
+		};
+		this.getValue = function(){return "";};
 		this.setValue = function(){};
-	}//}}}
+	};//}}}
 	var TextField = function(label,text,className){//{{{2
-		var wrapper = lib.setNode()
-		,node = lib.setNode({tag:"input",attr:{"value":(text)?text:"","type":"text","class":(className)?className:""}})
-		,labelnode = lib.setNode({tag:"label",html:label})
+		var wrapper = lib.setNode(),
+				node = lib.setNode({tag:"input",attr:{"value":(text)?text:"","type":"text","class":(className)?className:""}}),
+				labelnode = lib.setNode({tag:"label",html:label})
 		;
 		wrapper.appendChild(labelnode);
 		wrapper.appendChild(node);
-		this.name = label
+		this.name = label;
 		this.setClass = function(className){
 			lib.setNode(node,{attr:{"class":className}});
-		}
+		};
 		this.getValue = function() {
 			return node.value;
-		}
+		};
 		this.setValue = function(value){
 			node.value = value;
-		}
+		};
 		this.getElement = function(){
 			return wrapper;
-		}
-	}//}}}
+		};
+	};//}}}
 	var TextArea = function(label,text,className){//{{{2
-		var wrapper = lib.setNode()
-		,node = lib.setNode({tag:"textarea",attr:{"class":(className)?className:""},html:(text)?text:""})
-		,labelnode = lib.setNode({tag:"label",html:label})
+		var wrapper = lib.setNode(),
+				node = lib.setNode({tag:"textarea",attr:{"class":(className)?className:""},html:(text)?text:""}),
+				labelnode = lib.setNode({tag:"label",html:label})
 		;
 		wrapper.appendChild(labelnode);
 		wrapper.appendChild(node);
-		this.name = label
+		this.name = label;
 		this.setClass = function(className){
 			lib.setNode(node,{attr:{"class":className}});
-		}
+		};
 		this.getValue = function() {
 			return node.innerHTML;
-		}
+		};
 		this.setValue = function(value){
 			node.innerHTML = value;
-		}
+		};
 		this.getElement = function(){
 			return wrapper;
-		}
-		
-	}//}}}
+		};
+	};//}}}
 	var SelectBox = function(label,arrayData,styleMain,styleDropdown,className){//{{{2
 		label = label || "selectbox";
 		className = className && " "+className || "";
-		var node = lib.setNode({attr:{"class":"jb-selectbox"+className,style:styleMain},html:"<span>"+label+"</span>"})
-		,dropdownNode = lib.setNode({attr:{"class":"hide",style:styleDropdown}})
-		,value ="",self=this
+		var node = lib.setNode({attr:{"class":"jb-selectbox"+className,style:styleMain},html:"<span>"+label+"</span>"}),
+				dropdownNode = lib.setNode({attr:{"class":"hide",style:styleDropdown}}),
+				value ="",self=this
 		;
 		if(arrayData){
 			for(var i=0,len=arrayData.length;i<len;i++){
@@ -808,21 +805,21 @@ var Jerboa = (function(my){
 		this.name = label;
 		this.getElement = function(){
 			return node;
-		}
+		};
 		this.toggle = function(){
 			if(lib.hasClass(dropdownNode,"hide")){
 				lib.removeClass(dropdownNode,"hide");
 			} else {
 				lib.addClass(dropdownNode,"hide");
 			}
-		}
+		};
 		this.getValue = function(){
 			return _value;
-		}
+		};
 		this.setValue = function(data){
 			_value = data;
 			sandbox.notify("change-selectbox-"+label,data);
-		}
+		};
 		lib.setNode(node,{event:{add:"mousedown",fn:function(e){
 				var event = lib.getEvent(e);
 				event.preventDefault();
@@ -832,11 +829,11 @@ var Jerboa = (function(my){
 				}
 		}
 		}});
-	}//}}}
+	};//}}}
 	var Input = function(config){//{{{2
-		if(!config) throw new Error("Using UI({....})");
-		typeUI = config.type.toLowerCase() || "button";
-		var randomNum = (new Date).getTime(),className = config.class || config.align || config.float;
+		if(!config) {throw new Error("Using UI({....})");}
+		var typeUI = config.type.toLowerCase() || "button",
+				randomNum = new Date().getTime(),className = config["class"] || config.align;
 		switch(typeUI){
 			case "button":
 				return new Button(config.label || "button",config.name || "button"+randomNum,className);
@@ -850,97 +847,88 @@ var Jerboa = (function(my){
 				return new HLine(className);
 			case "selectbox":
 				return new SelectBox(config.label,config.text || config.value,config.styleMain,config.styleDropdown,className);
-			default: throw new Error("check \"type\" in UI({....})"); break;
+			default: throw new Error("check \"type\" in UI({....})"); 
 		}
-	}//}}}
+	};//}}}
+	var SandBox = function(){//{{{2
+				var events={};
+				this.lib = lib;
+				this.Class = function(nameClass){
+					var allowClass = {"Panel":1,"Button":1,"FlipSwitch":1,"Hline":1,"TextField":1,"TextArea":1,"History":1,"Input":1};
+					if(!allowClass[nameClass]){
+						throw new Error("sandbox: not found "+nameClass+" in Class");
+					}
+					return eval(nameClass);
+				};
+				this.getPath = function(){return path;};
+				this.getHistory = function(){
+					return history;
+				};
+				this.getStage = function(){
+					return stage;
+				};
+				this.getUI = function(nameUI){
+					if(!ui[nameUI]){
+						throw new Error("sandbox: not found "+nameUI+" in UI");
+					}
+					return ui[nameUI];
+				};
+				this.addPanel = function(namePanel){
+					var panelObject = new Panel(namePanel);
+					ui.panelbar.appendChild(panelObject.getElement());
+					return panelObject;
+				};
+				this.notify = function(eventName,eventData){
+					var data = eventName.split("-"),i,len;
+					data = {"event": data[0] || "","subevent": data[1] || "","name": data[2] || "","data": eventData};
+					if(events[eventName]){
+						for(i=0,len=events[eventName].length;i<len;i++){
+							events[eventName][i](data);
+						}
+					}
+					if(events[data.event+"-"+data.ui]){
+						for(i=0,len=events[data.event+"-"+data.ui].length;i<len;i++){
+							events[data.event+"-"+data.ui][i](data);
+						}				
+					}
+					if(events[data.event]){
+						for(i=0,len=events[data.event].length;i<len;i++){
+							events[data.event][i](data);
+						}				
+					}
+					if(DEBUG) {console.log(eventName);}
+				};
+				this.listen = function(arrayEventName,callback,scope){
+					if(typeof arrayEventName === "string"){
+						if(!events[arrayEventName]) {events[arrayEventName] = [];}
+						events[arrayEventName].push(lib.curry(callback,scope));
+					}
+					for(var i=0,len=arrayEventName.length;i<len;i++){
+						if(!events[arrayEventName[i]]){
+							events[arrayEventName[i]] = [];
+						}
+						events[arrayEventName[i]].push(lib.curry(callback,scope));
+					}
+				};
+				this.hasModule = function(nameModule){
+					if(modules[nameModule]) {return true;}
+					return false;
+				};
+			};//}}}
 	//}}}
 	//{{{ Private members
-	var Library= new Interface("Library",["onDomReady","addEvent","removeEvent","getEvent","addClass","removeClass","hasClass","addStyle","removeStyle","setNode","curry","request"])//{{{2
-	,Module= new Interface("Module",["init","destroy"])
-	,BoxInterface = new Interface("Box",["add","remove","getValue","setValue","getElement","name"])
-	,UI = new Interface("UI",["getValue","setValue","name"])
-	; 
+	var Library= new Interface("Library",["onDomReady","addEvent","removeEvent","getEvent","addClass","removeClass","hasClass","addStyle","removeStyle","setNode","curry","request"]),//{{{2
+			Module= new Interface("Module",["init","destroy"]),
+			BoxInterface = new Interface("Box",["add","remove","getValue","setValue","getElement","name"]),
+			UI = new Interface("UI",["getValue","setValue","name"]); 
 	hasImplements(my.lib,Library);//}}}
 	var lib = my.lib;delete my.lib;//{{{2
 	var path = my.path;delete my.path;
 	var DEBUG = true;
-	var usedModule = {}
-	,ui = {},config = {}
-	,modules = {}
-	,stage = null
-	,textarea = null
-	,cache = {}
-	,box = new BoxManager()
-	,history = new History(10, function(data){stage.getLayer().innerHTML = data;})//}}}
-	,sandbox = new (function(){//{{{2
-		var events={};
-		this.lib = lib;
-		this.Class = function(nameClass){
-			var allowClass = {"Panel":1,"Button":1,"FlipSwitch":1,"Hline":1,"TextField":1,"TextArea":1,"History":1,"Input":1};
-			if(!allowClass[nameClass])
-				throw new Error("sandbox: not found "+nameClass+" in Class");
-			return eval(nameClass);
-		}
-		this.getPath = function(){return path;}
-		this.getHistory = function(){
-			return history;
-		}
-		this.getStage = function(){
-			return stage;
-		}
-		this.getUI = function(nameUI){
-			if(!ui[nameUI])
-				throw new Error("sandbox: not found "+nameUI+" in UI");
-			return ui[nameUI];
-		}
-		this.addPanel = function(namePanel){
-			var panelObject = new Panel(namePanel);
-			ui.panelbar.appendChild(panelObject.getElement());
-			return panelObject;
-		}
-		this.notify = function(eventName,eventData){
-			var data = eventName.split("-"),i,len;
-			data = {
-				"event": data[0] || "",
-				"subevent": data[1] || "",
-				"name": data[2] || "",
-				"data": eventData
-			}
-			if(events[eventName]){
-				for(var i=0,len=events[eventName].length;i<len;i++){
-					events[eventName][i](data);
-				}
-			}
-			if(events[data.event+"-"+data.ui]){
-				for(var i=0,len=events[data.event+"-"+data.ui].length;i<len;i++){
-					events[data.event+"-"+data.ui][i](data);
-				}				
-			}
-			if(events[data.event]){
-				for(var i=0,len=events[data.event].length;i<len;i++){
-					events[data.event][i](data);
-				}				
-			}
-			if(DEBUG) console.log(eventName);
-		}
-		this.listen = function(arrayEventName,callback,scope){
-			if(typeof arrayEventName === "string"){
-				if(!events[arrayEventName]) events[arrayEventName] = [];
-				events[arrayEventName].push(lib.curry(callback,scope));
-			}
-			for(var i=0,len=arrayEventName.length;i<len;i++){
-				if(!events[arrayEventName[i]]){
-					events[arrayEventName[i]] = [];
-				}
-				events[arrayEventName[i]].push(lib.curry(callback,scope));
-			}
-		}
-		this.hasModule = function(nameModule){
-			if(modules[nameModule]) return true;
-			return false;
-		}
-	});//}}}
-	
+	var usedModule = {},ui = {},config = {},modules = {},stage = null,textarea = null,cache = {},
+			box = new BoxManager(),
+			history = new History(10, function(data){stage.getLayer().innerHTML = data;}),
+			sandbox = new SandBox();//}}}
 	//}}}
 	//{{{ Public members
 	my.version = 0.001;
@@ -952,27 +940,27 @@ var Jerboa = (function(my){
 		if(modules[moduleName]){
 			throw new Error("Duplicate Module: "+moduleName);
 		}
-		modules[moduleName] = 	moduleObject;
+		modules[moduleName] = moduleObject;
 		if(ui.core){
 			modules[moduleName].init(config[moduleName]);
 		}
 	};
-	for(var i=0,len=my.tempRegister.length;i<len;i++){
+	for(i=0,len=my.tempRegister.length;i<len;i++){
 		my.register.apply(null,my.tempRegister[i]);
 	}
 	delete my.tempRegister;
 	//}}}
 	my.apply = function(domId,_config){//{{{
 		var _;
-		if(!(_ = document.getElementById(domId))) return false;
+		if(!(_ = document.getElementById(domId))) {return false;}
 		textarea = _;
-		if(_config) config = _config;
+		if(_config) {config = _config;}
 		init();
 	};
 	//}}}
 	my.getContent = function(){ //{{{
 		var returnHTML = "";
-		returnHTML = stage.getElement().innerHTML.replace(/\<div class="jb-media-touch"\>\<\/div\>/ig,"");
+		returnHTML = stage.getElement().innerHTML.replace(/<div class="jb-media-touch"><\/div>/ig,"");
 		return returnHTML;
 	};//}}}
 	var startModule = function(moduleName){//{{{
@@ -989,11 +977,8 @@ var Jerboa = (function(my){
 	};//}}}
 	var touch = function(e) {//{{{
 		//Controller of resize and drag element
-		var data = cache
-			,event = lib.getEvent(e)
-			,sizeBorder = 1 //px
-			;
-		if(stage.currentState != "textedit") event.preventDefault();
+		var data = cache,event = lib.getEvent(e),sizeBorder = 1;//px
+		if(stage.currentState != "textedit") {event.preventDefault();}
 		if(e.type == "mousedown")
 		{
 			if(stage.currentState != "textedit" || (e.shiftKey))
@@ -1017,43 +1002,46 @@ var Jerboa = (function(my){
 				data.root_top += e.pageY - data.y;
 			}
 			if(data.root_top + data.root_h + 2*sizeBorder > data.screen_h){
-				if(e.shiftKey) data.root_h = data.screen_h - data.root_top -(2*sizeBorder);
-				else data.root_top -= e.pageY - data.y;
-			} else if(data.root_top < 0) data.root_top -= e.pageY - data.y;
+				if(e.shiftKey) {data.root_h = data.screen_h - data.root_top -(2*sizeBorder);}
+				else {data.root_top -= e.pageY - data.y;}
+			} else if(data.root_top < 0) {data.root_top -= e.pageY - data.y;}
 			if(data.root_left + data.root_w + 2*sizeBorder > data.screen_w){
-				if(e.shiftKey) data.root_w = data.screen_w - data.root_left - (2*sizeBorder); 
-				else data.root_left -= e.pageX - data.x;             
-			} else if(data.root_left < 0) data.root_left -= e.pageX - data.x;
+				if(e.shiftKey) {data.root_w = data.screen_w - data.root_left - (2*sizeBorder);}
+				else {data.root_left -= e.pageX - data.x;}             
+			} else if(data.root_left < 0) {data.root_left -= e.pageX - data.x;}
 
 			if(e.shiftKey){
 				lib.addStyle(stage.currentEditingNode,{width:data.root_w+"px",height: data.root_h+"px"});
-				if(/^image/i.test(stage.currentState))lib.addStyle(stage.currentEditingNode.children[0],{width:data.root_w+"px",height: data.root_h+"px"});
-				else if(/^media/i.test(stage.currentState) && stage.currentEditingNode.children.length == 2) {
+				if(/^image/i.test(stage.currentState)){
+					lib.addStyle(stage.currentEditingNode.children[0],{width:data.root_w+"px",height: data.root_h+"px"});
+				} else if(/^media/i.test(stage.currentState) && stage.currentEditingNode.children.length == 2) {
 					lib.addStyle(stage.currentEditingNode.children[1],{width:data.root_w+"px",height: data.root_h+"px"});
 					lib.addStyle(stage.currentEditingNode.children[1].getElementsByTagName("embed")[0],{width:data.root_w+"px",height: data.root_h+"px"});					
 				} else if(/^iframe/i.test(stage.currentState)) {
 					lib.addStyle(stage.currentEditingNode.children[1],{width:data.root_w+"px",height: data.root_h+"px"});
 				}
-			}else if(/move$/i.test(stage.currentState))
-				lib.addStyle(stage.currentEditingNode,{top:data.root_top+"px",left: data.root_left+"px"});
+			}	else if(/move$/i.test(stage.currentState)) {
+					lib.addStyle(stage.currentEditingNode,{top:data.root_top+"px",left: data.root_left+"px"});
+				}
 			data.x = e.pageX;
 			data.y = e.pageY;
-
+			
 		} else if(e.type == "mouseup")
 		{
-			if(data.isMove) history.save(stage.getLayer().innerHTML);
+			if(data.isMove) {history.save(stage.getLayer().innerHTML);}
 			lib.removeEvent(document,"mousemove",touch);
 			lib.removeEvent(document,"mouseup",touch);
 		}
 
-	}//}}}
+	};//}}}
 	var restoreNormalState = function()//{{{
 	{
 		if(!stage.currentState) {
 			var childNode = stage.getLayer().children;
 			for(var i=0,len=childNode.length;i<len;i++){
-				if(lib.hasClass(childNode[i],"jb-touch"))
+				if(lib.hasClass(childNode[i],"jb-touch")){
 					lib.removeClass(childNode[i],"jb-touch");
+				}
 			}
 			return false;
 		}
@@ -1064,7 +1052,7 @@ var Jerboa = (function(my){
 			case "textmove":
 				break;
 			case "textedit":            
-				var textNode =stage.currentEditingNode.children[0]
+				var textNode =stage.currentEditingNode.children[0];
 				textNode.setAttribute("contenteditable","false");
 				textNode.blur();
 				window.getSelection().removeAllRanges();
@@ -1080,23 +1068,19 @@ var Jerboa = (function(my){
 		stage.currentEditingNode = null;
 		stage.currentState = "";
 		sandbox.notify("restorestate");
-	}//}}}
+	};//}}}
 	var click = function(e) {//{{{
-		var event = lib.getEvent(e)
-			,mediaType=""
-			,tempStageStage=null
-			,exit = false
-			;
+		var event = lib.getEvent(e),mediaType="",tempStageStage=null,exit = false;
 		if(stage.currentState == "textedit"){
-			if(lib.hasClass(event.target,"jb-ignore"))
+			if(lib.hasClass(event.target,"jb-ignore")){
 				restoreNormalState();
-			//return false;
+			}
 		}
 		if(!lib.hasClass(event.target,"jb-ignore"))
 		{
 			//TODO: Detect another kind of media
 			var _root = event.target;
-			if(!_root.parentNode) exit = true;
+			if(!_root.parentNode) {exit = true;}
 			else {
 			while(!(_root.parentNode.getAttribute("class") && lib.hasClass(_root.parentNode,"jb-ignore"))){
 				if(_root.parentNode.nodeName && _root.parentNode.getAttribute("id") == "jb-a"){
@@ -1114,11 +1098,11 @@ var Jerboa = (function(my){
 					exit = true;break;
 				}
 			}}
-			if(!exit) event.preventDefault();
+			if(!exit) {event.preventDefault();}
 			if(!_root.parentNode.getAttribute("index")) {return false;}
 			if(stage.currentEditingNode == _root) {return false;}
 			if(!exit){
-			if(stage.currentEditingNode != null) restoreNormalState();
+			if(stage.currentEditingNode !== null) {restoreNormalState();}
 			mediaType = lib.detectMedia(_root);
 			stage.currentEditingNode = _root;
 			lib.addClass(_root,"jb-touch");
@@ -1139,13 +1123,13 @@ var Jerboa = (function(my){
 			}
 		}
 		restoreNormalState();
-	}//}}}
+	};//}}}
 	var dbclick = function(e) {//{{{
 		var event = lib.getEvent(e),exit = false;
 		if(!lib.hasClass(event.target,"jb-ignore"))
 		{
 			var _root = event.target;
-			if(!_root.parentNode) exit = true;
+			if(!_root.parentNode) {exit = true;}
 			else {
 			while(!(_root.parentNode.getAttribute("class") && lib.hasClass(_root.parentNode,"jb-ignore"))){
 				if(_root.parentNode.nodeName && _root.parentNode.getAttribute("id") == "jb-a"){
@@ -1163,41 +1147,38 @@ var Jerboa = (function(my){
 					exit = true;break;
 				}
 			}}
-			if(!exit) event.preventDefault();
+			if(!exit) {event.preventDefault();}
 			if(!_root.parentNode.getAttribute("index")) {return false;}
 			if(!exit) {
 			switch(lib.detectMedia(_root))
 			{
 				case "text":
 					//Find the Root to start edit mode
-				if(stage.currentEditingNode == _root && stage.currentState == "textedit") return false;
-				if(stage.currentEditingNode != null) restoreNormalState();
+				if(stage.currentEditingNode == _root && stage.currentState == "textedit") {return false;}
+				if(stage.currentEditingNode !== null) {restoreNormalState();}
 				stage.currentEditingNode = _root;
 				lib.addClass(_root,"jb-touch");
 				lib.addEvent(_root,"mousedown",touch);
 				//$.Events.add(_root,"blur",Jerboa.restoreNormalState);
 
 				//Jerboa.toggle.menu.call(Jerboa,"text");
-				if(_root.children.length != 1) _root.innerHTML = "<div>"+_root.innerHTML+"</div>";
+				if(_root.children.length != 1) {_root.innerHTML = "<div>"+_root.innerHTML+"</div>";}
 				_root.children[0].setAttribute("contenteditable","true");
 				_root.children[0].focus();
 				stage.currentState = "textedit";
 				sandbox.notify("textedit");
-
-				return false;
 				break;
-				case "image":
-					break;
-
+				case "image":	
+				break;
 				default: break;
 			}
 			return false;
 			}
 		}
-	}//}}}
+	};//}}}
 	var keyboard = function(e){//{{{
 		var event = lib.getEvent(e);
-		if(event.target.nodeName.toLowerCase() == "input") return false;
+		if(event.target.nodeName.toLowerCase() == "input") {return false;}
 		if(e.metaKey || e.ctrlKey)
 		{
 			if(e.keyCode == 90){
@@ -1231,7 +1212,7 @@ var Jerboa = (function(my){
 				restoreNormalState();
 			}
 		}
-	}//}}}
+	};//}}}
 	var init = function(){//{{{
 		var documentFragment = document.createDocumentFragment(),tempNode;
 		
@@ -1266,12 +1247,14 @@ var Jerboa = (function(my){
 		ui.mainmenu.show();
 		//Init Modules
 		for(var plugin in modules){
-			modules[plugin].init(config[plugin]);
+			if(plugin.substr(0,1) != "_"){
+				modules[plugin].init(config[plugin]);
+			}
 		}
 		//Register Events
 		sandbox.listen("keydown-normal-undo",function(){history.undo();});
 		sandbox.listen("keydown-normal-redo",function(){history.redo();});
-		sandbox.listen("click-button-option",function(){var _height = ui.option.getValue()[0];if(!isNaN(_height)) stage.setHeight(_height);box.hide();});
+		sandbox.listen("click-button-option",function(){var _height = ui.option.getValue()[0];if(!isNaN(_height)){stage.setHeight(_height);}box.hide();});
 		lib.addEvent(document,"click",click);
 		lib.addEvent(document,"dblclick",dbclick);
 		lib.addEvent(document,"keydown",keyboard);
@@ -1295,7 +1278,7 @@ var Jerboa = (function(my){
 		lib.removeEvent(document,"dblclick",dbclick);
 		lib.removeEvent(document,"keydown",keyboard);
 	};//}}}
-	if(my.tempApply) my.apply(my.tempApply[0],my.tempApply[1]);
+	if(my.tempApply) {my.apply(my.tempApply[0],my.tempApply[1]);}
 	delete my.tempApply;	
 	return my;
 }(Jerboa || {}));

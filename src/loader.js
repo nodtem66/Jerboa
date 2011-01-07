@@ -14,20 +14,18 @@ var Jerboa = (function(my){
 	}
 	// }}}	
 	my.load = function(_name){//{{{
-		var _src = my.path+"/"+_name.replace(/^\//i,"")+".js"
-				,_script = document.createElement("script");
-		;
+		var _src = my.path+"/"+_name.replace(/^\//i,"")+".js",
+		_script = document.createElement("script");
 		_script.setAttribute("src",_src);
 		_script.setAttribute("type","text/javascript");
 		if(_name) {
 			document.getElementsByTagName("head")[0].appendChild(_script);
 		}
 		return my;
-	}//}}}
+	};//}}}
 	my.loadStyle = function(_name){//{{{
-		var _src = my.path+"/"+_name.replace(/^\//i,"")+".css"
-				,_script = document.createElement("link");
-		;
+		var _src = my.path+"/"+_name.replace(/^\//i,"")+".css",
+				_script = document.createElement("link");
 		_script.setAttribute("href",_src);
 		_script.setAttribute("type","text/css");
 		_script.setAttribute("rel","stylesheet");
@@ -35,16 +33,15 @@ var Jerboa = (function(my){
 			document.getElementsByTagName("head")[0].appendChild(_script);
 		}
 		return my;		
-	}//}}}
+	};//}}}
 	my.tempRegister = [];
 	my.tempApply = "";
 	my.register = function(){
 		my.tempRegister.push(arguments);
-	}
+	};
 	my.apply = function(nameId,config){
 		my.tempApply = [nameId,config];
-	}
-	my.save = function(){}
+	};
 	return my;
 }(Jerboa || {}));
-Jerboa.loadStyle("css/jerboa").load("core").load("plugin/fancyinsert").load("plugin/textmenu");
+Jerboa.loadStyle("css/jerboa").load("core").load("plugins/fancyinsert").load("plugins/textmenu");

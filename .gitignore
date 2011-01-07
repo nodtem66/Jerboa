@@ -1,4 +1,5 @@
 lib/
 theme/
 tags
-src/.sass-cache/
+.sass-cache/
+example/js/tinymce/
