@@ -284,6 +284,8 @@ var Jerboa = (function(my) {
 				return "image";
 			} else if(listMediaTag[element.nodeName.toLowerCase()] || element.getAttribute("class") == "jb-media-touch"){
 				return "media";
+			} else if(element.nodeName.toLowerCase() == "iframe"){
+				return "iframe";
 			} else {
 				return "text";
 			}
@@ -430,6 +432,7 @@ var Jerboa = (function(my){
 	var Stage = function(eleTextArea){ //{{{2
 		var textHTML = eleTextArea.value.replace(/&lt;/ig,"<").replace(/&gt;/ig,">"),
 				stage = lib.setNode({attr: {id: "jb-stage"},html: textHTML}),layer=[],node,screen={},old_content;
+		
 		// Detect Save file
 		if(stage.children[0] && stage.children[0].className == "jb-ignore")
 		{
@@ -478,79 +481,103 @@ var Jerboa = (function(my){
 			while(queue.length>0){
 				currentNode = queue.shift();
 				currentNode2 = queue2.shift();
-				if(currentNode.children.length === 0) {continue;}
-				for(i=0,len=currentNode.children.length;i<len;i++){
-					queue.push(currentNode.children[i]);
-					queue2.push(currentNode2.children[i]);
-					switch(lib.detectMedia(currentNode.children[i])){
-						case "image":
-							if(!flagFloor1 && currentNode.children.length == 1) {
-								tempNode = currentNode;
-								while(tempNode.children.length == 1 && !lib.hasClass(tempNode.parentNode,"jb-ignore")){
-									tempNode = tempNode.parentNode;
+				if(currentNode.childNodes.length === 0) {continue;}
+				for(i=0,len=currentNode.childNodes.length;i<len;i++){
+					if(currentNode.childNodes[i].getAttribute("role")) {continue;}
+					else if(currentNode.childNodes[i].nodeName != "#text"){
+						switch(lib.detectMedia(currentNode.childNodes[i])){
+							case "image":
+								if(!flagFloor1 && currentNode.childNodes.length == 1) {
+									console.log(currentNode.childNodes);
+									tempNode = currentNode;
+									while(tempNode.childNodes.length == 1 && !lib.hasClass(tempNode.parentNode,"jb-ignore")){
+										tempNode = tempNode.parentNode;
+									}
+									tempNode.setAttribute("role","image");
+									tempNode.appendChild(currentNode.childNodes[i].cloneNode(true));
+									tempNode.removeChild(tempNode.firstChild);
+									continue;
 								}
-								tempNode.setAttribute("role","image");
-								tempNode.appendChild(currentNode.children[i].cloneNode(true));
-								tempNode.removeChild(tempNode.firstChild);
-								continue;
-							}
-							else {
-								//move this element to root Element
-								tempNode = currentNode.children[i].cloneNode(true);
-								tempNode = lib.setNode({tag:"div",attr:{"role":"image","style":"position:absolute;"}}).appendChild(tempNode).parentNode;
-								newTree.appendChild(tempNode);
-								currentNode.removeChild(currentNode.children[i]);
-							}
-							break;
-						case "media":
-							if(!flagFloor1 && currentNode.children.length == 1) {
-								tempNode = currentNode;
-								while(tempNode.children.length == 1 && !lib.hasClass(tempNode.parentNode,"jb-ignore")){
-									tempNode = tempNode.parentNode;
+								else {
+									//move this element to root Element
+									tempNode = currentNode.childNodes[i].cloneNode(true);
+									tempNode = lib.setNode({tag:"div",attr:{"role":"image","style":"position:absolute;"}}).appendChild(tempNode).parentNode;
+									newTree.appendChild(tempNode);
+									currentNode.removeChild(currentNode.childNodes[i]);
 								}
-								tempNode.setAttribute("role","media");
-								tempNode.appendChild(lib.setNode({tag:"div",attr:{"class":"jb-media-touch"},html:"&#160;"}));
-								tempNode.appendChild(currentNode.children[i].cloneNode(true));
-								tempNode.removeChild(tempNode.firstChild);
-								if(tempNode.children[1].nodeName.toLowerCase() == "object"){
-									tempNode.children[1].insertBefore(lib.setNode({tag:"param",attr:{"name":"wmode","value":"opaque"}}),tempNode.children[1].children[0]);
-									tempNode.children[1].lastChild.setAttribute("wmode","opaque");
+								break;
+							case "iframe":
+								if(!flagFloor1 && currentNode.childNodes.length == 1) {
+									tempNode = currentNode;
+									while(tempNode.childNodes.length == 1 && !tempNode.parentNode.getAttribute("index")){
+										tempNode = tempNode.parentNode;
+									}
+									tempNode.setAttribute("role","iframe");
+									tempNode.appendChild(lib.setNode({tag:"div",attr:{"class":"jb-media-touch"},html:"&#160;"}));
+									tempNode.appendChild(currentNode.childNodes[i].cloneNode(true));
+									tempNode.removeChild(tempNode.firstChild);
+									continue;
 								}
-								continue;
-							}
-							else {
-								//move this element to root Element
-								tempNode = currentNode.children[i].cloneNode(true);
-								tempNode = lib.setNode({tag:"div",attr:{"role":"media","style":"position:absolute;"},html: "<div class=\"jb-media-touch\">&#160;</div>"}).appendChild(tempNode).parentNode;
-								if(tempNode.children[1].nodeName.toLowerCase() == "object"){
-									tempNode.children[1].insertBefore(lib.setNode({tag:"param",attr:{"name":"wmode","value":"opaque"}}),tempNode.children[1].children[0]);
-									tempNode.children[1].lastChild.setAttribute("wmode","opaque");
+								else {
+									//move this element to root element
+									tempNode = currentNode.childNodes[i].cloneNode(true);
+									tempNode = lib.setNode({tag:"div",attr:{"role":"iframe","style":"position:absolute;"},html: "<div class=\"jb-media-touch\">&#160;</div>"}).appendChild(tempNode).parentNode;
+									newTree.appendChild(tempNode);
+									currentNode.removeChild(currentNode.childNodes[i]);
 								}
-								newTree.appendChild(tempNode);
-								currentNode.removeChild(currentNode.children[i]);
-							}
-							break;
+								break;
+							case "media":
+								if(!flagFloor1 && currentNode.childNodes.length == 1) {
+									tempNode = currentNode;
+									while(tempNode.childNodes.length == 1 && !tempNode.parentNode.getAttribute("index")){
+										tempNode = tempNode.parentNode;
+									}
+									tempNode.setAttribute("role","media");
+									tempNode.appendChild(lib.setNode({tag:"div",attr:{"class":"jb-media-touch"},html:"&#160;"}));
+									tempNode.appendChild(currentNode.childNodes[i].cloneNode(true));
+									tempNode.removeChild(tempNode.firstChild);
+									if(tempNode.childNodes[1].nodeName.toLowerCase() == "object"){
+										tempNode.childNodes[1].insertBefore(lib.setNode({tag:"param",attr:{"name":"wmode","value":"opaque"}}),tempNode.childNodes[1].childNodes[0]);
+										tempNode.childNodes[1].lastChild.setAttribute("wmode","opaque");
+									}
+									continue;
+								}
+								else {
+									//move this element to root element
+									tempNode = currentNode.childNodes[i].cloneNode(true);
+									tempNode = lib.setNode({tag:"div",attr:{"role":"media","style":"position:absolute;"},html: "<div class=\"jb-media-touch\">&#160;</div>"}).appendChild(tempNode).parentNode;
+									if(tempNode.childNodes[1].nodeName.toLowerCase() == "object"){
+										tempNode.childNodes[1].insertBefore(lib.setNode({tag:"param",attr:{"name":"wmode","value":"opaque"}}),tempNode.childNodes[1].childNodes[0]);
+										tempNode.childNodes[1].lastChild.setAttribute("wmode","opaque");
+									}
+									newTree.appendChild(tempNode);
+									currentNode.removeChild(currentNode.childNodes[i]);
+								}
+								break;
 
-						case "text":
-							if(currentNode.children[i].innerHTML==="" && currentNode.children[i].nodeName.toLowerCase() != "div"){
-								currentNode.removeChild(currentNode.children[i]);
-								i--;len--;
-								continue;
-							}
-							if(flagFloor1){
-								if(currentNode.children[i].nodeName.toLowerCase() != "div"){
-									tempNode = currentNode.children[i].cloneNode(true);
-									tempNode = lib.setNode().appendChild(tempNode).parentNode;
-									tempNode = lib.setNode({tag:"div",attr:{"role":"text","style":"position:absolute;top:"+currentNode2.children[i].offsetTop+"px;left:"+currentNode2.children[i].offsetLeft+"px;"}}).appendChild(tempNode).parentNode;
-									if(newTree.children.length === 0) {newTree.appendChild(tempNode);}
-									else {newTree.insertBefore(tempNode,newTree.children[i]);
-									newTree.removeChild(newTree.children[i+1]);}
-								} else {
-									lib.setNode(newTree.children[i],{attr:{"role":"text","style":"position:absolute;top:"+currentNode2.children[i].offsetTop+"px;left:"+currentNode2.children[i].offsetLeft+"px;"}});
+							case "text":
+								if(currentNode.childNodes[i].innerHTML==="" && currentNode.childNodes[i].nodeName.toLowerCase() != "div"){
+									currentNode.removeChild(currentNode.childNodes[i]);
+									i--;len--;
+									continue;
 								}
-							}
-							break;
-						default:	break;
+								else if(flagFloor1){
+									if(currentNode.childNodes[i].nodeName.toLowerCase() != "div"){
+										tempNode = currentNode.childNodes[i].cloneNode(true);
+										tempNode = lib.setNode().appendChild(tempNode).parentNode;
+										tempNode = lib.setNode({tag:"div",attr:{"role":"text","style":"position:absolute;top:"+currentNode2.childNodes[i].offsetTop+"px;left:"+currentNode2.childNodes[i].offsetLeft+"px;"}}).appendChild(tempNode).parentNode;
+										if(newTree.childNodes.length === 0) {newTree.appendChild(tempNode);}
+										else {newTree.insertBefore(tempNode,newTree.childNodes[i]);
+										newTree.removeChild(newTree.childNodes[i+1]);}
+									} else {
+										lib.setNode(newTree.childNodes[i],{attr:{"role":"text","style":"position:absolute;top:"+currentNode2.childNodes[i].offsetTop+"px;left:"+currentNode2.childNodes[i].offsetLeft+"px;"}});
+									}
+								}
+								queue.push(currentNode.childNodes[i]);
+								queue2.push(currentNode2.childNodes[i]);
+								break;
+							default:	break;
+						}
 					}
 				}
 				if(flagFloor1) {flagFloor1=false;}
@@ -960,7 +987,7 @@ var Jerboa = (function(my){
 	//}}}
 	my.getContent = function(){ //{{{
 		var returnHTML = "";
-		returnHTML = stage.getElement().innerHTML.replace(/<div class="jb-media-touch"><\/div>/ig,"");
+		returnHTML = stage.getElement().innerHTML;
 		return returnHTML;
 	};//}}}
 	var startModule = function(moduleName){//{{{
@@ -1018,7 +1045,8 @@ var Jerboa = (function(my){
 					lib.addStyle(stage.currentEditingNode.children[1],{width:data.root_w+"px",height: data.root_h+"px"});
 					lib.addStyle(stage.currentEditingNode.children[1].getElementsByTagName("embed")[0],{width:data.root_w+"px",height: data.root_h+"px"});					
 				} else if(/^iframe/i.test(stage.currentState)) {
-					lib.addStyle(stage.currentEditingNode.children[1],{width:data.root_w+"px",height: data.root_h+"px"});
+					lib.setNode(stage.currentEditingNode.children[1],{attr:{width:data.root_w,height: data.root_h}});
+					lib.addStyle(stage.currentEditingNode.children[1],{width:data.root_w+"px",height: data.root_h+"px"});					
 				}
 			}	else if(/move$/i.test(stage.currentState)) {
 					lib.addStyle(stage.currentEditingNode,{top:data.root_top+"px",left: data.root_left+"px"});
@@ -1177,39 +1205,67 @@ var Jerboa = (function(my){
 		}
 	};//}}}
 	var keyboard = function(e){//{{{
-		var event = lib.getEvent(e);
+		var event = lib.getEvent(e),_root,tempStage;
 		if(event.target.nodeName.toLowerCase() == "input") {return false;}
-		if(e.metaKey || e.ctrlKey)
+		if(e.keyCode == 27){ // Esc button 
+			restoreNormalState();
+		}
+		else if(e.metaKey || e.ctrlKey)
 		{
-			if(e.keyCode == 90){
+			if(e.keyCode == 90){ //ctrl-z button
 						sandbox.notify("keydown-normal-undo");
 						restoreNormalState();
 			}
-			else if(e.keyCode == 89){
+			else if(e.keyCode == 89){ //ctrl-y button
 						sandbox.notify("keydown-normal-redo");		
 						restoreNormalState();
 			}
-			else if(e.keyCode == 86 && !(/edit$/i.test(stage.currentState))){
+			else if(e.keyCode == 86 && !(/edit$/i.test(stage.currentState))){ // ctrl-v button
 				sandbox.notify("keydown-noediting-paste",e);
 				restoreNormalState();
 			}
 		}
 		if(/move$/i.test(stage.currentState)){
 			if(e.metaKey || e.ctrlKey){
-				if(e.keyCode == 67){
+				if(e.keyCode == 67){ // ctrl-c button
 					sandbox.notify("keydown-move-copy");
 					restoreNormalState();
 				}
-				else if(e.keyCode == 88){
+				else if(e.keyCode == 88){ // ctrl-x button
 					sandbox.notify("keydown-move-copy");
 					stage.getLayer().removeChild(stage.currentEditingNode);
 					restoreNormalState();
 				}
 			}
-			else if((e.keyCode == 8 || e.keyCode == 46)){
+			else if((e.keyCode == 8 || e.keyCode == 46)){ // delete or backspace button
 				stage.getLayer().removeChild(stage.currentEditingNode);
 				history.save(stage.getLayer().innerHTML);
 				restoreNormalState();
+			}
+			else if(e.keyCode == 9){ // Tab button
+				if(stage.currentEditingNode.nextSibling){
+					_root = stage.currentEditingNode.nextSibling;
+				} else {
+					_root = stage.getLayer().firstChild;
+				}
+				restoreNormalState();
+				mediaType = lib.detectMedia(_root);
+				stage.currentEditingNode = _root;
+				lib.addClass(_root,"jb-touch");
+				lib.addEvent(_root,"mousedown",touch);
+				stage.currentState = mediaType + "move";
+				sandbox.notify(mediaType +"move");
+				tempStage = stage.getElement();
+				cache.isMove = false;
+				cache.screen_top = tempStage.offsetTop;
+				cache.screen_left = tempStage.offsetLeft;
+				cache.screen_w = tempStage.offsetWidth ;
+				cache.screen_h = tempStage.offsetHeight ;
+				cache.root_top = _root.offsetTop;
+				cache.root_left = _root.offsetLeft;
+				cache.root_w = _root.offsetWidth;
+				cache.root_h = _root.offsetHeight;
+				event.preventDefault();
 			}
 		}
 	};//}}}

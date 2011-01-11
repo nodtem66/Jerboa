@@ -3,3 +3,4 @@ theme/
 tags
 .sass-cache/
 example/js/tinymce/
+example/data/

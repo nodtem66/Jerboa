@@ -20,7 +20,7 @@ $h = <<<HTMLBLOCK
 	<head>
 		<title>Jerboa Stupid</title>
 		<link rel="stylesheet" type="tex/css" href="main.css" />
-<script src="../src/loader.js"></script>
+<script src="../build/loader.js"></script>
 <script language="javascript" type="text/javascript" src="js/tinymce/jscripts/tiny_mce/tiny_mce.js"></script>
 	</head>
 	<body>
@@ -185,16 +185,12 @@ if($_POST["title"]){
 	$dataToWrite = file_get_contents("./theme/".TEMPLETE."/index.html");
 	$dataToWrite = str_replace("<!-- replaceContent -->","<!-- startRead -->".$_POST["elm1"]."<!-- endRead -->",$dataToWrite);
 	$dataToWrite = preg_replace("/href=[\"'](.*)\.css/i","href=\"../../theme/".TEMPLETE."/$1.css",$dataToWrite);
+	$dataToWrite = preg_replace("/href=\"..\/..\/theme\/".TEMPLETE."\/http/i","href=\"http",$dataToWrite);
 	$dataToWrite = preg_replace("/src=[\"'](.*)\.(.*)/i","src=\"../../theme/".TEMPLETE."/$1.$2",$dataToWrite);
-	if(file_exists($file)){
-		if(!is_writeable($file)) {
-			chmod($file,0777);
-		};
-	}
-	file_put_contents($file,$dataToWrite);
+	$dataToWrite = preg_replace("/src=\"..\/..\/theme\/".TEMPLETE."\/http/i","src=\"http",$dataToWrite);
+	@file_put_contents($file,$dataToWrite) or die("<script>alert(\"Not Found ${file}\");</script>");
 }
 header("Location: ?manage");
-	//header("Location: ?manage");
 //}}}
 break; case "delete": //{{{
 $file = "./data/".$req[1]."/".urldecode($req[2]);
