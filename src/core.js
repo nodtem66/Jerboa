@@ -430,11 +430,16 @@ var Jerboa = (function(my){
 		};
 	};//}}}
 	var Stage = function(eleTextArea){ //{{{2
-		var textHTML = eleTextArea.value.replace(/&lt;/ig,"<").replace(/&gt;/ig,">"),
-				stage = lib.setNode({attr: {id: "jb-stage"},html: textHTML}),layer=[],node,screen={},old_content,
+		var textHTML = "",stage = null,layer=[],node,screen={},old_content,
 				stageHeight=config.width || eleTextArea.offsetHeight,
 				stageWidth=config.height || eleTextArea.offsetWidth;
-
+		if(eleTextArea.nodeName.toLowerCase() == "textarea"){
+			textHTML = eleTextArea.value.replace(/&lt;/ig,"<").replace(/&gt;/ig,">");
+			stage = lib.setNode({attr: {id: "jb-stage"},html: textHTML});
+		} else {
+			stage = eleTextArea;
+			mode = "native";
+		}
 		// Detect Save file
 		if(stage.children[0] && stage.children[0].className == "jb-ignore")
 		{
@@ -473,96 +478,93 @@ var Jerboa = (function(my){
 			if(DEBUG) {console.log("Page height: "+height);}
 			height = (height>300)? height : 300;
 			this.setHeight(height);
-			ui.option.setValue([height,0,0]);
+			if(mode == "editor") { ui.option.setValue([height,0,0]); }
 		};
 		this.normalizeTree = function(_root){ // {{{3
 			if(!_root) {return "";}
-			var queue=[],queue2=[],i,len,currentNode,flagFloor1=true,tempNode,newTree = _root.cloneNode(true);
+			var queue=[],queue2=[],i,j,len2,len,currentNode,flagFloor1=true,tempNode2,tempNode,newTree = _root.cloneNode(true);
 			queue.push(newTree);
 			queue2.push(_root);
 			while(queue.length>0){
-				currentNode = queue.shift();
-				currentNode2 = queue2.shift();
+				currentNode = queue.pop();
+				currentNode2 = queue2.pop();
 				if(currentNode.childNodes.length === 0) {continue;}
-				for(i=0,len=currentNode.childNodes.length;i<len;i++){
-					if(currentNode.childNodes[i].nodeName != "#text"){
+				for(i=0,j=0,len2=currentNode2.childNodes.length,len=currentNode.childNodes.length;i<len && j<len2;i++,j++){
+					if(currentNode.childNodes[i].nodeName != "#text" && currentNode.childNodes[i].nodeName != "#comment"){
 						if(currentNode.childNodes[i].getAttribute("role")) {continue;}
 						switch(lib.detectMedia(currentNode.childNodes[i])){
 							case "image":
 								if(!flagFloor1 && currentNode.childNodes.length == 1) {
 									tempNode = currentNode;
-									while(tempNode.childNodes.length == 1 && !lib.hasClass(tempNode.parentNode,"jb-ignore")){
+									while(tempNode.parentNode.childNodes.length == 1 && !lib.hasClass(tempNode.parentNode,"jb-ignore")){
 										tempNode = tempNode.parentNode;
 									}
-									tempNode.setAttribute("role","image");
-									tempNode.appendChild(currentNode.childNodes[i].cloneNode(true));
-									tempNode.removeChild(tempNode.firstChild);
-									continue;
+									tempNode2 = currentNode.childNodes[i].cloneNode(true);
+									tempNode2 = lib.setNode({tag:"div",attr:{"role":"image","style":"position:absolute;top:"+currentNode2.childNodes[j].offsetTop+"px;left:"+currentNode2.childNodes[j].offsetLeft+"px;"}}).appendChild(tempNode2).parentNode;
+									newTree.appendChild(tempNode2);
+									tempNode.parentNode.removeChild(tempNode);
 								}
 								else {
 									//move this element to root Element
 									tempNode = currentNode.childNodes[i].cloneNode(true);
-									tempNode = lib.setNode({tag:"div",attr:{"role":"image","style":"position:absolute;"}}).appendChild(tempNode).parentNode;
+									tempNode = lib.setNode({tag:"div",attr:{"role":"image","style":"position:absolute;top:"+currentNode2.childNodes[j].offsetTop+"px;left:"+currentNode2.childNodes[j].offsetLeft+"px;"}}).appendChild(tempNode).parentNode;
 									newTree.appendChild(tempNode);
 									currentNode.removeChild(currentNode.childNodes[i]);
-									currentNode2.removeChild(currentNode2.childNodes[i]);
+									i--;len--;
 								}
 								break;
 							case "iframe":
 								if(!flagFloor1 && currentNode.childNodes.length == 1) {
 									tempNode = currentNode;
-									while(tempNode.childNodes.length == 1 && !tempNode.parentNode.getAttribute("index")){
+									while(tempNode.parentNode.childNodes.length == 1 && !tempNode.parentNode.getAttribute("index")){
 										tempNode = tempNode.parentNode;
 									}
-									tempNode.setAttribute("role","iframe");
-									tempNode.appendChild(lib.setNode({tag:"div",attr:{"class":"jb-media-touch"},html:"&#160;"}));
-									tempNode.appendChild(currentNode.childNodes[i].cloneNode(true));
-									tempNode.removeChild(tempNode.firstChild);
-									continue;
+									tempNode2 = currentNode.childNodes[i].cloneNode(true);
+									tempNode2 = lib.setNode({tag:"div",attr:{"role":"iframe","style":"position:absolute;top:"+currentNode2.childNodes[j].offsetTop+"px;left:"+currentNode2.childNodes[j].offsetLeft+"px;"},html: "<div class=\"jb-media-touch\">&#160;</div>"}).appendChild(tempNode2).parentNode;
+									newTree.appendChild(tempNode2);
+									tempNode.parentNode.removeChild(tempNode);
 								}
 								else {
 									//move this element to root element
 									tempNode = currentNode.childNodes[i].cloneNode(true);
-									tempNode = lib.setNode({tag:"div",attr:{"role":"iframe","style":"position:absolute;"},html: "<div class=\"jb-media-touch\">&#160;</div>"}).appendChild(tempNode).parentNode;
+									tempNode = lib.setNode({tag:"div",attr:{"role":"iframe","style":"position:absolute;top:"+currentNode2.childNodes[j].offsetTop+"px;left:"+currentNode2.childNodes[j].offsetLeft+"px;"},html: "<div class=\"jb-media-touch\">&#160;</div>"}).appendChild(tempNode).parentNode;
 									newTree.appendChild(tempNode);
 									currentNode.removeChild(currentNode.childNodes[i]);
-									currentNode2.removeChild(currentNode2.childNodes[i]);
+									i--;len--;
 								}
 								break;
 							case "media":
 								if(!flagFloor1 && currentNode.childNodes.length == 1) {
 									tempNode = currentNode;
-									while(tempNode.childNodes.length == 1 && !tempNode.parentNode.getAttribute("index")){
+									while(tempNode.parentNode.childNodes.length == 1 && !tempNode.parentNode.getAttribute("index")){
 										tempNode = tempNode.parentNode;
 									}
-									tempNode.setAttribute("role","media");
-									tempNode.appendChild(lib.setNode({tag:"div",attr:{"class":"jb-media-touch"},html:"&#160;"}));
-									tempNode.appendChild(currentNode.childNodes[i].cloneNode(true));
-									tempNode.removeChild(tempNode.firstChild);
-									if(tempNode.childNodes[1].nodeName.toLowerCase() == "object"){
-										tempNode.childNodes[1].insertBefore(lib.setNode({tag:"param",attr:{"name":"wmode","value":"opaque"}}),tempNode.childNodes[1].childNodes[0]);
-										tempNode.childNodes[1].lastChild.setAttribute("wmode","opaque");
+									tempNode2 = currentNode.childNodes[i].cloneNode(true);
+									tempNode2 = lib.setNode({tag:"div",attr:{"role":"media","style":"position:absolute;top:"+currentNode2.childNodes[j].offsetTop+"px;left:"+currentNode2.childNodes[j].offsetLeft+"px;"},html: "<div class=\"jb-media-touch\">&#160;</div>"}).appendChild(tempNode2).parentNode;
+									newTree.appendChild(tempNode2);
+									tempNode.parentNode.removeChild(tempNode);
+									if(tempNode2.childNodes[1].nodeName.toLowerCase() == "object"){
+										tempNode2.childNodes[1].insertBefore(lib.setNode({tag:"param",attr:{"name":"wmode","value":"opaque"}}),tempNode.childNodes[1].childNodes[0]);
+										tempNode2.childNodes[1].lastChild.setAttribute("wmode","opaque");
 									}
-									continue;
 								}
 								else {
 									//move this element to root element
 									tempNode = currentNode.childNodes[i].cloneNode(true);
-									tempNode = lib.setNode({tag:"div",attr:{"role":"media","style":"position:absolute;"},html: "<div class=\"jb-media-touch\">&#160;</div>"}).appendChild(tempNode).parentNode;
+									tempNode = lib.setNode({tag:"div",attr:{"role":"media","style":"position:absolute;top:"+currentNode2.childNodes[j].offsetTop+"px;left:"+currentNode2.childNodes[j].offsetLeft+"px;"},html: "<div class=\"jb-media-touch\">&#160;</div>"}).appendChild(tempNode).parentNode;
 									if(tempNode.childNodes[1].nodeName.toLowerCase() == "object"){
 										tempNode.childNodes[1].insertBefore(lib.setNode({tag:"param",attr:{"name":"wmode","value":"opaque"}}),tempNode.childNodes[1].childNodes[0]);
 										tempNode.childNodes[1].lastChild.setAttribute("wmode","opaque");
 									}
 									newTree.appendChild(tempNode);
 									currentNode.removeChild(currentNode.childNodes[i]);
-									currentNode2.removeChild(currentNode2c.childNodes[i]);
+									i--;len--;
 								}
 								break;
 
 							case "text":
 								if(currentNode.childNodes[i].innerHTML==="" && currentNode.childNodes[i].nodeName.toLowerCase() != "div"){
 									currentNode.removeChild(currentNode.childNodes[i]);
-									currentNode2.removeChild(currentNode2.childNodes[i]);
 									i--;len--;
 									continue;
 								}
@@ -570,16 +572,16 @@ var Jerboa = (function(my){
 									if(currentNode.childNodes[i].nodeName.toLowerCase() != "div"){
 										tempNode = currentNode.childNodes[i].cloneNode(true);
 										tempNode = lib.setNode().appendChild(tempNode).parentNode;
-										tempNode = lib.setNode({tag:"div",attr:{"role":"text","style":"position:absolute;top:"+currentNode2.childNodes[i].offsetTop+"px;left:"+currentNode2.childNodes[i].offsetLeft+"px;"}}).appendChild(tempNode).parentNode;
+										tempNode = lib.setNode({tag:"div",attr:{"role":"text","style":"position:absolute;top:"+currentNode2.childNodes[j].offsetTop+"px;left:"+currentNode2.childNodes[j].offsetLeft+"px;"}}).appendChild(tempNode).parentNode;
 										if(newTree.childNodes.length === 0) {newTree.appendChild(tempNode);}
 										else {newTree.insertBefore(tempNode,newTree.childNodes[i]);
 										newTree.removeChild(newTree.childNodes[i+1]);}
 									} else {
-										lib.setNode(newTree.childNodes[i],{attr:{"role":"text","style":"position:absolute;top:"+currentNode2.childNodes[i].offsetTop+"px;left:"+currentNode2.childNodes[i].offsetLeft+"px;"}});
+										lib.setNode(newTree.childNodes[i],{attr:{"role":"text","style":"position:absolute;top:"+currentNode2.childNodes[j].offsetTop+"px;left:"+currentNode2.childNodes[j].offsetLeft+"px;"}});
 									}
 								}
 								queue.push(currentNode.childNodes[i]);
-								queue2.push(currentNode2.childNodes[i]);
+								queue2.push(currentNode2.childNodes[j]);
 								break;
 							default:	break;
 						}
@@ -587,6 +589,7 @@ var Jerboa = (function(my){
 				}
 				if(flagFloor1) {flagFloor1=false;}
 			}
+			
 			for(i=0,len=newTree.childNodes.length;i<len;i++){
 				if(newTree.childNodes[i].nodeName == "#text"){ 
 					if(/[\S]/ig.test(newTree.childNodes[i].nodeValue)){
@@ -601,6 +604,7 @@ var Jerboa = (function(my){
 				}
 				lib.addStyle(newTree.childNodes[i],{"position":"absolute","overflow":"hidden","padding":0,"margin":0,"display":"inline-block"});
 			}
+			
 			_root.innerHTML = newTree.innerHTML;
 			return true;
 		};//}}}
@@ -982,7 +986,8 @@ var Jerboa = (function(my){
 	var usedModule = {},ui = {},config = {},modules = {},stage = null,textarea = null,cache = {},
 			box = new BoxManager(),
 			history = new History(10, function(data){stage.getLayer().innerHTML = data;}),
-			sandbox = new SandBox();//}}}
+			sandbox = new SandBox(),
+			mode = "editor";//}}}
 	//}}}
 	//{{{ Public members
 	my.version = 0.001;
@@ -1299,55 +1304,58 @@ var Jerboa = (function(my){
 	};//}}}
 	var init = function(){//{{{
 		var documentFragment = document.createDocumentFragment(),tempNode;
-		
-		//construct UI
-		ui.core = lib.setNode({attr:{id: "jb-a","style":"width:"+(textarea.offsetWidth-2)+"px;"},event: {add: "mousedown",fn: function(e){
-			//Prevent SelectText in Stage or UI panel
-			lib.getEvent(e).preventDefault();return false;
-		}
-		}});
-		ui.panelbar = lib.setNode({attr: {id: "jb-b"}});
 		stage = new Stage(textarea);		
-
-		ui.bottom = lib.setNode({attr: {"class": "jb-hline"},event:{add:"click",fn:function(){box.show("option");}
-				}});
-		ui.core.appendChild(ui.panelbar);
-		ui.core.appendChild(stage.getElement());
-		ui.core.appendChild(ui.bottom);
-		ui.option = new Box("option");
-		ui.option.add(new Input({type:"TextField",label:"Height <span>input the height which you want</span>",align:"last bigger"}));
-		ui.option.add(new Input({type:"hline"}));
-		ui.option.add(new Input({type:"button",label:"Set Height",name: "option",align:"right bottom"}));
-		box.add(ui.option);
-
-		ui.mainmenu = sandbox.addPanel("mainmenu");
-		tempNode = ui.mainmenu.getElement();
-		tempNode.appendChild(lib.setNode().appendChild(lib.setNode({tag:"button",html:"<span style=\"background: url("+path+"/img/inserttextbox.png) no-repeat\">Insert TextBox</span>",event:{add:"click",fn:function(){
-			restoreNormalState();
-			stage.getLayer().appendChild(lib.setNode({attr:{role:"text","style":"position:absolute;top:0;left:0;"},html:"<div>Insert Text Here</div>"}));
-			history.save(stage.getLayer().innerHTML);
+		if(mode == "native"){
+			console.log("native");
+		} else {
+			//construct UI
+			ui.core = lib.setNode({attr:{id: "jb-a","style":"width:"+(textarea.offsetWidth-2)+"px;"},event: {add: "mousedown",fn: function(e){
+				//Prevent SelectText in Stage or UI panel
+				lib.getEvent(e).preventDefault();return false;
 			}
-		}})).parentNode);
-		ui.mainmenu.show();
-		//Init Modules
-		for(var plugin in modules){
-			if(plugin.substr(0,1) != "_"){
-				modules[plugin].init(config[plugin]);
+			}});
+			ui.panelbar = lib.setNode({attr: {id: "jb-b"}});
+
+			ui.bottom = lib.setNode({attr: {"class": "jb-hline"},event:{add:"click",fn:function(){box.show("option");}
+					}});
+			ui.core.appendChild(ui.panelbar);
+			ui.core.appendChild(stage.getElement());
+			ui.core.appendChild(ui.bottom);
+			ui.option = new Box("option");
+			ui.option.add(new Input({type:"TextField",label:"Height <span>input the height which you want</span>",align:"last bigger"}));
+			ui.option.add(new Input({type:"hline"}));
+			ui.option.add(new Input({type:"button",label:"Set Height",name: "option",align:"right bottom"}));
+			box.add(ui.option);
+
+			ui.mainmenu = sandbox.addPanel("mainmenu");
+			tempNode = ui.mainmenu.getElement();
+			tempNode.appendChild(lib.setNode().appendChild(lib.setNode({tag:"button",html:"<span style=\"background: url("+path+"/img/inserttextbox.png) no-repeat\">Insert TextBox</span>",event:{add:"click",fn:function(){
+				restoreNormalState();
+				stage.getLayer().appendChild(lib.setNode({attr:{role:"text","style":"position:absolute;top:0;left:0;"},html:"<div>Insert Text Here</div>"}));
+				history.save(stage.getLayer().innerHTML);
+				}
+			}})).parentNode);
+			ui.mainmenu.show();
+			//Init Modules
+			for(var plugin in modules){
+				if(plugin.substr(0,1) != "_"){
+					modules[plugin].init(config[plugin]);
+				}
 			}
+			sandbox.listen("click-button-option",function(){var _height = ui.option.getValue()[0];if(!isNaN(_height)){stage.setHeight(_height);}box.hide();});
+			lib.addEvent(document,"submit",function(){textarea.value = my.getContent();});
+			//Disable textarea
+			lib.addClass(textarea,"hide");		
+			documentFragment.appendChild(ui.core);
+			textarea.parentNode.insertBefore(documentFragment,textarea);
+			document.body.appendChild(box.getElement());
 		}
 		//Register Events
 		sandbox.listen("keydown-normal-undo",function(){history.undo();});
 		sandbox.listen("keydown-normal-redo",function(){history.redo();});
-		sandbox.listen("click-button-option",function(){var _height = ui.option.getValue()[0];if(!isNaN(_height)){stage.setHeight(_height);}box.hide();});
 		lib.addEvent(document,"click",click);
 		lib.addEvent(document,"dblclick",dbclick);
 		lib.addEvent(document,"keydown",keyboard);
-		lib.addEvent(document,"submit",function(){textarea.value = my.getContent();});
-		//Disable textarea
-		lib.addClass(textarea,"hide");		
-		documentFragment.appendChild(ui.core);
-		textarea.parentNode.insertBefore(documentFragment,textarea);
-		document.body.appendChild(box.getElement());
 	};//}}}
 	var destroy = function(){//{{{
 		document.body.removeChild(ui.core);
