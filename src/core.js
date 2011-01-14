@@ -681,10 +681,10 @@ var Jerboa = (function(my){
 			currentBox = nameBox;
 			lib.removeClass(node,"hide");
 			lib.removeClass(childrenBox[nameBox].getElement(),"hide");
-			var boxTop = Math.max(document.body.offsetHeight,document.documentElement.clientHeight),
-					boxLeft= Math.max(document.body.offsetWidth,document.documentElement.clientWidth);
-			boxTop = (boxTop - node.offsetHeight > 0)? (boxTop - node.offsetHeight - document.body.scrollTop)/2 : 0;
-			boxLeft = (boxLeft - node.offsetWidth > 0)? (boxLeft - node.offsetWidth - document.body.scrollLeft)/2 : 0;
+			var boxTop = Math.min(document.body.clientHeight,document.documentElement.clientHeight),
+					boxLeft= Math.min(document.body.clientWidth,document.documentElement.clientWidth);
+			boxTop = (boxTop - node.offsetHeight > 0)? (boxTop - node.offsetHeight)/2 : 0;
+			boxLeft = (boxLeft - node.offsetWidth > 0)? (boxLeft - node.offsetWidth)/2 : 0;
 			lib.setNode(node,{attr:{"style":"top:"+boxTop+"px;left:"+boxLeft+"px;"}});
 		};
 		this.hide = function(){
