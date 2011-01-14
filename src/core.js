@@ -431,15 +431,17 @@ var Jerboa = (function(my){
 	};//}}}
 	var Stage = function(eleTextArea){ //{{{2
 		var textHTML = eleTextArea.value.replace(/&lt;/ig,"<").replace(/&gt;/ig,">"),
-				stage = lib.setNode({attr: {id: "jb-stage"},html: textHTML}),layer=[],node,screen={},old_content;
-		
+				stage = lib.setNode({attr: {id: "jb-stage"},html: textHTML}),layer=[],node,screen={},old_content,
+				stageHeight=config.width || eleTextArea.offsetHeight,
+				stageWidth=config.height || eleTextArea.offsetWidth;
+
 		// Detect Save file
 		if(stage.children[0] && stage.children[0].className == "jb-ignore")
 		{
 			node = stage.children[0];
 			old_content = node.innerHTML;
 		} else {
-			node = lib.setNode({tag: "div",attr: {"class":"jb-ignore","style":"position:relative;top:0;left:0;padding:0;width:100%;height:auto;overflow:hidden;"}});
+			node = lib.setNode({tag: "div",attr: {"class":"jb-ignore","style":"position:relative;top:0;left:0;padding:0;width:"+stageWidth+"px;height:"+stageHeight+"px;overflow:hidden;"}});
 			old_content = stage.innerHTML;
 			stage.innerHTML = "";
 			stage.appendChild(node);
@@ -1299,7 +1301,7 @@ var Jerboa = (function(my){
 		var documentFragment = document.createDocumentFragment(),tempNode;
 		
 		//construct UI
-		ui.core = lib.setNode({attr:{id: "jb-a","style":"width:"+textarea.offsetWidth+"px;"},event: {add: "mousedown",fn: function(e){
+		ui.core = lib.setNode({attr:{id: "jb-a","style":"width:"+(textarea.offsetWidth-2)+"px;"},event: {add: "mousedown",fn: function(e){
 			//Prevent SelectText in Stage or UI panel
 			lib.getEvent(e).preventDefault();return false;
 		}
