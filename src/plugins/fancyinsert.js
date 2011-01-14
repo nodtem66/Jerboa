@@ -83,14 +83,7 @@ Jerboa.register("FancyInsert",function(sandbox){
 		}else{
 			cropText = "Insert Text here";
 		}
-		if(/^<div role/i.test(cropText)){
-			returnNode = lib.setNode({html:cropText}).children[0];
-		} else {
-			typeMedia = lib.detectMedia(cropText);
-			if(typeMedia == "media" || typeMedia == "iframe") {cropText = "<div class=\"jb-media-touch\"> </div>"+cropText;}
-			returnNode = lib.setNode({html:cropText,attr:{"role":typeMedia,"style":"position:absolute;top:0px;left:0px;"}});
-		}
-		sandbox.getStage().getLayer().appendChild(returnNode);
+		sandbox.insertHTML(cropText);
 	};
 	this.init = function(){
 		var self = this;

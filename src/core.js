@@ -955,8 +955,16 @@ var Jerboa = (function(my){
 					if(modules[nameModule]) {return true;}
 					return false;
 				};
-				this.request = function(objSetting){
-					lib.request(objSetting);
+				this.insertHTML = function(html){
+					var returnNode;
+					if(/^<div role/i.test(html)){
+						returnNode = lib.setNode({html:html}).children[0];
+					} else {
+						typeMedia = lib.detectMedia(html);
+						if(typeMedia == "media" || typeMedia == "iframe") {html = "<div class=\"jb-media-touch\"> </div>"+html;}
+						returnNode = lib.setNode({html:html,attr:{"role":typeMedia,"style":"position:absolute;top:0px;left:0px;"}});
+					}
+					stage.getLayer().appendChild(returnNode);
 				};
 			};//}}}
 	//}}}

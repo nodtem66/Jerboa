@@ -78,9 +78,14 @@
 				<include name="*.scss" />
 			</fileset>
 			<srcfile/>
-			<mapper type="glob" from="*.scss" to="${dir.build}/css/*-src.css" />
+			<mapper type="glob" from="*.scss" to="${dir.src}/css/*-src.css" />
 			<targetfile/>
 		</apply>
+		<move todir="${dir.build}/">
+			<fileset dir="${dir.src}/">
+				<include name="css/*.css" />
+			</fileset>
+		</move>		
 	</target>
 
 	<target name="css-build" depends="css-prebuild">
