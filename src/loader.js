@@ -4,17 +4,18 @@
 	*/
 var Jerboa = (function(my){
 	// find path {{{1 
-	var _scripts = document.getElementsByTagName("script");
+	var _scripts = document.getElementsByTagName("script"),path="";
 	for(var i=0,len=_scripts.length;i<len;i++){
 		if(/loader\.js/.test(_scripts[i].src)) {
 			my.path = _scripts[i].src.replace("loader.js","");
 			my.path = my.path.replace(/\/$/i,"");
+			path = my.path;
 			break;
 		}
 	}
 	// }}}	
 	my.load = function(_name){//{{{
-		var _src = my.path+"/"+_name.replace(/^\//i,"")+".js",
+		var _src = path+"/"+_name.replace(/^\//i,"")+".js",
 		_script = document.createElement("script");
 		_script.setAttribute("src",_src);
 		_script.setAttribute("type","text/javascript");
@@ -24,7 +25,7 @@ var Jerboa = (function(my){
 		return my;
 	};//}}}
 	my.loadStyle = function(_name){//{{{
-		var _src = my.path+"/"+_name.replace(/^\//i,"")+".css",
+		var _src = path+"/"+_name.replace(/^\//i,"")+".css",
 				_script = document.createElement("link");
 		_script.setAttribute("href",_src);
 		_script.setAttribute("type","text/css");
