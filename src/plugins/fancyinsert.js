@@ -63,6 +63,15 @@ Jerboa.register("FancyInsert",function(sandbox){
 				cropText = cropText.replace(/&lt;/ig,"<").replace(/&gt;/ig,">");
 				cropText = cropText.replace(/><param/i,"><param wmode=\"opaque\"><param");
 				cropText = cropText.replace(/<embed/i,"<embed wmode=\"opaque\"");
+				cropText = cropText.replace(/<\/embed>/i,"</embed><!-- kill -->");
+				cropText = cropText.replace(/<!-- kill -->.*/ig,"");
+			}
+			//check flash object
+			if(/^\&lt;embed/i.test(cropText)){
+				cropText = cropText.replace(/&lt;/ig,"<").replace(/&gt;/ig,">");
+				cropText = cropText.replace(/<embed/i,"<embed wmode=\"opaque\"");
+				cropText = cropText.replace(/<\/embed>/i,"</embed><!-- kill -->");
+				cropText = cropText.replace(/<!-- kill -->.*/ig,"");
 			}
 
 			if(/^\&lt;iframe[\D\S]*src=["']https:\/\/spreadsheets.google.com\//i.test(cropText)){

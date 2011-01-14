@@ -450,7 +450,7 @@ var Jerboa = (function(my){
 		{
 			layer.push(node.children[0]);
 		} else {
-			layer.push(lib.setNode({attr: {"index":0,"class":"jb-layer jb-ignore","style":"z-index:2000;"},html: old_content}));
+			layer.push(lib.setNode({attr: {"index":0,"class":"jb-layer jb-ignore","style":"position:absolute;top:0;left:0;width:100%;height:100%;z-index:2000;"},html: old_content}));
 			node.appendChild(layer[0]);
 		}
 		//Public method
@@ -483,12 +483,11 @@ var Jerboa = (function(my){
 				currentNode2 = queue2.shift();
 				if(currentNode.childNodes.length === 0) {continue;}
 				for(i=0,len=currentNode.childNodes.length;i<len;i++){
-					if(currentNode.childNodes[i].getAttribute("role")) {continue;}
-					else if(currentNode.childNodes[i].nodeName != "#text"){
+					if(currentNode.childNodes[i].nodeName != "#text"){
+						if(currentNode.childNodes[i].getAttribute("role")) {continue;}
 						switch(lib.detectMedia(currentNode.childNodes[i])){
 							case "image":
 								if(!flagFloor1 && currentNode.childNodes.length == 1) {
-									console.log(currentNode.childNodes);
 									tempNode = currentNode;
 									while(tempNode.childNodes.length == 1 && !lib.hasClass(tempNode.parentNode,"jb-ignore")){
 										tempNode = tempNode.parentNode;
@@ -504,6 +503,7 @@ var Jerboa = (function(my){
 									tempNode = lib.setNode({tag:"div",attr:{"role":"image","style":"position:absolute;"}}).appendChild(tempNode).parentNode;
 									newTree.appendChild(tempNode);
 									currentNode.removeChild(currentNode.childNodes[i]);
+									currentNode2.removeChild(currentNode2.childNodes[i]);
 								}
 								break;
 							case "iframe":
@@ -524,6 +524,7 @@ var Jerboa = (function(my){
 									tempNode = lib.setNode({tag:"div",attr:{"role":"iframe","style":"position:absolute;"},html: "<div class=\"jb-media-touch\">&#160;</div>"}).appendChild(tempNode).parentNode;
 									newTree.appendChild(tempNode);
 									currentNode.removeChild(currentNode.childNodes[i]);
+									currentNode2.removeChild(currentNode2.childNodes[i]);
 								}
 								break;
 							case "media":
@@ -552,12 +553,14 @@ var Jerboa = (function(my){
 									}
 									newTree.appendChild(tempNode);
 									currentNode.removeChild(currentNode.childNodes[i]);
+									currentNode2.removeChild(currentNode2c.childNodes[i]);
 								}
 								break;
 
 							case "text":
 								if(currentNode.childNodes[i].innerHTML==="" && currentNode.childNodes[i].nodeName.toLowerCase() != "div"){
 									currentNode.removeChild(currentNode.childNodes[i]);
+									currentNode2.removeChild(currentNode2.childNodes[i]);
 									i--;len--;
 									continue;
 								}
@@ -583,17 +586,28 @@ var Jerboa = (function(my){
 				if(flagFloor1) {flagFloor1=false;}
 			}
 			for(i=0,len=newTree.childNodes.length;i<len;i++){
-				if(newTree.childNodes[i].nodeName == "#text"){
-					tempNode = lib.setNode({tag:"div",attr:{"role":"text","style":"position:absolute;"},html:"<div>"+newTree.childNodes[i].nodeValue+"</div>"});
-					newTree.removeChild(newTree.childNodes[i]);
-					newTree.appendChild(tempNode);
+				if(newTree.childNodes[i].nodeName == "#text"){ 
+					if(/[\S]/ig.test(newTree.childNodes[i].nodeValue)){
+						tempNode = lib.setNode({tag:"div",attr:{"role":"text","style":"position:absolute;top:"+newTree.childNodes[i].offsetTop+"px;left:"+newTree.childNodes[i].offsetLeft+"px;"},html:"<div>"+newTree.childNodes[i].nodeValue+"</div>"});
+						newTree.removeChild(newTree.childNodes[i]);
+						newTree.appendChild(tempNode);
+					} else {
+						newTree.removeChild(newTree.childNodes[i]);
+						len--;
+					}
+					i--;continue;
 				}
+				lib.addStyle(newTree.childNodes[i],{"position":"absolute","overflow":"hidden","padding":0,"margin":0,"display":"inline-block"});
 			}
 			_root.innerHTML = newTree.innerHTML;
 			return true;
 		};//}}}
 		var self = this;
-		setTimeout(function(){self.autoHeight();self.normalizeTree(layer[0]);history.save(layer[0].innerHTML);},100);
+		setTimeout(function(){
+				self.autoHeight();
+				self.normalizeTree(layer[0]);
+				history.save(layer[0].innerHTML);
+		},100);
 	}; //}}}
 	var History = function(rawSize,callback){ //{{{2
 		var circularList= [],self = this,index=-1,flen=0,blen=0,enable=true;
@@ -669,8 +683,8 @@ var Jerboa = (function(my){
 			lib.removeClass(childrenBox[nameBox].getElement(),"hide");
 			var boxTop = Math.max(document.body.offsetHeight,document.documentElement.clientHeight),
 					boxLeft= Math.max(document.body.offsetWidth,document.documentElement.clientWidth);
-			boxTop = (boxTop - node.offsetHeight > 0)? (boxTop - node.offsetHeight)/2 : 0;
-			boxLeft = (boxLeft - node.offsetWidth > 0)? (boxLeft - node.offsetWidth)/2 : 0;
+			boxTop = (boxTop - node.offsetHeight > 0)? (boxTop - node.offsetHeight - document.body.scrollTop)/2 : 0;
+			boxLeft = (boxLeft - node.offsetWidth > 0)? (boxLeft - node.offsetWidth - document.body.scrollLeft)/2 : 0;
 			lib.setNode(node,{attr:{"style":"top:"+boxTop+"px;left:"+boxLeft+"px;"}});
 		};
 		this.hide = function(){
@@ -941,6 +955,9 @@ var Jerboa = (function(my){
 					if(modules[nameModule]) {return true;}
 					return false;
 				};
+				this.request = function(objSetting){
+					lib.request(objSetting);
+				};
 			};//}}}
 	//}}}
 	//{{{ Private members
@@ -1041,9 +1058,10 @@ var Jerboa = (function(my){
 				lib.addStyle(stage.currentEditingNode,{width:data.root_w+"px",height: data.root_h+"px"});
 				if(/^image/i.test(stage.currentState)){
 					lib.addStyle(stage.currentEditingNode.children[0],{width:data.root_w+"px",height: data.root_h+"px"});
-				} else if(/^media/i.test(stage.currentState) && stage.currentEditingNode.children.length == 2) {
+				} else if(/^media/i.test(stage.currentState) && stage.currentEditingNode.children.length >= 2) {
 					lib.addStyle(stage.currentEditingNode.children[1],{width:data.root_w+"px",height: data.root_h+"px"});
-					lib.addStyle(stage.currentEditingNode.children[1].getElementsByTagName("embed")[0],{width:data.root_w+"px",height: data.root_h+"px"});					
+					lib.setNode(stage.currentEditingNode.children[1],{attr:{width:data.root_w,height: data.root_h}});
+					lib.addStyle(stage.currentEditingNode.getElementsByTagName("embed")[0],{width:data.root_w+"px",height: data.root_h+"px"});					
 				} else if(/^iframe/i.test(stage.currentState)) {
 					lib.setNode(stage.currentEditingNode.children[1],{attr:{width:data.root_w,height: data.root_h}});
 					lib.addStyle(stage.currentEditingNode.children[1],{width:data.root_w+"px",height: data.root_h+"px"});					

@@ -1,12 +1,75 @@
-JSpec.describe("MyPRoject",function(){
-	describe('.add()',function(){
-		it('should be 3',function(){
-			expect(2+1).to(be,3);	
-		});
-	});
-	describe('.mul()',function(){
-		it('should be 2',function(){
-			expect(2*1).to(be,2);
+my = {};
+my.lib = {};
+my.lib.getObjectOfStyle = function(element) { //{{{1
+			var listStyle = element.getAttribute("style") || "",
+					i=0,
+					len=0,
+					objectStyle={},
+					cssValue="";
+			if(listStyle)
+			{
+				listStyle = listStyle.split(";");
+				// example ["top:45px","left:67px",...]
+				for(i=0,len=listStyle.length;i<len;i++) 
+				{
+					//each item = "top:45px"
+					if(listStyle[i])
+					{
+						cssValue = listStyle[i].split(":");
+						if(cssValue.length == 2){
+						//Trim 
+						cssValue[0] = cssValue[0].replace(/^[\s]+/g,"");
+						cssValue[1] = cssValue[1].replace(/^[\s]+/g,"");
+						cssValue[0] = cssValue[0].replace(/[\s]+$/g,"");
+						cssValue[1] = cssValue[1].replace(/[\s]+$/g,"");
+
+						objectStyle[cssValue[0]] = cssValue[1];
+						}
+					}
+				}	
+
+			}
+			return objectStyle;
+		}; //}}}
+	my.lib.setObjectOfStyle = function(element,objectStyle) { //{{{1
+		var listStyle="",
+				item;
+		for(item in objectStyle)
+		{
+			if(item.substr(0,1) != "_"){
+				listStyle = listStyle.concat(item+":"+objectStyle[item]+";");
+			}
+		}
+		element.setAttribute("style",listStyle);
+	}; //}}}
+	my.lib.addStyle = function(element,List) { //{{{1
+		var objStyle = this.getObjectOfStyle(element),item;
+		for(item in List)
+			{
+				if(item.substr(0,1) != "_"){
+					objStyle[item] = List[item];
+				}
+			}
+		this.setObjectOfStyle(element,objStyle);
+	}; //}}}
+	my.lib.removeStyle = function(element,List) { //{{{1
+			var objStyle = this.getObjectOfStyle(element),i,len;
+			for(i=0,len=List.length;i<len;i++)
+			{
+				if(objStyle[List[i]])
+				{
+					delete objStyle[List[i]];
+				}
+			}
+			this.setObjectOfStyle(element,objStyle);
+	}; //}}}
+JSpec.describe("Lib",function(){
+	describe('.addStyle()',function(){
+		it('test i',function(){
+			a = document.createElement("div");
+			a.setAttribute("style","width:10px;height:10px;");
+			my.lib.addStyle(a,{"position":"absolute"});
+			expect(a.getAttribute("style")).to(be,"");
 		});
 	});
 });
