@@ -1376,9 +1376,11 @@ var Jerboa = (function(my){
 		lib.addEvent(document,"keydown",keyboard);
 	};//}}}
 	var destroy = function(){//{{{
-		document.body.removeChild(ui.core);
+		restoreNormalState();
+		console.log(ui.core.parentNode);
+		ui.core.parentNode.removeChild(ui.core);
 		for(i=0,len=document.styleSheets.length;i<len;i++) {
-			if(/jerboa\.css/i.test(document.styleSheets[i].href)) {
+			if(/core\.css/i.test(document.styleSheets[i].href)) {
 				document.getElementsByTagName("head")[0].removeChild(document.styleSheets[i].ownerNode);
 				break;
 			}
@@ -1386,8 +1388,9 @@ var Jerboa = (function(my){
 		if(mode == "editor"){
 			lib.removeEvent(document,"submit",onSubmit);
 		}
-		restoreNormalState();
 		document.body.removeChild(box.getElement());
+		if(mode == "editor") {textarea.value = my.getContent();}
+		else {textarea.innerHTML = my.getContent();}
 		lib.removeClass(textarea,"hide");
 		lib.removeEvent(document,"click",click);
 		lib.removeEvent(document,"dblclick",dbclick);
