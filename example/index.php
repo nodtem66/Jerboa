@@ -19,7 +19,7 @@ $h = <<<HTMLBLOCK
 <html>
 	<head>
 		<title>Jerboa Stupid</title>
-		<link rel="stylesheet" type="tex/css" href="main.css" />
+		<link rel="stylesheet" type="text/css" href="main.css" />
 <script src="../build/loader.js"></script>
 <script language="javascript" type="text/javascript" src="js/tinymce/jscripts/tiny_mce/tiny_mce.js"></script>
 	</head>

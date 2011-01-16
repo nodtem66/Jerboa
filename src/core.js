@@ -251,10 +251,12 @@ var Jerboa = (function(my) {
 		if(xmlhttp.readyState == 4)
 		{
 			if(xmlhttp.status == 200){
-				if(DEBUG) {console.log("Jerboa send complete");}
+				//if(DEBUG) {console.log("Jerboa send complete");}
+				alert("send");
 			}
 			else{
-				if(DEBUG) {console.log("Jerboa send fail");}
+				//if(DEBUG) {console.log("Jerboa send fail");}
+				alert("fail");
 			}
 		}
 
@@ -355,7 +357,6 @@ var Jerboa = (function(my) {
 
 	return my;
 }(Jerboa || {})); //}}}
-
 /*
  * Jerboa Core
  * version: 0.01
@@ -431,8 +432,8 @@ var Jerboa = (function(my){
 	};//}}}
 	var Stage = function(eleTextArea){ //{{{2
 		var textHTML = "",stage = null,layer=[],node,screen={},old_content,
-				stageHeight=config.width || eleTextArea.offsetHeight,
-				stageWidth=config.height || eleTextArea.offsetWidth;
+				stageHeight=config.height || eleTextArea.offsetHeight,
+				stageWidth=config.width || eleTextArea.offsetWidth;
 		if(eleTextArea.nodeName.toLowerCase() == "textarea"){
 			textHTML = eleTextArea.value.replace(/&lt;/ig,"<").replace(/&gt;/ig,">");
 			stage = lib.setNode({attr: {id: "jb-stage"},html: textHTML});
@@ -475,7 +476,7 @@ var Jerboa = (function(my){
 			for(i=0,len=layer[0].children.length;i<len;i++){
 				height += layer[0].children[i].offsetHeight;
 			}
-			if(DEBUG) {console.log("Page height: "+height);}
+			//if(DEBUG) {console.log("Page height: "+height);}
 			height = (height>300)? height : 300;
 			this.setHeight(height);
 			if(mode == "editor") { ui.option.setValue([height,0,0]); }
@@ -626,7 +627,7 @@ var Jerboa = (function(my){
 			index = (index+1) % size;
 			flen = 1;
 			circularList[index] = data;
-			if(DEBUG) {console.log("history: save");}
+			//if(DEBUG) {console.log("history: save");}
 
 		};
 		this.undo = function(){
@@ -635,7 +636,7 @@ var Jerboa = (function(my){
 				index = (index-1 >= 0)? index-1 : size-1;
 				blen--;flen++;
 				callback(circularList[index]);
-				if(DEBUG) {console.log("history: undo");}
+				//if(DEBUG) {console.log("history: undo");}
 				//if(DEBUG) console.log("("+circularList[index]+")",blen,index,flen);
 			}
 		};
@@ -645,7 +646,7 @@ var Jerboa = (function(my){
 				index = (index+1) % size;
 				blen++;flen--;
 				callback(circularList[index]);
-				if(DEBUG) {console.log("history: redo");}
+				//if(DEBUG) {console.log("history: redo");}
 				//if(DEBUG) console.log("("+circularList[index]+")",blen,index,flen);
 			}
 		};
@@ -943,7 +944,7 @@ var Jerboa = (function(my){
 							events[data.event][i](data);
 						}				
 					}
-					if(DEBUG) {console.log(eventName);}
+					//if(DEBUG) {console.log(eventName);}
 				};
 				this.listen = function(arrayEventName,callback,scope){
 					if(typeof arrayEventName === "string"){
@@ -982,7 +983,7 @@ var Jerboa = (function(my){
 	hasImplements(my.lib,Library);//}}}
 	var lib = my.lib;delete my.lib;//{{{2
 	var path = my.path;delete my.path;
-	var DEBUG = true;
+	//var DEBUG = true;
 	var usedModule = {},ui = {},config = {},modules = {},stage = null,textarea = null,cache = {},
 			box = new BoxManager(),
 			history = new History(10, function(data){stage.getLayer().innerHTML = data;}),
@@ -1004,7 +1005,7 @@ var Jerboa = (function(my){
 			modules[moduleName].init(config[moduleName]);
 		}
 	};
-	for(i=0,len=my.tempRegister.length;i<len;i++){
+	for(var i=0,len=my.tempRegister.length;i<len;i++){
 		my.register.apply(null,my.tempRegister[i]);
 	}
 	delete my.tempRegister;
@@ -1017,6 +1018,18 @@ var Jerboa = (function(my){
 		init();
 	};
 	//}}}
+	my.dismiss = function(){//{{{
+		destroy();
+		history.clear();
+		mode="editor";
+		usedModule ={};
+		ui = {};
+		config = {};
+		modules = {};
+		stage= null;
+		textarea = null;
+		cache = {};
+	};//}}}
 	my.getContent = function(){ //{{{
 		var returnHTML = "";
 		returnHTML = stage.getElement().innerHTML;
@@ -1302,14 +1315,19 @@ var Jerboa = (function(my){
 			}
 		}
 	};//}}}
+	var onSubmit = function(){//{{{
+		textarea.value = my.getContent();
+	};//}}}
 	var init = function(){//{{{
-		var documentFragment = document.createDocumentFragment(),tempNode;
+		var documentFragment = document.createDocumentFragment(),tempNode,
+				uicoreWidth = config.width || textarea.offsetWidth - 2;
 		stage = new Stage(textarea);		
 		if(mode == "native"){
-			console.log("native");
+			tempNode = null;
+			//console.log("native");
 		} else {
 			//construct UI
-			ui.core = lib.setNode({attr:{id: "jb-a","style":"width:"+(textarea.offsetWidth-2)+"px;"},event: {add: "mousedown",fn: function(e){
+			ui.core = lib.setNode({attr:{id: "jb-a","style":"width:"+uicoreWidth+"px;"},event: {add: "mousedown",fn: function(e){
 				//Prevent SelectText in Stage or UI panel
 				lib.getEvent(e).preventDefault();return false;
 			}
@@ -1343,7 +1361,7 @@ var Jerboa = (function(my){
 				}
 			}
 			sandbox.listen("click-button-option",function(){var _height = ui.option.getValue()[0];if(!isNaN(_height)){stage.setHeight(_height);}box.hide();});
-			lib.addEvent(document,"submit",function(){textarea.value = my.getContent();});
+			lib.addEvent(document,"submit",onSubmit);
 			//Disable textarea
 			lib.addClass(textarea,"hide");		
 			documentFragment.appendChild(ui.core);
@@ -1365,7 +1383,12 @@ var Jerboa = (function(my){
 				break;
 			}
 		}
+		if(mode == "editor"){
+			lib.removeEvent(document,"submit",onSubmit);
+		}
 		restoreNormalState();
+		document.body.removeChild(box.getElement());
+		lib.removeClass(textarea,"hide");
 		lib.removeEvent(document,"click",click);
 		lib.removeEvent(document,"dblclick",dbclick);
 		lib.removeEvent(document,"keydown",keyboard);
