@@ -45,4 +45,4 @@ var Jerboa = (function(my){
 	};
 	return my;
 }(Jerboa || {}));
-Jerboa.loadStyle("css/core").load("core").load("plugins/fancyinsert").load("plugins/textmenu");
+Jerboa.loadStyle("css/core").load("../src/core").load("plugins/fancyinsert").load("plugins/textmenu");

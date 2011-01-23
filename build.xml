@@ -8,15 +8,28 @@
 			<include name="**/yui*compressor*.jar" />
 		</fileset>
 	</path>
+	<path id="gc.classpath">
+		<fileset dir="${dir.lib}/">
+			<include name="**/*compiler*.jar" />
+		</fileset>
+	</path>
 	<path id="jslint.classpath">
 		<fileset dir="${dir.lib}">
 			<include name="**/jslint4java*.jar" />
 		</fileset>
 	</path>
 	<property name="jslint.path" refid="jslint.classpath" />
+	<property name="gc.path" refid="gc.classpath" />
 	<property name="yui.path" refid="yui.classpath" />
 	<taskdef name="jslint" classname="com.googlecode.jslint4java.ant.JSLintTask" classpath="${jslint.path}" />
-
+	
+	<target name="clear">
+		<delete>
+			<fileset dir="${dir.build}/">
+				<include name="*" />
+			</fileset>
+		</delete>
+	</target>
 	<target name="check">
 		<echo message="JsLint" />
 		<echo message="Checking ${dir.src}" />
@@ -53,8 +66,11 @@
 		</copy>		
 	</target>
 
-	<target name="js-build" depends="js-prebuild">
-		<echo message="Minify Javascript" />
+	<target name="js-build" depends="js-prebuild,js-build-yui">
+	</target>
+
+	<target name="js-build-yui">
+		<echo message="Minify Javascript YUI" />
 		<apply executable="java" parallel="false">
 			<fileset dir="${dir.src}">
 				<include name="*.js" />
@@ -68,6 +84,24 @@
 			<targetfile/>
 		</apply>
 	</target>
+
+	<target name="js-build-gc">
+		<echo message="Minify Javascript Closure compiler" />
+		<apply executable="java" parallel="false">
+			<fileset dir="${dir.src}">
+				<include name="*.js" />
+				<include name="plugins/*.js" />
+			</fileset>
+			<arg line="-jar" />
+			<arg path="${gc.path}" />
+			<arg line="--js" />
+			<srcfile/>
+			<arg line="--js_output_file" />
+			<mapper type="glob" from="*.js" to="${dir.build}/*.js" />
+			<targetfile/>
+		</apply>
+	</target>
+
 	<target name="css-prebuild">
 		<echo message="Build CSS" />
 		<mkdir dir="${dir.build}/css" />
@@ -109,6 +143,8 @@
 	</target>
 	
 	<target name="build" depends="img-build,css-build,js-build">
+	</target>
+	<target name="build-gc" depends="img-build,css-build,js-prebuild,js-build-gc">
 	</target>
 
 </project>
