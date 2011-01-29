@@ -306,7 +306,7 @@ var Jerboa = (function(my) {
 		@author Nodtem66
 		@param 
 		callback- [Function] function to call
-		scope	- [Object] value of "_my.lib" variable when call function
+		scope	- [Object] value of "this" variable when call function
 		useThrottle - [Number] delay to run function
 		@return
 		Anomymous function 
@@ -318,22 +318,22 @@ var Jerboa = (function(my) {
 
 	Example :
 	1.1 Change scope to "Jerboa" Object
-	_my.lib.curry(function,Jerboa,false) 
+	lib.curry(function,Jerboa,false) 
 	1.2 Change scope to "window" Object
-	_my.lib.curry(function,window,false)
+	lib.curry(function,window,false)
 	1.3 use default scope
-	_my.lib.curry(function,null,false)
+	lib.curry(function,null,false)
 	2. function foo(a,b,c) { alert(a+b-c); }
-	2.1 bar = _my.lib.curry(foo,null,false,5)
+	2.1 bar = lib.curry(foo,null,false,5)
 	bar(6,1)=> 10 (from 5+6-1)
-	2.2 bar = _my.lib.curry(foo,null,false,5,8)
+	2.2 bar = lib.curry(foo,null,false,5,8)
 	bar(9)	=>	4  (from 5+8-9)
 	3.1 Limit in 100 msec can run function in 1 time.
-	_my.lib.curry(function,null,100)
+	lib.curry(function,null,100)
 	3.2 Limit in 1000 msec can run function in 1 time.
-	_my.lib.curry(function,null,1000)
+	lib.curry(function,null,1000)
 	3.3 No limit
-	_my.lib.curry(function,null,0) OR _my.lib.curry(function,null,false)
+	lib.curry(function,null,0) OR lib.curry(function,null,false)
 	*/
 	my.lib.curry = function(callback,scope,useThrottle) {
 		var _scope = scope || window,
@@ -358,8 +358,8 @@ var Jerboa = (function(my) {
 	return my;
 }(Jerboa || {})); //}}}
 /*
- * Jerboa Core
- * version: 0.01
+ * Jerboa core
+ * version: 0.001
  * @Author Jirawat Iamsam-ang
  */
 var Jerboa = (function(my){
@@ -976,7 +976,7 @@ var Jerboa = (function(my){
 			};//}}}
 	//}}}
 	//{{{ Private members
-	var Library= new Interface("Library",["onDomReady","addEvent","removeEvent","getEvent","addClass","removeClass","hasClass","addStyle","removeStyle","setNode","curry","request"]),//{{{2
+	var Library= new Interface("Library",["onDomReady","addEvent","removeEvent","getEvent","addClass","removeClass","hasClass","addStyle","removeStyle","setNode","curry","request","detectMedia"]),//{{{2
 			Module= new Interface("Module",["init","destroy"]),
 			BoxInterface = new Interface("Box",["add","remove","getValue","setValue","getElement","name"]),
 			UI = new Interface("UI",["getValue","setValue","name"]); 

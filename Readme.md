@@ -3,25 +3,19 @@ WYSIWYG editor on fly
 
 ## Current
 
-- New Structure code; 
-- New UI desgin
 - CSS with "LESS" Template
-- Add DELETE CTRL-V shortcut
-- Add Copy/Paste/Cut
+- Copy/Paste/Cut/Delete
+- Undo/Redo
+- alternative on googlecode
 - FancyInsert Plugin
 - Add Text Plugin
-- Add save event
-- Add History
 
 ## Todolist
 
-- Add normal insert
-- Add FontFly
-- Add example on exteen blog
 - Add tutorial
-- Add BBcode
-- Add FancyInsert Upload file
-- Add API Doc
+- Grouping
+- FancyImage Plugin
+- FancyTable Plugin
 
 ## License Agreement
 	
